@@ -187,4 +187,4 @@ if __name__ == '__main__':
         exif_img = make_exif_image(exif)
         # 拼接两张图片
         cnt_img = concat_image(img, exif_img)
-        cnt_img.save(os.path.join(output_dir, file), quality=60)
+        cnt_img.save(os.path.join(output_dir, file), quality=quality)
