@@ -178,13 +178,10 @@ if __name__ == '__main__':
         if 'Orientation' in exif:
             if exif['Orientation'] == 3:
                 img = img.transpose(Transpose.ROTATE_180)
-                # exif['ExifImageWidth'], exif['ExifImageHeight'] = img.width, img.height
             elif exif['Orientation'] == 6:
                 img = img.transpose(Transpose.ROTATE_270)
-                # exif['ExifImageWidth'], exif['ExifImageHeight'] = exif['ExifImageHeight'], exif['ExifImageWidth']
             elif exif['Orientation'] == 8:
                 img = img.transpose(Transpose.ROTATE_90)
-                # exif['ExifImageWidth'], exif['ExifImageHeight'] = exif['ExifImageHeight'], exif['ExifImageWidth']
         exif['ExifImageWidth'], exif['ExifImageHeight'] = img.width, img.height
         exif_img = make_exif_image(exif)
         # 拼接两张图片
