@@ -61,7 +61,7 @@ def get_brand(make):
 # 生成元信息图片
 def make_exif_image(exif):
     font_ratio = .07
-    all_ratio = .15
+    all_ratio = .13
     original_width = exif['ExifImageWidth']
     original_height = exif['ExifImageHeight']
     original_ratio = original_width / original_height
@@ -175,15 +175,17 @@ if __name__ == '__main__':
         img = Image.open(os.path.join(input_dir, file))
         # 生成 exif 图片
         exif = get_exif(img)
-        if exif['Orientation'] == 3:
-            img = img.transpose(Transpose.ROTATE_180)
-        elif exif['Orientation'] == 6:
-            img = img.transpose(Transpose.ROTATE_270)
-            exif['ExifImageWidth'], exif['ExifImageHeight'] = exif['ExifImageHeight'], exif['ExifImageWidth']
-        elif exif['Orientation'] == 8:
-            img = img.transpose(Transpose.ROTATE_90)
-            exif['ExifImageWidth'], exif['ExifImageHeight'] = exif['ExifImageHeight'], exif['ExifImageWidth']
-
+        if 'Orientation' in exif:
+            if exif['Orientation'] == 3:
+                img = img.transpose(Transpose.ROTATE_180)
+                # exif['ExifImageWidth'], exif['ExifImageHeight'] = img.width, img.height
+            elif exif['Orientation'] == 6:
+                img = img.transpose(Transpose.ROTATE_270)
+                # exif['ExifImageWidth'], exif['ExifImageHeight'] = exif['ExifImageHeight'], exif['ExifImageWidth']
+            elif exif['Orientation'] == 8:
+                img = img.transpose(Transpose.ROTATE_90)
+                # exif['ExifImageWidth'], exif['ExifImageHeight'] = exif['ExifImageHeight'], exif['ExifImageWidth']
+        exif['ExifImageWidth'], exif['ExifImageHeight'] = img.width, img.height
         exif_img = make_exif_image(exif)
         # 拼接两张图片
         cnt_img = concat_image(img, exif_img)
