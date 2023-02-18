@@ -1,20 +1,38 @@
-import configparser
 import math
 import os
 from datetime import datetime
-from enum import Enum
 
+import yaml
 from PIL import Image, ImageDraw
 from PIL import ImageFont
 from PIL.ExifTags import TAGS
 from PIL.Image import Transpose
 
+# 布局，全局配置
+FONT_SIZE = 240
+BORDER_PIXEL = 60
+UP_DOWN_MARGIN = FONT_SIZE + BORDER_PIXEL
+LEFT_RIGHT_MARGIN = FONT_SIZE + BORDER_PIXEL
+GAP_PIXEL = 90
 
-# 品牌枚举
-class Make(Enum):
-    NIKON = 'NIKON'
-    CANON = 'CANON'
-    SONY = 'SONY'
+# 读取配置
+with open('config.yaml', 'r') as f:
+    config = yaml.safe_load(f)
+
+# 读取输入、输出配置
+input_dir = config['base']['input_dir']
+output_dir = config['base']['output_dir']
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
+quality = int(config['base']['quality'])
+
+# 读取字体配置
+font = ImageFont.truetype(config['base']['font'], FONT_SIZE)
+bold_font = ImageFont.truetype(config['base']['bold_font'], FONT_SIZE)
+
+# 读取 logo 配置
+logo_enable = config['logo']['enable']
+makes = config['logo']['makes']
 
 
 # 读取 exif 信息，包括相机机型、相机品牌、图片尺寸、镜头焦距、光圈大小、曝光时间、ISO 和拍摄时间
@@ -38,24 +56,16 @@ def parse_datetime(datetime_string):
 
 
 # 添加 logo
-def append_logo(exif_img, make):
+def append_logo(exif_img, exif):
     logo = None
-    if make == Make.NIKON:
-        logo = Image.open(nikon_logo_path)
-    elif make == Make.CANON:
-        logo = Image.open(canon_logo_path)
-    elif make == Make.SONY:
-        logo = Image.open(sony_logo_path)
+    if 'Make' in exif:
+        make = exif['Make']
+        for m in makes.values():
+            if m['id'] in make:
+                logo = Image.open(m['path'])
     if logo is not None:
         logo = logo.resize((exif_img.height, exif_img.height), Image.Resampling.LANCZOS)
         exif_img.paste(logo, (0, 0))
-
-
-# 匹配相机品牌
-def get_brand(make):
-    for name, member in Make.__members__.items():
-        if name in make:
-            return member
 
 
 # 生成元信息图片
@@ -113,7 +123,7 @@ def make_exif_image(exif):
         (math.floor(shot_param_img.width / shot_param_img.height * math.floor(original_width * font_ratio)),
          math.floor(original_width * font_ratio)), Image.Resampling.LANCZOS)
     if logo_enable:
-        append_logo(exif_img, get_brand(make))
+        append_logo(exif_img, exif)
         left_margin += exif_img.height
     exif_img.paste(brand_img, (left_margin, math.floor((all_ratio - font_ratio) / 2 * original_width)))
     exif_img.paste(shot_param_img, (exif_img.width - shot_param_img.width - right_margin,
@@ -139,34 +149,6 @@ def get_file_list():
                 file_list.append(file)
     return file_list
 
-
-# 布局
-FONT_SIZE = 240
-BORDER_PIXEL = 60
-UP_DOWN_MARGIN = FONT_SIZE + BORDER_PIXEL
-LEFT_RIGHT_MARGIN = FONT_SIZE + BORDER_PIXEL
-GAP_PIXEL = 90
-
-# 读取配置
-con = configparser.ConfigParser()
-con.read('./config.ini', encoding='utf-8')
-
-# 读取输入、输出配置
-input_dir = con.get('base', 'input_dir')
-output_dir = con.get('base', 'output_dir')
-if not os.path.exists(output_dir):
-    os.makedirs(output_dir)
-quality = con.getint('base', 'quality')
-
-# 读取字体配置
-font = ImageFont.truetype(con.get('base', 'font'), FONT_SIZE)
-bold_font = ImageFont.truetype(con.get('base', 'bold_font'), FONT_SIZE)
-
-# 读取 logo 配置
-logo_enable = con.getboolean('logo', 'enable')
-nikon_logo_path = con.get('logo', 'nikon')
-canon_logo_path = con.get('logo', 'canon')
-sony_logo_path = con.get('logo', 'sony')
 
 if __name__ == '__main__':
     file_list = get_file_list()
