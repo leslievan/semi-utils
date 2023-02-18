@@ -24,7 +24,7 @@ input_dir = config['base']['input_dir']
 output_dir = config['base']['output_dir']
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
-quality = int(config['base']['quality'])
+quality = config['base']['quality']
 
 # 读取字体配置
 font = ImageFont.truetype(config['base']['font'], FONT_SIZE)
