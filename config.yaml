@@ -12,7 +12,7 @@ logo:
             id: NIKON
             path: ./logos/nikon.png
         canon:
-            id: CANON
+            id: Canon
             path: ./logos/canon.png
         sony:
             id: SONY
