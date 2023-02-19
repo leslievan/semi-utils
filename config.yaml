@@ -20,3 +20,12 @@ logo:
         pentax:
             id: PENTAX
             path: ./logos/pentax.png
+        panasonic:
+            id: Panasonic
+            path: ./logos/panasonic.png
+        olympus:
+            id: Olympus
+            path: ./logos/olympus_blue_gold.png
+        fujifilm:
+            id: FUJIFILM
+            path: ./logos/fujifilm.png
