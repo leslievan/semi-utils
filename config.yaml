@@ -29,3 +29,24 @@ logo:
         fujifilm:
             id: FUJIFILM
             path: ./logos/fujifilm.png
+        leica:
+            id: leica
+            path: ./logos/leica_logo.png
+        rioch:
+            id: RIOCH
+            path: ./logos/ricoh.png
+        hasselblad:
+            id: HASSELBLAD
+            path: ./logos/hasselblad.png
+
+left:
+    enable: true
+    # 可选项有厂商 (Company)，机型 (Model) 和镜头 (Lens)
+    first: Company
+    second: Model
+
+right:
+    enable: true
+    # 可选项有拍摄参数 (Param) 和拍摄日期 (Date)
+    first: Param
+    second: Date
