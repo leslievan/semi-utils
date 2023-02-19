@@ -37,15 +37,12 @@ makes = config['logo']['makes']
 
 # 读取 exif 信息，包括相机机型、相机品牌、图片尺寸、镜头焦距、光圈大小、曝光时间、ISO 和拍摄时间
 def get_exif(image):
-    _exif_attrs = {'Model', 'Make', 'ExifImageWidth', 'ExifImageHeight', 'FocalLength', 'FNumber', 'ExposureTime',
-                   'DateTimeOriginal', 'ISOSpeedRatings', 'Orientation'}
     _exif = {}
     info = image._getexif()
     if info:
         for attr, value in info.items():
             decoded_attr = TAGS.get(attr, attr)
-            if decoded_attr in _exif_attrs:
-                _exif[decoded_attr] = value
+            _exif[decoded_attr] = value
 
     return _exif
 
