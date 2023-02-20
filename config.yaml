@@ -6,7 +6,7 @@ base:
   quality: 100
 
 logo: # true or false
-  enable: true
+  enable: false
   makes:
     nikon:
       id: NIKON
@@ -44,6 +44,9 @@ layout: # you can select one type in ['normal'], may more type supports later
   type: normal
   elements: # the information displayed in the watermark
     # you can select from ['Date', 'Model', 'LensModel', 'Param', 'Make', 'None']
+    # WARNING: you can change the value of id, but you can't remove any line below!
+    # WARNING: you can change the value of id, but you can't remove any line below!
+    # WARNING: you can change the value of id, but you can't remove any line below!
     - id: Model
     - id: Make
     - id: Param
