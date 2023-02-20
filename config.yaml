@@ -5,7 +5,7 @@ base:
   output_dir: ./output
   quality: 100
 
-logo:
+logo: # true or false
   enable: true
   makes:
     nikon:
@@ -38,3 +38,13 @@ logo:
     hasselblad:
       id: HASSELBLAD
       path: ./logos/hasselblad.png
+
+layout: # you can select one type in ['normal'], may more type supports later
+  # you can get more information in https://lsvm.xyz/2023/02/semi-utils-intro/
+  type: normal
+  elements: # the information displayed in the watermark
+    # you can select from ['Date', 'Model', 'LensModel', 'Param', 'Make', 'None']
+    - id: Model
+    - id: Make
+    - id: Param
+    - id: None

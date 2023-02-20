@@ -1,12 +1,12 @@
 import math
 import os
-from datetime import datetime
 
 import yaml
 from PIL import Image, ImageDraw
 from PIL import ImageFont
-from PIL.ExifTags import TAGS
 from PIL.Image import Transpose
+
+from utils import parse_datetime, get_file_list, concat_img, get_exif, get_str_from_exif
 
 # 布局，全局配置
 FONT_SIZE = 240
@@ -35,23 +35,6 @@ logo_enable = config['logo']['enable']
 makes = config['logo']['makes']
 
 
-# 读取 exif 信息，包括相机机型、相机品牌、图片尺寸、镜头焦距、光圈大小、曝光时间、ISO 和拍摄时间
-def get_exif(image):
-    _exif = {}
-    info = image._getexif()
-    if info:
-        for attr, value in info.items():
-            decoded_attr = TAGS.get(attr, attr)
-            _exif[decoded_attr] = value
-
-    return _exif
-
-
-# 修改日期格式
-def parse_datetime(datetime_string):
-    return datetime.strptime(datetime_string, '%Y:%m:%d %H:%M:%S')
-
-
 # 添加 logo
 def append_logo(exif_img, exif):
     logo = None
@@ -65,8 +48,67 @@ def append_logo(exif_img, exif):
         exif_img.paste(logo, (0, 0))
 
 
+def make_two_line_img(first, second):
+    mask_first = bold_font.getmask(first)
+    mask_second = font.getmask(second)
+    m1_width = mask_first.size[0] if first != '' else bold_font.getmask('A').size[0]
+    m2_width = mask_second.size[0] if second != '' else font.getmask('A').size[0]
+    m1_height = mask_first.size[1] if first != '' else bold_font.getmask('A').size[1]
+    m2_height = mask_second.size[1] if second != '' else font.getmask('A').size[1]
+    _img = Image.new('RGB', (
+        max(m1_width, m2_width), m1_height + m2_height + GAP_PIXEL * 3),
+                     color='white')
+    draw = ImageDraw.Draw(_img)
+    draw.text((0, 0), first, font=bold_font, fill='black')
+    draw.text((0, m1_height + GAP_PIXEL), second, font=font, fill='gray')
+    return _img
+
+
+def make_normal_watermark(exif, infos):
+    original_width, original_height = infos['original_width'], infos['original_height']
+    all_ratio, font_ratio = infos['all_ratio'], infos['font_ratio']
+    # 位置 1
+    c_11 = get_str_from_exif(exif, elements[0])
+    c_12 = get_str_from_exif(exif, elements[1])
+    img_1 = make_two_line_img(c_11, c_12)
+
+    # 位置 2
+    c_21 = get_str_from_exif(exif, elements[2])
+    c_22 = get_str_from_exif(exif, elements[3])
+    img_2 = make_two_line_img(c_21, c_22)
+
+    img_watermark = Image.new('RGB', (original_width, math.floor(all_ratio * original_width)), color='white')
+    left_margin = BORDER_PIXEL
+    right_margin = BORDER_PIXEL
+
+    # 根据照片长缩放水印元素
+    img_1_x_length = math.floor(img_1.width / img_1.height * math.floor(original_width * font_ratio))
+    img_2_x_length = math.floor(img_2.width / img_2.height * math.floor(original_width * font_ratio))
+    img_1_y_length = math.floor(original_width * font_ratio)
+    img_2_y_length = math.floor(original_width * font_ratio)
+    img_1 = img_1.resize((img_1_x_length, img_1_y_length), Image.Resampling.LANCZOS)
+    img_2 = img_2.resize((img_2_x_length, img_2_y_length), Image.Resampling.LANCZOS)
+
+    # 是否添加 logo
+    if logo_enable:
+        append_logo(img_watermark, exif)
+        # 计算边界
+        left_margin += img_watermark.height
+
+    # 拼接元素 1 和元素 2
+    img_watermark.paste(img_1, (left_margin, math.floor((all_ratio - font_ratio) / 2 * original_width)))
+    img_watermark.paste(img_2, (
+        img_watermark.width - img_2.width - right_margin, math.floor((all_ratio - font_ratio) / 2 * original_width)))
+
+    return img_watermark
+
+
+elements = config['layout']['elements']
+
+
 # 生成元信息图片
-def make_exif_image(exif):
+def make_exif_img(exif, layout):
+    # 修改水印长宽比
     font_ratio = .07
     all_ratio = .13
     original_width = exif['ExifImageWidth']
@@ -76,84 +118,26 @@ def make_exif_image(exif):
         font_ratio = .07
         all_ratio = .1
 
-    # 型号
-    model = exif['Model']
-    make = exif['Make']
-    model_mask = bold_font.getmask(model)
-    make_mask = font.getmask(make)
-    brand_img = Image.new('RGB',
-                          (max(model_mask.size[0], make_mask.size[0]),
-                           model_mask.size[1] + make_mask.size[1] + GAP_PIXEL * 3),
-                          color='white')
-    brand_draw = ImageDraw.Draw(brand_img)
-    brand_draw.text((0, 0), model, font=bold_font, fill='black')
-    brand_draw.text((0, model_mask.size[1] + GAP_PIXEL), make, font=font, fill='gray')
-
-    # 参数
-    focal_length = str(int(exif['FocalLength'])) + 'mm'
-    f_number = 'F' + str(exif['FNumber'])
-    exposure_time = str(exif['ExposureTime'].real)
-    iso = 'ISO' + str(exif['ISOSpeedRatings'])
-    shot_param = '  '.join((focal_length, f_number, exposure_time, iso))
-
-    original_date_time = datetime.strftime(parse_datetime(exif['DateTimeOriginal']), '%Y-%m-%d %H:%M')
-    shot_param_mask = bold_font.getmask(shot_param)
-    original_date_time_mask = font.getmask(original_date_time)
-
-    shot_param_img = Image.new('RGB',
-                               (max(shot_param_mask.size[0], original_date_time_mask.size[0]),
-                                shot_param_mask.size[1] + original_date_time_mask.size[1] + GAP_PIXEL * 3),
-                               color='white')
-
-    shot_param_draw = ImageDraw.Draw(shot_param_img)
-    shot_param_draw.text((0, 0), shot_param, font=bold_font, fill='black')
-    shot_param_draw.text((0, shot_param_mask.size[1] + GAP_PIXEL), original_date_time, font=font, fill='gray')
-
-    exif_img = Image.new('RGB', (original_width, math.floor(all_ratio * original_width)), color='white')
-    left_margin = BORDER_PIXEL
-    right_margin = BORDER_PIXEL
-
-    brand_img = brand_img.resize(
-        (math.floor(brand_img.width / brand_img.height * math.floor(original_width * font_ratio)),
-         math.floor(original_width * font_ratio)), Image.Resampling.LANCZOS)
-    shot_param_img = shot_param_img.resize(
-        (math.floor(shot_param_img.width / shot_param_img.height * math.floor(original_width * font_ratio)),
-         math.floor(original_width * font_ratio)), Image.Resampling.LANCZOS)
-    if logo_enable:
-        append_logo(exif_img, exif)
-        left_margin += exif_img.height
-    exif_img.paste(brand_img, (left_margin, math.floor((all_ratio - font_ratio) / 2 * original_width)))
-    exif_img.paste(shot_param_img, (exif_img.width - shot_param_img.width - right_margin,
-                                    math.floor((all_ratio - font_ratio) / 2 * original_width)))
-
-    return exif_img.resize((original_width, math.floor(all_ratio * original_width)), Image.Resampling.LANCZOS)
-
-
-# 拼接原图片和 exif 图片
-def concat_image(img_x, img_y):
-    img = Image.new('RGB', (img_x.width, img_x.height + img_y.height), color='white')
-    img.paste(img_x, (0, 0))
-    img.paste(img_y, (0, img_x.height))
-    return img
-
-
-# 读取文件列表
-def get_file_list():
-    file_list = []
-    for root, dirs, files in os.walk(input_dir):
-        for file in files:
-            if 'jpg' in file or 'jpeg' in file or 'JPG' in file or 'JPEG' in file:
-                file_list.append(file)
-    return file_list
+    wm_x_length = original_width
+    wm_y_length = math.floor(all_ratio * original_width)
+    img_watermark = Image.new('RGB', (wm_x_length, wm_y_length))
+    settings = {'original_width': original_width, 'original_height': original_height, 'all_ratio': all_ratio,
+                'font_ratio': font_ratio}
+    if layout == 'normal':
+        img_watermark = make_normal_watermark(exif, settings)
+    # 根据照片长缩放水印
+    return img_watermark.resize((wm_x_length, wm_y_length), Image.Resampling.LANCZOS)
 
 
 if __name__ == '__main__':
-    file_list = get_file_list()
+    file_list = get_file_list(input_dir)
+    layout = config['layout']['type']
     for file in file_list:
         # 打开图片
         img = Image.open(os.path.join(input_dir, file))
         # 生成 exif 图片
         exif = get_exif(img)
+        # 修复图片方向
         if 'Orientation' in exif:
             if exif['Orientation'] == 3:
                 img = img.transpose(Transpose.ROTATE_180)
@@ -162,7 +146,8 @@ if __name__ == '__main__':
             elif exif['Orientation'] == 8:
                 img = img.transpose(Transpose.ROTATE_90)
         exif['ExifImageWidth'], exif['ExifImageHeight'] = img.width, img.height
-        exif_img = make_exif_image(exif)
+
+        exif_img = make_exif_img(exif, layout)
         # 拼接两张图片
-        cnt_img = concat_image(img, exif_img)
+        cnt_img = concat_img(img, exif_img)
         cnt_img.save(os.path.join(output_dir, file), quality=quality)
