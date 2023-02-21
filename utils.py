@@ -54,8 +54,8 @@ def get_str_from_exif(exif, field):
 
 
 def get_param_str_from_exif(exif):
-    focal_length = str(int(exif['FocalLength'])) + 'mm'
-    f_number = 'F' + str(exif['FNumber'])
-    exposure_time = str(exif['ExposureTime'].real)
-    iso = 'ISO' + str(exif['ISOSpeedRatings'])
+    focal_length = str(int(exif['FocalLength'])) + 'mm' if 'FocalLength' in exif else ''
+    f_number = 'F' + str(exif['FNumber']) if 'FNumber' in exif else ''
+    exposure_time = str(exif['ExposureTime'].real) if 'ExposureTime' in exif else ''
+    iso = 'ISO' + str(exif['ISOSpeedRatings']) if 'ISOSpeedRatings' in exif else ''
     return '  '.join((focal_length, f_number, exposure_time, iso))
