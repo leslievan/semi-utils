@@ -18,13 +18,13 @@ logo: # true or false
       id: SONY
       path: ./logos/sony.png
     pentax:
-      id: PENTAX
+      id: RIOCH
       path: ./logos/pentax.png
     panasonic:
       id: Panasonic
       path: ./logos/panasonic.png
     olympus:
-      id: Olympus
+      id: OLYMPUS
       path: ./logos/olympus_blue_gold.png
     fujifilm:
       id: FUJIFILM
