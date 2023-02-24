@@ -48,16 +48,14 @@ def append_logo(exif_img, exif):
         exif_img.paste(logo, (0, 0))
 
 
-def make_two_line_img(first, second):
+def make_two_line_img(first, second, color='white'):
     mask_first = bold_font.getmask(first)
     mask_second = font.getmask(second)
     m1_width = mask_first.size[0] if first != '' else bold_font.getmask('A').size[0]
     m2_width = mask_second.size[0] if second != '' else font.getmask('A').size[0]
     m1_height = mask_first.size[1] if first != '' else bold_font.getmask('A').size[1]
     m2_height = mask_second.size[1] if second != '' else font.getmask('A').size[1]
-    _img = Image.new('RGB', (
-        max(m1_width, m2_width), m1_height + m2_height + GAP_PIXEL * 3),
-                     color='white')
+    _img = Image.new('RGB', (max(m1_width, m2_width), m1_height + m2_height + GAP_PIXEL * 3), color=color)
     draw = ImageDraw.Draw(_img)
     draw.text((0, 0), first, font=bold_font, fill='black')
     draw.text((0, m1_height + GAP_PIXEL), second, font=font, fill='gray')
@@ -129,6 +127,22 @@ def make_exif_img(exif, layout):
     return img_watermark.resize((wm_x_length, wm_y_length), Image.Resampling.LANCZOS)
 
 
+def add_white_frame(pil_img, frame_width):
+    width, height = pil_img.size
+    # create a blank image with wider canvas
+    canvas = Image.new('RGB', (width + frame_width * 2, height + frame_width), color='white')
+    # past the original image onto the blank canvas
+    canvas.paste(pil_img, (frame_width, frame_width))
+    return canvas
+
+
+white_margin_enable = config['layout']['white_margin']['enable']
+white_margin_width = config['layout']['white_margin']['width']
+if white_margin_width > 30:
+    white_margin_width = 30
+if white_margin_width < 0:
+    white_margin_width = 0
+
 if __name__ == '__main__':
     file_list = get_file_list(input_dir)
     layout = config['layout']['type']
@@ -150,4 +164,6 @@ if __name__ == '__main__':
         exif_img = make_exif_img(exif, layout)
         # 拼接两张图片
         cnt_img = concat_img(img, exif_img)
+        if white_margin_enable:
+            cnt_img = add_white_frame(cnt_img, int(white_margin_width * img.width / 100))
         cnt_img.save(os.path.join(output_dir, file), quality=quality)

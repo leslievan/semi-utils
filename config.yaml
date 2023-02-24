@@ -6,7 +6,7 @@ base:
   quality: 100
 
 logo: # true or false
-  enable: false
+  enable: true
   makes:
     nikon:
       id: NIKON
@@ -47,7 +47,12 @@ layout: # you can select one type in ['normal'], may more type supports later
     # WARNING: you can change the value of id, but you can't remove any line below!
     # WARNING: you can change the value of id, but you can't remove any line below!
     # WARNING: you can change the value of id, but you can't remove any line below!
+    # Use Custom to customize your slogan
     - id: Model
     - id: Make
     - id: Param
-    - id: None
+    - id: Custom
+      value: Photo By Semi-Utils
+  white_margin:
+    enable: true
+    width: 3

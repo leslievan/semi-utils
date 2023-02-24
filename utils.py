@@ -41,6 +41,9 @@ def get_exif(image):
 def get_str_from_exif(exif, field):
     if 'id' not in field:
         return ''
+    if field.get('id') == 'Custom':
+        return field.get('value') if 'value' in field else ''
+
     field_id = field.get('id')
     if 'Param' == field_id:
         return get_param_str_from_exif(exif)
