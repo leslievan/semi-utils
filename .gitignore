@@ -1,4 +1,5 @@
 .idea
 .DS_Store
 release
-*.jpg
+input/*.jpg
+output/*.jpg
