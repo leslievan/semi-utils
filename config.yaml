@@ -18,7 +18,7 @@ logo: # true or false
       id: SONY
       path: ./logos/sony.png
     pentax:
-      id: RIOCH
+      id: PENTAX
       path: ./logos/pentax.png
     panasonic:
       id: Panasonic
