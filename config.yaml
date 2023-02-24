@@ -39,9 +39,9 @@ logo: # true or false
       id: HASSELBLAD
       path: ./logos/hasselblad.png
 
-layout: # you can select one type in ['normal'], may more type supports later
+layout: # you can select one type in ['normal', 'normal_with_right_logo'], may more type supports later
   # you can get more information in https://lsvm.xyz/2023/02/semi-utils-intro/
-  type: normal
+  type: normal_with_right_logo
   elements: # the information displayed in the watermark
     # you can select from ['Date', 'Model', 'LensModel', 'Param', 'Make', 'None']
     # WARNING: you can change the value of id, but you can't remove any line below!
@@ -54,5 +54,5 @@ layout: # you can select one type in ['normal'], may more type supports later
     - id: Custom
       value: Photo By Semi-Utils
   white_margin:
-    enable: true
+    enable: false
     width: 3

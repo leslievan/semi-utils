@@ -48,6 +48,15 @@ def append_logo(exif_img, exif):
         exif_img.paste(logo, (0, 0))
 
 
+def append_logo2(img):
+    logo = Image.open('./logos/static_logo.png')
+    logo = logo.resize((math.floor(img.height * 1.25), img.height), Image.Resampling.LANCZOS)
+    new_img = Image.new('RGB', (img.width + logo.width, img.height), color='white')
+    new_img.paste(logo, (0, 0))
+    new_img.paste(img, (logo.width, 0))
+    return new_img
+
+
 def make_two_line_img(first, second, color='white'):
     mask_first = bold_font.getmask(first)
     mask_second = font.getmask(second)
@@ -88,7 +97,9 @@ def make_normal_watermark(exif, infos):
     img_2 = img_2.resize((img_2_x_length, img_2_y_length), Image.Resampling.LANCZOS)
 
     # 是否添加 logo
-    if logo_enable:
+    if layout == 'normal_with_right_logo':
+        img_2 = append_logo2(img_2)
+    elif logo_enable:
         append_logo(img_watermark, exif)
         # 计算边界
         left_margin += img_watermark.height
@@ -121,7 +132,7 @@ def make_exif_img(exif, layout):
     img_watermark = Image.new('RGB', (wm_x_length, wm_y_length))
     settings = {'original_width': original_width, 'original_height': original_height, 'all_ratio': all_ratio,
                 'font_ratio': font_ratio}
-    if layout == 'normal':
+    if layout == 'normal' or layout == 'normal_with_right_logo':
         img_watermark = make_normal_watermark(exif, settings)
     # 根据照片长缩放水印
     return img_watermark.resize((wm_x_length, wm_y_length), Image.Resampling.LANCZOS)
