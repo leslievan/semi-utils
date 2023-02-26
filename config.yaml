@@ -43,7 +43,7 @@ layout: # you can select one type in ['normal', 'normal_with_right_logo'], may m
   # you can get more information in https://lsvm.xyz/2023/02/semi-utils-intro/
   type: normal
   elements: # the information displayed in the watermark
-    # you can select from ['Date', 'Model', 'LensModel', 'Param', 'Make', 'None']
+    # you can select from ['Date', 'Model', 'LensModel', 'Param', 'Make', 'None', 'Custom']
     # WARNING: you can change the value of id, but you can't remove any line below!
     # WARNING: you can change the value of id, but you can't remove any line below!
     # WARNING: you can change the value of id, but you can't remove any line below!
