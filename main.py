@@ -1,5 +1,6 @@
 import math
 import os
+import time
 
 import yaml
 from PIL import Image, ImageDraw
@@ -128,6 +129,21 @@ def make_exif_img(exif, layout):
     # 根据照片长缩放水印
     return img_watermark.resize((wm_x_length, wm_y_length), Image.Resampling.LANCZOS)
 
+def save_file_change_time(input_dir,document_change_time_list):
+    file = open(os.path.join(input_dir, 'semi-utils_file_change_time_for.pylist'), 'w')
+    for fp in document_change_time_list:
+        file.write(str(fp))
+        file.write('\n')
+    file.close()
+
+def read_file_change_time(input_dir):
+    file = open(os.path.join(input_dir, 'semi-utils_file_change_time_for.pylist'), 'r')
+    document_load = []
+    for line in file.readlines():
+        line = line.strip('\n')
+        document_load.append(line)
+    file.close()
+    return document_load
 
 if __name__ == '__main__':
     file_list = get_file_list(input_dir)
@@ -135,9 +151,30 @@ if __name__ == '__main__':
     file_write=[]
     #file_skip=[]
     file_skip_count=0
+    
+    
+    new_list_file_change_time=[]#新的列表，存放这次运行时输入文件的修改时间
+    old_list_file_change_time=read_file_change_time(input_dir)#旧的列表，存放上一次运行时输入文件的修改时间
+    
     for file in file_list:
+        
+        skip_this_file=False
         target=os.path.join(output_dir, file)
-        if(os.path.exists(target)== False ):
+        
+        file_change_time=str(time.ctime(os.stat(os.path.join(input_dir, file)).st_mtime))
+        new_list_file_change_time.append([file,file_change_time])
+        
+        
+        if(os.path.exists(target)):
+            #skip_this_file=True
+            if str([file,file_change_time]) in old_list_file_change_time:
+                skip_this_file = True
+            else:
+                skip_this_file = False
+        
+        
+        
+        if(skip_this_file == False ):
             # 打开图片
             img = Image.open(os.path.join(input_dir, file))
             # 生成 exif 图片
@@ -164,6 +201,10 @@ if __name__ == '__main__':
             file_skip_count=file_skip_count+1
             #file_skip.append("#SKIP# "+target[-30:])
             #print(file_skip[-1])
+        
+        
     print()
     print("SKIP  "+str(file_skip_count)+" Files")
     print("WRITE "+str(len(file_write))+" Files")
+    save_file_change_time(input_dir,new_list_file_change_time)
+    
