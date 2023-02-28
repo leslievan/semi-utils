@@ -132,22 +132,38 @@ def make_exif_img(exif, layout):
 if __name__ == '__main__':
     file_list = get_file_list(input_dir)
     layout = config['layout']['type']
+    file_write=[]
+    #file_skip=[]
+    file_skip_count=0
     for file in file_list:
-        # 打开图片
-        img = Image.open(os.path.join(input_dir, file))
-        # 生成 exif 图片
-        exif = get_exif(img)
-        # 修复图片方向
-        if 'Orientation' in exif:
-            if exif['Orientation'] == 3:
-                img = img.transpose(Transpose.ROTATE_180)
-            elif exif['Orientation'] == 6:
-                img = img.transpose(Transpose.ROTATE_270)
-            elif exif['Orientation'] == 8:
-                img = img.transpose(Transpose.ROTATE_90)
-        exif['ExifImageWidth'], exif['ExifImageHeight'] = img.width, img.height
+        target=os.path.join(output_dir, file)
+        if(os.path.exists(target)== False ):
+            # 打开图片
+            img = Image.open(os.path.join(input_dir, file))
+            # 生成 exif 图片
+            exif = get_exif(img)
+            # 修复图片方向
+            if 'Orientation' in exif:
+                if exif['Orientation'] == 3:
+                    img = img.transpose(Transpose.ROTATE_180)
+                elif exif['Orientation'] == 6:
+                    img = img.transpose(Transpose.ROTATE_270)
+                elif exif['Orientation'] == 8:
+                    img = img.transpose(Transpose.ROTATE_90)
+            exif['ExifImageWidth'], exif['ExifImageHeight'] = img.width, img.height
 
-        exif_img = make_exif_img(exif, layout)
-        # 拼接两张图片
-        cnt_img = concat_img(img, exif_img)
-        cnt_img.save(os.path.join(output_dir, file), quality=quality)
+            exif_img = make_exif_img(exif, layout)
+            # 拼接两张图片
+            cnt_img = concat_img(img, exif_img)
+            cnt_img.save(target, quality=quality)
+            #print(" WRITE "+target[-30:])
+            file_write.append(" WRITE "+target[-30:])
+            print(file_write[-1])
+        else:
+            pass
+            file_skip_count=file_skip_count+1
+            #file_skip.append("#SKIP# "+target[-30:])
+            #print(file_skip[-1])
+    print()
+    print("SKIP  "+str(file_skip_count)+" Files")
+    print("WRITE "+str(len(file_write))+" Files")
