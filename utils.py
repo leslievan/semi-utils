@@ -45,7 +45,10 @@ def get_str_from_exif(exif, field):
     if 'Param' == field_id:
         return get_param_str_from_exif(exif)
     elif 'Date' == field_id:
-        return datetime.strftime(parse_datetime(exif['DateTimeOriginal']), '%Y-%m-%d %H:%M')
+        try:
+            return datetime.strftime(parse_datetime(exif['DateTimeOriginal']), '%Y-%m-%d %H:%M')
+        except:
+            return ""
     else:
         if field_id in exif:
             return exif[field_id]
@@ -54,8 +57,20 @@ def get_str_from_exif(exif, field):
 
 
 def get_param_str_from_exif(exif):
-    focal_length = str(int(exif['FocalLength'])) + 'mm'
-    f_number = 'F' + str(exif['FNumber'])
-    exposure_time = str(exif['ExposureTime'].real)
-    iso = 'ISO' + str(exif['ISOSpeedRatings'])
+    try:
+        focal_length = str(int(exif['FocalLength'])) + 'mm'
+    except:
+        focal_length = ""
+    try:
+        f_number = 'F' + str(exif['FNumber'])
+    except:
+        f_number = ""
+    try:
+        exposure_time = str(exif['ExposureTime'].real)
+    except:
+        exposure_time = ""
+    try:
+        iso = 'ISO' + str(exif['ISOSpeedRatings'])
+    except:
+        iso = ""
     return '  '.join((focal_length, f_number, exposure_time, iso))
