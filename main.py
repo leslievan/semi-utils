@@ -3,9 +3,12 @@ import os
 import time
 
 import yaml
+#import piexif
+import pyexiv2
 from PIL import Image, ImageDraw
 from PIL import ImageFont
 from PIL.Image import Transpose
+
 
 from utils import parse_datetime, get_file_list, concat_img, get_exif, get_str_from_exif
 
@@ -137,12 +140,15 @@ def save_file_change_time(input_dir,document_change_time_list):
     file.close()
 
 def read_file_change_time(input_dir):
-    file = open(os.path.join(input_dir, 'semi-utils_file_change_time_for.pylist'), 'r')
-    document_load = []
-    for line in file.readlines():
-        line = line.strip('\n')
-        document_load.append(line)
-    file.close()
+    try:
+        file = open(os.path.join(input_dir, 'semi-utils_file_change_time_for.pylist'), 'r')
+        document_load = []
+        for line in file.readlines():
+            line = line.strip('\n')
+            document_load.append(line)
+        file.close()
+    except:
+        document_load=[]
     return document_load
 
 if __name__ == '__main__':
@@ -160,8 +166,8 @@ if __name__ == '__main__':
         
         skip_this_file=False
         target=os.path.join(output_dir, file)
-        
-        file_change_time=str(time.ctime(os.stat(os.path.join(input_dir, file)).st_mtime))
+        source=os.path.join(input_dir, file)
+        file_change_time=str(time.ctime(os.stat(source).st_mtime))
         new_list_file_change_time.append([file,file_change_time])
         
         
@@ -176,7 +182,7 @@ if __name__ == '__main__':
         
         if(skip_this_file == False ):
             # 打开图片
-            img = Image.open(os.path.join(input_dir, file))
+            img = Image.open(source)
             # 生成 exif 图片
             exif = get_exif(img)
             # 修复图片方向
@@ -192,7 +198,33 @@ if __name__ == '__main__':
             exif_img = make_exif_img(exif, layout)
             # 拼接两张图片
             cnt_img = concat_img(img, exif_img)
-            cnt_img.save(target, quality=quality)
+            #cnt_img.save(target, quality=quality ,exif=piexif.dump(piexif.load(os.path.join(input_dir, file))))
+            cnt_img.save(target, quality=quality )
+            cnt_img.close()
+            img.close()
+            
+            
+            imgin_pyexiv2=pyexiv2.Image(source,encoding='GBK')
+            imgtarget_pyexiv2=pyexiv2.Image(target,encoding='GBK')
+            
+            orgiptc=imgin_pyexiv2.read_iptc()
+            orgxmp=imgin_pyexiv2.read_raw_xmp()
+            orgexif=imgin_pyexiv2.read_exif()
+            orgcomment=imgin_pyexiv2.read_comment()
+            orgicc=imgin_pyexiv2.read_icc()
+            orgthumbnail=imgin_pyexiv2.read_thumbnail()
+            
+            
+            imgtarget_pyexiv2.modify_iptc(orgiptc)
+            imgtarget_pyexiv2.modify_raw_xmp(orgxmp)
+            imgtarget_pyexiv2.modify_exif(orgexif)
+            #imgtarget_pyexiv2.modify_comment(orgcomment)
+            #imgtarget_pyexiv2.modify_icc(orgicc)  
+            #imgtarget_pyexiv2.modify_thumbnail(orgthumbnail)
+            
+            imgin_pyexiv2.close()
+            imgtarget_pyexiv2.close()
+            #print(img.info)
             #print(" WRITE "+target[-30:])
             file_write.append(" WRITE "+target[-30:])
             print(file_write[-1])
