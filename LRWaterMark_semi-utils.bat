@@ -1,5 +1,6 @@
+@echo off
 echo 请使用ANSI编码
-echo 本程序假设您已将文件解压到 "C:\Program Files\semi-utils-main"
-cd "C:\Program Files\semi-utils-main"
-python "C:\Program Files\semi-utils-main\main.py"
+%echo 若提示找不到文件，请编辑LRWaterMark_semi-utils.bat以修改其指向的目录
+cd %~dp0
+python "main.py"
 pause
