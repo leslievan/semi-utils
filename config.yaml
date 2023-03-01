@@ -1,9 +1,11 @@
 base:
   font: ./fonts/SourceHanSansCN-Light.otf
   bold_font: ./fonts/SourceHanSansCN-Bold.otf
-  input_dir: ./input
-  output_dir: ./output
-  quality: 100
+  #input_dir: ./input
+  #output_dir: ./output
+  input_dir: "C:/Users/XU/OneDrive2 - mail.sdu.edu.cn/OneDrive - mail.sdu.edu.cn/LightroomOutput/JPEG"
+  output_dir: "C:/Users/XU/OneDrive2 - mail.sdu.edu.cn/OneDrive - mail.sdu.edu.cn/LightroomOutput/JPEGwithWaterMark"
+  quality: 90
 
 logo: # true or false
   enable: true
@@ -13,7 +15,7 @@ logo: # true or false
       path: ./logos/nikon.png
     canon:
       id: Canon
-      path: ./logos/canon.png
+      path: ./logos/canon_04.13.2421.png
     sony:
       id: SONY
       path: ./logos/sony.png
@@ -44,7 +46,7 @@ layout: # you can select one type in ['normal'], may more type supports later
   type: normal
   elements: # the information displayed in the watermark
     # you can select from ['Date', 'Model', 'LensModel', 'Param', 'Make', 'None']
+    - id: LensModel
     - id: Model
-    - id: Make
     - id: Param
-    - id: None
+    - id: Date
