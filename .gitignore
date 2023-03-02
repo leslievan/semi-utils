@@ -3,3 +3,4 @@
 release
 input/*.jpg
 output/*.jpg
+__pycache__
