@@ -1,65 +1,58 @@
 base:
-  font: ./fonts/SourceHanSansCN-Light.otf
   bold_font: ./fonts/SourceHanSansCN-Bold.otf
+  font: ./fonts/SourceHanSansCN-Light.otf
   input_dir: ./input
   output_dir: ./output
   quality: 100
-
-logo: # true or false
-  enable: true
-  makes:
-    nikon:
-      id: NIKON
-      path: ./logos/nikon.png
-    canon:
-      id: Canon
-      path: ./logos/canon.png
-    sony:
-      id: SONY
-      path: ./logos/sony.png
-    pentax:
-      id: PENTAX
-      path: ./logos/pentax.png
-    panasonic:
-      id: Panasonic
-      path: ./logos/panasonic.png
-    olympus:
-      id: Olympus
-      path: ./logos/olympus_blue_gold.png
-    fujifilm:
-      id: FUJIFILM
-      path: ./logos/fujifilm.png
-    leica:
-      id: leica
-      path: ./logos/leica_logo.png
-    rioch:
-      id: RIOCH
-      path: ./logos/ricoh.png
-    hasselblad:
-      id: HASSELBLAD
-      path: ./logos/hasselblad.png
-
-layout: # you can select one type in ['normal', 'normal_with_right_logo', 'square'], may more type supports later
-  # you can get more information in https://lsvm.xyz/2023/02/semi-utils-intro/
-  type: normal
-  elements: # the information displayed in the watermark
-    # you can select from ['Date', 'Model', 'LensModel', 'Param', 'Make', 'None', 'Custom']
-    # Use Custom to customize your slogan
-    left1:
-      id: LensModel
-      is_bold: True
-    left2:
-      id: Model
-      is_bold: False
-    right1:
-      id: Param
-      is_bold: True
-    right2:
-      id: Custom
-      is_bold: False
-      value: '这是一个自定义的示例'
-
-
+layout:
+  elements:
+    left_bottom:
+      is_bold: false
+      name: Model
+    left_top:
+      is_bold: true
+      name: LensModel
+    right_bottom:
+      is_bold: false
+      name: Custom
+      value: "\u81EA\u5B9A\u4E49\u5B57\u6BB5"
+    right_top:
+      is_bold: true
+      name: Param
+  type: square
   white_margin:
     enable: false
     width: 3
+logo:
+  enable: false
+  makes:
+    canon:
+      id: Canon
+      path: ./logos/canon.png
+    fujifilm:
+      id: FUJIFILM
+      path: ./logos/fujifilm.png
+    hasselblad:
+      id: HASSELBLAD
+      path: ./logos/hasselblad.png
+    leica:
+      id: leica
+      path: ./logos/leica_logo.png
+    nikon:
+      id: NIKON
+      path: ./logos/nikon.png
+    olympus:
+      id: Olympus
+      path: ./logos/olympus_blue_gold.png
+    panasonic:
+      id: Panasonic
+      path: ./logos/panasonic.png
+    pentax:
+      id: PENTAX
+      path: ./logos/pentax.png
+    rioch:
+      id: RIOCH
+      path: ./logos/ricoh.png
+    sony:
+      id: SONY
+      path: ./logos/sony.png

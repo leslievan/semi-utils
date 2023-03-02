@@ -32,16 +32,16 @@ def concatenate_image(images, align='left'):
     return new_img
 
 
-def padding_image(image, padding_size, padding_location='ud'):
+def padding_image(image, padding_size, padding_location='tb'):
     if image is None:
         return None
 
     total_width, total_height = image.size
     x_offset, y_offset = 0, 0
-    if 'u' in padding_location:
+    if 't' in padding_location:
         total_height += padding_size
         y_offset += padding_size
-    if 'd' in padding_location:
+    if 'b' in padding_location:
         total_height += padding_size
     if 'l' in padding_location:
         total_width += padding_size
@@ -156,7 +156,7 @@ class ImageProcessor(object):
         :return:
         """
         if content == '':
-            content = 'Unknown'
+            content = '   '
         font = self.bold_font if is_bold else self.font
         text_width, text_height = font.getsize(content)
         image = Image.new('RGB', (text_width, text_height), color='white')
@@ -180,16 +180,16 @@ class ImageProcessor(object):
         watermark = Image.new('RGB', (int(1000 / ratio), 1000), color='white')
 
         # 填充左边的文字内容
-        left1 = self.text_to_image(container.get_attribute_str(config.left1), is_bold=config.left1.is_bold)
-        left2 = self.text_to_image(container.get_attribute_str(config.left2), is_bold=config.left2.is_bold,
+        left_top = self.text_to_image(container.get_attribute_str(config.left_top), is_bold=config.left_top.is_bold)
+        left_bottom = self.text_to_image(container.get_attribute_str(config.left_bottom), is_bold=config.left_bottom.is_bold,
                                    fill='gray')
-        left = concatenate_image([left1, left2])
+        left = concatenate_image([left_top, left_bottom])
         left = padding_image(left, int(padding_ratio * left.height))
         # 填充右边的文字内容
-        right_1 = self.text_to_image(container.get_attribute_str(config.right1), is_bold=config.right1.is_bold)
-        right_2 = self.text_to_image(container.get_attribute_str(config.right2), is_bold=config.right2.is_bold,
+        right_top = self.text_to_image(container.get_attribute_str(config.right_top), is_bold=config.right_top.is_bold)
+        right_bottom = self.text_to_image(container.get_attribute_str(config.right_bottom), is_bold=config.right_bottom.is_bold,
                                      fill='gray')
-        right = concatenate_image([right_1, right_2])
+        right = concatenate_image([right_top, right_bottom])
         right = padding_image(right, int(padding_ratio * right.height))
 
         logo = container.get_logo()

@@ -14,18 +14,18 @@ class Element(object):
 class Layout(object):
     def __init__(self, layout):
         elements = layout['elements']
-        self.left1 = Element(elements['left1']['id'],
-                             elements['left1']['is_bold'],
-                             elements['left1']['value'] if 'value' in elements['left1'] else None)
-        self.left2 = Element(elements['left2']['id'],
-                             elements['left2']['is_bold'],
-                             elements['left2']['value'] if 'value' in elements['left2'] else None)
-        self.right1 = Element(elements['right1']['id'],
-                              elements['right1']['is_bold'],
-                              elements['right1']['value'] if 'value' in elements['right1'] else None)
-        self.right2 = Element(elements['right2']['id'],
-                              elements['right2']['is_bold'],
-                              elements['right2']['value'] if 'value' in elements['right2'] else None)
+        self.left_top = Element(elements['left_top']['name'],
+                                elements['left_top']['is_bold'],
+                                elements['left_top']['value'] if 'value' in elements['left_top'] else None)
+        self.left_bottom = Element(elements['left_bottom']['name'],
+                                   elements['left_bottom']['is_bold'],
+                                   elements['left_bottom']['value'] if 'value' in elements['left_bottom'] else None)
+        self.right_top = Element(elements['right_top']['name'],
+                                 elements['right_top']['is_bold'],
+                                 elements['right_top']['value'] if 'value' in elements['right_top'] else None)
+        self.right_bottom = Element(elements['right_bottom']['name'],
+                                    elements['right_bottom']['is_bold'],
+                                    elements['right_bottom']['value'] if 'value' in elements['right_bottom'] else None)
         self.type = layout['type']
 
 
@@ -36,7 +36,35 @@ UP_DOWN_MARGIN = FONT_SIZE + BORDER_PIXEL
 LEFT_RIGHT_MARGIN = FONT_SIZE + BORDER_PIXEL
 GAP_PIXEL = 90
 
+
+def save_config():
+    global config
+    with open('config.yaml', 'w') as f:
+        yaml.dump(config, f, encoding='utf-8')
+
+
+def load_config():
+    global logo_enable
+    logo_enable = config['logo']['enable']
+
+
+def get_logo(make):
+    """
+    根据厂商获取 logo
+    :param make:
+    :return:
+    """
+    if make in logos:
+        return logos[make]
+    for m in makes.values():
+        if m['id'] in make:
+            logo = Image.open(m['path'])
+            logos[make] = logo
+            return logo
+
+
 # 读取配置
+global config
 with open('config.yaml', 'r', encoding='utf-8') as f:
     config = yaml.safe_load(f)
 
@@ -56,22 +84,6 @@ logo_enable = config['logo']['enable']
 makes = config['logo']['makes']
 empty_logo = Image.new('RGB', (1000, 1000), color='white')
 logos = {}
-
-
-def get_logo(make):
-    """
-    根据厂商获取 logo
-    :param make:
-    :return:
-    """
-    if make in logos:
-        return logos[make]
-    for m in makes.values():
-        if m['id'] in make:
-            logo = Image.open(m['path'])
-            logos[make] = logo
-            return logo
-
 
 white_margin_enable = config['layout']['white_margin']['enable']
 white_margin_width = config['layout']['white_margin']['width']
