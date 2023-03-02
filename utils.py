@@ -48,7 +48,10 @@ def get_str_from_exif(exif, field):
     if 'Param' == field_id:
         return get_param_str_from_exif(exif)
     elif 'Date' == field_id:
-        return datetime.strftime(parse_datetime(exif['DateTimeOriginal']), '%Y-%m-%d %H:%M')
+        try:
+            return datetime.strftime(parse_datetime(exif['DateTimeOriginal']), '%Y-%m-%d %H:%M')
+        except:
+            return ""
     else:
         if field_id in exif:
             return exif[field_id]

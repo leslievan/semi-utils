@@ -177,4 +177,7 @@ if __name__ == '__main__':
         cnt_img = concat_img(img, exif_img)
         if white_margin_enable:
             cnt_img = add_white_frame(cnt_img, int(white_margin_width * img.width / 100))
-        cnt_img.save(os.path.join(output_dir, file), quality=quality)
+
+        cnt_img.save(os.path.join(output_dir, file), quality=quality )
+        cnt_img.close()
+        img.close()
