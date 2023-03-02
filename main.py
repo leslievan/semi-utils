@@ -22,16 +22,16 @@ def print_current_setting():
     print(s_line)
     print(' ' * 8 + '当前设置')
     print(s_line)
-    print(' 1: 布局：{}'.format(config['layout']['type']))
-    print(' 2: Logo：{}'.format(config['logo']['enable']))
-    print(' 3: 左上文字：{}'.format(id_to_name.setdefault(config['layout']['elements']['left_top']['name']), '值错误'))
+    print(' 【1】: 布局：{}'.format(config['layout']['type']))
+    print(' 【2】: Logo：{}'.format(config['logo']['enable']))
+    print(' 【3】: 左上文字：{}'.format(id_to_name.setdefault(config['layout']['elements']['left_top']['name']), '值错误'))
     print(
-        ' 4: 左下文字：{}'.format(id_to_name.setdefault(config['layout']['elements']['left_bottom']['name']), '值错误'))
-    print(' 5: 右上文字：{}'.format(id_to_name.setdefault(config['layout']['elements']['right_top']['name']), '值错误'))
+        ' 【4】: 左下文字：{}'.format(id_to_name.setdefault(config['layout']['elements']['left_bottom']['name']), '值错误'))
+    print(' 【5】: 右上文字：{}'.format(id_to_name.setdefault(config['layout']['elements']['right_top']['name']), '值错误'))
     print(
-        ' 6: 右下文字：{}'.format(id_to_name.setdefault(config['layout']['elements']['right_bottom']['name']), '值错误'))
+        ' 【6】: 右下文字：{}'.format(id_to_name.setdefault(config['layout']['elements']['right_bottom']['name']), '值错误'))
     print(s_line)
-    user_input = input('输入【y 或回车】按照当前设置开始处理图片，或【输入数字】修改设置：\n')
+    user_input = input('输入【y 或回车】按照当前设置开始处理图片，或输入【数字】修改设置：\n')
     if user_input == 'y' or user_input == '':
         state = 100
     elif user_input.isdigit():
@@ -87,7 +87,7 @@ def modify_layout():
 
     while True:
         user_input = input(
-            '输入【数字】选择布局类型：【1: normal, 2: normal_with_right_logo, 3: square】，或【输入 0】返回主菜单\n')
+            '输入【数字】选择布局类型：【1】: normal, 【2】: normal_with_right_logo, 【3】: square，或输入【0】返回主菜单\n')
         if user_input.isdigit():
             if user_input == '0':
                 return
@@ -114,7 +114,7 @@ def modify_logo():
     global state
 
     while True:
-        user_input = input('输入【数字】选择是否显示 logo：【1: 显示 logo, 2: 不显示 logo】，或【输入 0】返回主菜单\n')
+        user_input = input('输入【数字】选择是否显示 logo：【1】: 显示 logo, 【2】: 不显示 logo，或输入【0】返回主菜单\n')
         if user_input.isdigit():
             if user_input == '0':
                 return
@@ -139,9 +139,9 @@ def modify_element(key):
 
     while True:
         user_input = input('输入数字选择显示内容：'
-                           '【1：相机型号, 2：相机厂商，3：镜头型号，4：拍摄参数'
-                           '5：拍摄日期，6：自定义字段，7：不显示】，'
-                           '或【输入 0】返回主菜单\n')
+                           '【1】：相机型号, 【2】：相机厂商，【3】：镜头型号，【4】：拍摄参数，'
+                           '【5】：拍摄日期，【6】：自定义字段，【7】：不显示，'
+                           '或输入【0】返回主菜单\n')
         if user_input.isdigit():
             number = int(user_input)
             if number == 0:

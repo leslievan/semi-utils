@@ -5,6 +5,8 @@ from PIL import Image, ImageDraw
 printable = set(string.printable)
 
 
+GRAY = '#6B696A'
+
 def concatenate_image(images, align='left'):
     widths, heights = zip(*(i.size for i in images))
 
@@ -173,22 +175,22 @@ class ImageProcessor(object):
         :return:
         """
         ratio = .13
-        padding_ratio = .4
+        padding_ratio = .5
         if container.ratio > 1:
             ratio = .1
-            padding_ratio = .4
+            padding_ratio = .5
         watermark = Image.new('RGB', (int(1000 / ratio), 1000), color='white')
 
         # 填充左边的文字内容
         left_top = self.text_to_image(container.get_attribute_str(config.left_top), is_bold=config.left_top.is_bold)
         left_bottom = self.text_to_image(container.get_attribute_str(config.left_bottom), is_bold=config.left_bottom.is_bold,
-                                   fill='gray')
+                                   fill=GRAY)
         left = concatenate_image([left_top, left_bottom])
         left = padding_image(left, int(padding_ratio * left.height))
         # 填充右边的文字内容
         right_top = self.text_to_image(container.get_attribute_str(config.right_top), is_bold=config.right_top.is_bold)
         right_bottom = self.text_to_image(container.get_attribute_str(config.right_bottom), is_bold=config.right_bottom.is_bold,
-                                     fill='gray')
+                                     fill=GRAY)
         right = concatenate_image([right_top, right_bottom])
         right = padding_image(right, int(padding_ratio * right.height))
 
@@ -203,7 +205,7 @@ class ImageProcessor(object):
                 # 如果 logo 不为空，等比例缩小 logo
                 logo = padding_image(logo, int(padding_ratio * logo.height))
             # 插入一根线条用于分割 logo 和文字
-            line = Image.new('RGB', (20, 1000), color='gray')
+            line = Image.new('RGB', (20, 1000), color=GRAY)
             line = padding_image(line, int(padding_ratio * line.height * .8))
             append_image_by_side(watermark, [left], is_start=True)
             append_image_by_side(watermark, [logo, line, right], side='right')
