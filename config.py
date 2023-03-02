@@ -37,7 +37,7 @@ LEFT_RIGHT_MARGIN = FONT_SIZE + BORDER_PIXEL
 GAP_PIXEL = 90
 
 # 读取配置
-with open('config.yaml', 'r') as f:
+with open('config.yaml', 'r', encoding='utf-8') as f:
     config = yaml.safe_load(f)
 
 # 读取输入、输出配置
