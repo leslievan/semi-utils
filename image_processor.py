@@ -213,3 +213,13 @@ class ImageProcessor(object):
         image.paste(container.img)
         image.paste(watermark, (0, container.height))
         return image
+
+    def square_watermark(self, container):
+        """
+        生成一个1：1布局的水印图片
+        :param container:
+        :param config:
+        :param is_logo_left:
+        :return:
+        """
+        return square_image(container.img)

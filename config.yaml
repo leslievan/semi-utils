@@ -39,7 +39,7 @@ logo: # true or false
       id: HASSELBLAD
       path: ./logos/hasselblad.png
 
-layout: # you can select one type in ['normal', 'normal_with_right_logo'], may more type supports later
+layout: # you can select one type in ['normal', 'normal_with_right_logo', 'square'], may more type supports later
   # you can get more information in https://lsvm.xyz/2023/02/semi-utils-intro/
   type: normal
   elements: # the information displayed in the watermark

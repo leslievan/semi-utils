@@ -24,6 +24,8 @@ if __name__ == '__main__':
         # 添加水印
         if 'normal_with_right_logo' == layout.type:
             watermark = processor.normal_watermark(container, layout, is_logo_left=False)
+        elif 'square' == layout.type:
+            watermark = processor.square_watermark(container)
         else:
             watermark = processor.normal_watermark(container, layout)
 
