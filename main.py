@@ -43,6 +43,8 @@ def processing():
     状态1：处理图片
     :return:
     """
+    global state
+
     file_list = get_file_list(input_dir)
     layout = Layout(config['layout'])
     print('当前共有 {} 张图片待处理'.format(len(file_list)))
@@ -75,7 +77,7 @@ def processing():
         watermark.close()
     print('处理完成，文件已输出至 output 文件夹中，请点击任意键退出或直接关闭'.format(len(file_list)))
     input()
-    exit(0)
+    state = -1
 
 
 def modify_layout():
@@ -210,6 +212,8 @@ if __name__ == '__main__':
             modify_element('right_bottom')
             # 修改右下文字的代码
             state = 0
+        elif state == -1:
+            exit(0)
         else:
             print("输入错误，请重新输入")
             state = 0
