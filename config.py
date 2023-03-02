@@ -57,7 +57,7 @@ def get_logo(make):
     if make in logos:
         return logos[make]
     for m in makes.values():
-        if m['id'] in make:
+        if m['id'].lower() in make.lower():
             logo = Image.open(m['path'])
             logos[make] = logo
             return logo
