@@ -1,9 +1,6 @@
-import math
 import string
 
-from PIL import Image, ImageDraw, ImageFont, ImageOps
-
-from image_container import ImageContainer
+from PIL import Image, ImageDraw
 
 printable = set(string.printable)
 
@@ -107,6 +104,15 @@ def resize_image_with_width(image, width):
 
 
 def append_image_by_side(background, images, side='left', padding=100, is_start=False):
+    """
+    横向拼接图片
+    :param background:
+    :param images:
+    :param side:
+    :param padding:
+    :param is_start:
+    :return:
+    """
     if 'right' == side:
         if is_start:
             x_offset = background.width - padding
@@ -142,6 +148,13 @@ class ImageProcessor(object):
         self.bold_font = bold_font
 
     def text_to_image(self, content, is_bold=False, fill='black'):
+        """
+        将文字内容转换为图片
+        :param content:
+        :param is_bold:
+        :param fill:
+        :return:
+        """
         content = ''.join(filter(lambda x: x in printable, content))
         if content == '':
             content = 'Unknown'
@@ -153,6 +166,13 @@ class ImageProcessor(object):
         return image
 
     def normal_watermark(self, container, config, is_logo_left=True):
+        """
+        生成一个默认布局的水印图片
+        :param container:
+        :param config:
+        :param is_logo_left:
+        :return:
+        """
         ratio = .13
         padding_ratio = .4
         if container.ratio > 1:
@@ -160,25 +180,33 @@ class ImageProcessor(object):
             padding_ratio = .4
         watermark = Image.new('RGB', (int(1000 / ratio), 1000), color='white')
 
+        # 填充左边的文字内容
         left1 = self.text_to_image(container.get_attribute_str(config.left1.name), is_bold=config.left1.is_bold)
-        left2 = self.text_to_image(container.get_attribute_str(config.left2.name), is_bold=config.left2.is_bold)
+        left2 = self.text_to_image(container.get_attribute_str(config.left2.name), is_bold=config.left2.is_bold,
+                                   fill='gray')
         left = concatenate_image([left1, left2])
         left = padding_image(left, int(padding_ratio * left.height))
+        # 填充右边的文字内容
         right_1 = self.text_to_image(container.get_attribute_str(config.right1.name), is_bold=config.right1.is_bold)
-        right_2 = self.text_to_image(container.get_attribute_str(config.right2.name), is_bold=config.right2.is_bold)
+        right_2 = self.text_to_image(container.get_attribute_str(config.right2.name), is_bold=config.right2.is_bold,
+                                     fill='gray')
         right = concatenate_image([right_1, right_2])
         right = padding_image(right, int(padding_ratio * right.height))
 
         logo = container.get_logo()
         if is_logo_left:
-            append_image_by_side(watermark, [logo, left])
+            # 如果 logo 在左边
+            append_image_by_side(watermark, [logo, left], is_start=logo is None)
             append_image_by_side(watermark, [right], side='right')
         else:
+            # 如果 logo 在右边
             if logo is not None:
+                # 如果 logo 不为空，等比例缩小 logo
                 logo = padding_image(logo, int(padding_ratio * logo.height))
+            # 插入一根线条用于分割 logo 和文字
             line = Image.new('RGB', (20, 1000), color='gray')
             line = padding_image(line, int(padding_ratio * line.height * .8))
-            append_image_by_side(watermark, [left], is_start=True)
+            append_image_by_side(watermark, [left], is_start=logo is None)
             append_image_by_side(watermark, [logo, line, right], side='right')
 
         watermark = resize_image_with_width(watermark, container.width)

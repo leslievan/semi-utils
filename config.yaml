@@ -6,7 +6,7 @@ base:
   quality: 100
 
 logo: # true or false
-  enable: false
+  enable: true
   makes:
     nikon:
       id: NIKON
