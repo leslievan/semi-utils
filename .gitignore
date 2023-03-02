@@ -1,6 +1,6 @@
 .idea
 .DS_Store
 release
-input/*.jpg
-output/*.jpg
+input
+output
 __pycache__
