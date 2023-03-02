@@ -47,7 +47,7 @@ def get_exif(image,full_fram_resolution):
                     imageY=image.size[0]
                 tmp1=full_fram_resolution[0]/imageX
                 tmp2=full_fram_resolution[1]/imageY
-                _exif['equivalent_focal_length']=_exif['FocalLength']*tmp1 if tmp1>tmp2 else _exif['FocalLength']*tmp2
+                _exif['equivalent_focal_length']=_exif['FocalLength']*tmp1 if tmp1<tmp2 else _exif['FocalLength']*tmp2
         except:
             pass #_exif['equivalent_focal_length']=int(_exif['equivalent_focal_length'])
     #print(_exif)
