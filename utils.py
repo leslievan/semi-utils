@@ -27,14 +27,30 @@ def concat_img(img_x, img_y):
 
 
 # 读取 exif 信息，包括相机机型、相机品牌、图片尺寸、镜头焦距、光圈大小、曝光时间、ISO 和拍摄时间
-def get_exif(image):
+def get_exif(image,full_fram_resolution):
+    
     _exif = {}
     info = image._getexif()
     if info:
+        _exif['equivalent_focal_length']=0
         for attr, value in info.items():
             decoded_attr = TAGS.get(attr, attr)
             _exif[decoded_attr] = value
-
+        #计算等效焦距
+        try:
+            if full_fram_resolution[0]:
+                if image.size[0]>image.size[1]:
+                    imageX=image.size[0]
+                    imageY=image.size[1]
+                else:
+                    imageX=image.size[1]
+                    imageY=image.size[0]
+                tmp1=full_fram_resolution[0]/imageX
+                tmp2=full_fram_resolution[1]/imageY
+                _exif['equivalent_focal_length']=_exif['FocalLength']*tmp1 if tmp1>tmp2 else _exif['FocalLength']*tmp2
+        except:
+            pass #_exif['equivalent_focal_length']=int(_exif['equivalent_focal_length'])
+    #print(_exif)
     return _exif
 
 
@@ -57,8 +73,13 @@ def get_str_from_exif(exif, field):
 
 
 def get_param_str_from_exif(exif):
+    #print(exif)
     try:
-        focal_length = str(int(exif['FocalLength'])) + 'mm'
+        if int(exif['equivalent_focal_length']):
+            focal_length = str(int(exif['FocalLength'])) + '('+str(int(exif['equivalent_focal_length'])) + ')' 'mm'
+        else:
+            focal_length = str(int(exif['FocalLength'])) + 'mm'
+        #print(focal_length)
     except:
         focal_length = ""
     try:

@@ -38,6 +38,13 @@ bold_font = ImageFont.truetype(config['base']['bold_font'], FONT_SIZE)
 logo_enable = config['logo']['enable']
 makes = config['logo']['makes']
 
+# 读取等效焦距配置
+# 先将像素密度铺满135画幅，之后通过分辨率计算出等效焦距。优点是能考虑裁切的影响
+full_fram_resolution=(0,0)
+if config['equivalent_focal_length']['enable']:
+    crop=config['equivalent_focal_length']['crop']
+    full_fram_resolution=(config['equivalent_focal_length']['sensor_resolution_X']*crop,config['equivalent_focal_length']['sensor_resolution_Y']*crop)
+    #print(full_fram_resolution)
 
 # 添加 logo
 def append_logo(exif_img, exif):
@@ -187,7 +194,7 @@ if __name__ == '__main__':
             # 打开图片
             img = Image.open(source)
             # 生成 exif 图片
-            exif = get_exif(img)
+            exif = get_exif(img,full_fram_resolution)
             # 修复图片方向
             if 'Orientation' in exif:
                 if exif['Orientation'] == 3:
@@ -201,7 +208,7 @@ if __name__ == '__main__':
             exif_img = make_exif_img(exif, layout)
             # 拼接两张图片
             cnt_img = concat_img(img, exif_img)
-            #cnt_img.save(target, quality=quality ,exif=piexif.dump(piexif.load(os.path.join(input_dir, file))))
+
             cnt_img.save(target, quality=quality )
             cnt_img.close()
             img.close()

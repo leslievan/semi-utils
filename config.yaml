@@ -15,7 +15,7 @@ logo: # true or false
       path: ./logos/nikon.png
     canon:
       id: Canon
-      path: ./logos/canon_04.13.2421.png
+      path: ./logos/canon.png
     sony:
       id: SONY
       path: ./logos/sony.png
@@ -50,3 +50,8 @@ layout: # you can select one type in ['normal'], may more type supports later
     - id: Model
     - id: Param
     - id: Date
+equivalent_focal_length:
+    enable: true
+    sensor_resolution_X: 5184
+    sensor_resolution_Y: 3456
+    crop: 1.6
