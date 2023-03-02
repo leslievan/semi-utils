@@ -48,18 +48,19 @@ class ImageContainer(object):
         except ValueError:
             return 'Unknown Date'
 
-    def get_attribute_str(self, attr_name):
-        if attr_name is None or attr_name == '':
+    def get_attribute_str(self, element):
+        if element is None or element.name == '':
             return ''
-        if attr_name == 'Model':
+        if element.name == 'Model':
             return self.model
-        elif attr_name == 'Param':
+        elif element.name == 'Param':
             return self.get_param_str()
-        elif attr_name == 'Date':
+        elif element.name == 'Date':
             return self._parse_datetime()
-        elif attr_name == 'LensModel':
+        elif element.name == 'LensModel':
             return self.lens_model
-        elif attr_name == 'Custom':
+        elif element.name == 'Custom':
+            self.custom = element.value
             return self.custom
         else:
             return ''

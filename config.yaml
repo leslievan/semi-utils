@@ -55,12 +55,11 @@ layout: # you can select one type in ['normal', 'normal_with_right_logo'], may m
       id: Param
       is_bold: True
     right2:
-      id: Date
+      id: Custom
       is_bold: False
+      value: '这是一个自定义的示例'
 
-    # id: Custom
-    # is_bold: False
-    # value: '这是一个自定义的示例'
+
   white_margin:
     enable: false
     width: 3

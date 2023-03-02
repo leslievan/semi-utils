@@ -155,7 +155,6 @@ class ImageProcessor(object):
         :param fill:
         :return:
         """
-        content = ''.join(filter(lambda x: x in printable, content))
         if content == '':
             content = 'Unknown'
         font = self.bold_font if is_bold else self.font
@@ -181,14 +180,14 @@ class ImageProcessor(object):
         watermark = Image.new('RGB', (int(1000 / ratio), 1000), color='white')
 
         # 填充左边的文字内容
-        left1 = self.text_to_image(container.get_attribute_str(config.left1.name), is_bold=config.left1.is_bold)
-        left2 = self.text_to_image(container.get_attribute_str(config.left2.name), is_bold=config.left2.is_bold,
+        left1 = self.text_to_image(container.get_attribute_str(config.left1), is_bold=config.left1.is_bold)
+        left2 = self.text_to_image(container.get_attribute_str(config.left2), is_bold=config.left2.is_bold,
                                    fill='gray')
         left = concatenate_image([left1, left2])
         left = padding_image(left, int(padding_ratio * left.height))
         # 填充右边的文字内容
-        right_1 = self.text_to_image(container.get_attribute_str(config.right1.name), is_bold=config.right1.is_bold)
-        right_2 = self.text_to_image(container.get_attribute_str(config.right2.name), is_bold=config.right2.is_bold,
+        right_1 = self.text_to_image(container.get_attribute_str(config.right1), is_bold=config.right1.is_bold)
+        right_2 = self.text_to_image(container.get_attribute_str(config.right2), is_bold=config.right2.is_bold,
                                      fill='gray')
         right = concatenate_image([right_1, right_2])
         right = padding_image(right, int(padding_ratio * right.height))
