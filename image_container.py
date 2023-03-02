@@ -1,3 +1,4 @@
+import string
 from datetime import datetime
 
 from PIL import Image
@@ -5,6 +6,7 @@ from PIL.Image import Transpose
 
 from utils import get_exif
 
+printable = set(string.printable)
 
 class ImageContainer(object):
     def __init__(self, path):
@@ -14,6 +16,9 @@ class ImageContainer(object):
         self.model = self.exif['Model'] if 'Model' in self.exif else 'Unknown Model'
         self.make = self.exif['Make'] if 'Make' in self.exif else 'Unknown Make'
         self.lens_model = self.exif['LensModel'] if 'LensModel' in self.exif else 'Unknown LensModel'
+        self.model = ''.join(filter(lambda x: x in printable, self.model))
+        self.make = ''.join(filter(lambda x: x in printable, self.make))
+        self.lens_model = ''.join(filter(lambda x: x in printable, self.lens_model))
         self.date = self.exif['DateTimeOriginal'] if 'DateTimeOriginal' in self.exif else datetime.now().strftime(
             '%Y-%m-%d %H:%M:%S')
         self.focal_length = int(self.exif['FocalLength']) if 'FocalLength' in self.exif else 0
