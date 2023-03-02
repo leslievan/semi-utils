@@ -132,6 +132,7 @@ def make_exif_img(exif, layout):
     # 根据照片长缩放水印
     return img_watermark.resize((wm_x_length, wm_y_length), Image.Resampling.LANCZOS)
 
+# 保存输入文件名及修改日期
 def save_file_change_time(input_dir,document_change_time_list):
     file = open(os.path.join(input_dir, 'semi-utils_file_change_time_for.pylist'), 'w')
     for fp in document_change_time_list:
@@ -139,6 +140,7 @@ def save_file_change_time(input_dir,document_change_time_list):
         file.write('\n')
     file.close()
 
+# 读取上次运行时已经处理过的文件信息
 def read_file_change_time(input_dir):
     try:
         file = open(os.path.join(input_dir, 'semi-utils_file_change_time_for.pylist'), 'r')
@@ -173,6 +175,7 @@ if __name__ == '__main__':
         
         if(os.path.exists(target)):
             #skip_this_file=True
+            #跳过未修改的文件
             if str([file,file_change_time]) in old_list_file_change_time:
                 skip_this_file = True
             else:
@@ -203,7 +206,7 @@ if __name__ == '__main__':
             cnt_img.close()
             img.close()
             
-            
+            #拷贝EXIF和IPTC等元数据
             imgin_pyexiv2=pyexiv2.Image(source,encoding='GBK')
             imgtarget_pyexiv2=pyexiv2.Image(target,encoding='GBK')
             
