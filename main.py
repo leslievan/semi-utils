@@ -1,7 +1,7 @@
 import os
 from tqdm import tqdm
 from config import Layout, input_dir, config, font, bold_font, get_logo, white_margin_enable, white_margin_width, \
-    output_dir, quality, logo_enable, save_config
+    output_dir, quality, logo_enable, save_config, load_config
 from image_container import ImageContainer
 from image_processor import ImageProcessor, padding_image
 from utils import get_file_list
@@ -182,9 +182,10 @@ if __name__ == '__main__':
         if state == 0:
             print_current_setting()
         elif state == 100:
-            save_config()
             # 处理数据的代码
+            load_config()
             processing()
+            save_config()
         elif state == 1:
             modify_layout()
             # 修改布局类型的代码

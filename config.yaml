@@ -19,12 +19,12 @@ layout:
     right_top:
       is_bold: true
       name: Param
-  type: square
+  type: normal_with_right_logo
   white_margin:
     enable: false
     width: 3
 logo:
-  enable: false
+  enable: true
   makes:
     canon:
       id: Canon
