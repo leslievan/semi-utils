@@ -1,5 +1,5 @@
 import os
-
+from tqdm import tqdm
 from config import Layout, input_dir, config, font, bold_font, get_logo, white_margin_enable, white_margin_width, \
     output_dir, quality, logo_enable
 from image_container import ImageContainer
@@ -11,7 +11,7 @@ if __name__ == '__main__':
     layout = Layout(config['layout'])
 
     processor = ImageProcessor(font, bold_font)
-    for file in file_list:
+    for file in tqdm(file_list):
         # 打开图片
         container = ImageContainer(os.path.join(input_dir, file))
 
