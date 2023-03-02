@@ -214,3 +214,44 @@ class ImageProcessor(object):
         image.paste(container.img)
         image.paste(watermark, (0, container.height))
         return image
+
+    def simple_watermark(self, container):
+        ratio = .13
+        padding_ratio = .4
+        if container.ratio > 1:
+            ratio = .1
+            padding_ratio = .4
+        watermark = Image.new('RGB', (int(1000 / ratio), 1000), color='white')
+
+        content1 = 'Shot on'
+        content2 = ' ' + container.model + ' '
+        content3 = container.make
+        content4 = container.get_param_str()
+        tokens = []
+
+        tokens.append(self.text_to_image(content1, is_bold=False))
+        tokens.append(self.text_to_image(content2, is_bold=True, fill='red'))
+        tokens.append(self.text_to_image(content3, is_bold=True))
+        line2 = self.text_to_image(content4, is_bold=False, fill='gray')
+        first_line = []
+
+        widths, heights = zip(*(i.size for i in tokens))
+        sum_width = sum(heights)
+        max_height = max(widths)
+        for token in tokens:
+            if token.height < max_height:
+                first_line.append(padding_image(token, max_height - token.height))
+            else:
+                first_line.append(token)
+
+        line1 = Image.new('RGB', (sum_width, max_height), color='white')
+        x_offset = 0
+        for token in first_line:
+            line1.paste(token, (x_offset, 0))
+            x_offset += token.width
+        watermark = concatenate_image([line1, line2], align='center')
+        watermark = resize_image_with_width(watermark, container.width)
+        image = Image.new('RGB', (container.width, container.height + watermark.height), color='white')
+        image.paste(container.img)
+        image.paste(watermark, (0, container.height))
+        return image
