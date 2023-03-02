@@ -6,7 +6,7 @@ base:
   quality: 100
 
 logo: # true or false
-  enable: true
+  enable: false
   makes:
     nikon:
       id: NIKON
@@ -24,7 +24,7 @@ logo: # true or false
       id: Panasonic
       path: ./logos/panasonic.png
     olympus:
-      id: OLYMPUS
+      id: Olympus
       path: ./logos/olympus_blue_gold.png
     fujifilm:
       id: FUJIFILM
@@ -44,16 +44,23 @@ layout: # you can select one type in ['normal', 'normal_with_right_logo'], may m
   type: normal
   elements: # the information displayed in the watermark
     # you can select from ['Date', 'Model', 'LensModel', 'Param', 'Make', 'None', 'Custom']
-    # WARNING: you can change the value of id, but you can't remove any line below!
-    # WARNING: you can change the value of id, but you can't remove any line below!
-    # WARNING: you can change the value of id, but you can't remove any line below!
     # Use Custom to customize your slogan
-    - id: Model
-    - id: Make
-    - id: Param
-    - id: Date
-    # - id: Custom
-    #   value: Photo by default
+    left1:
+      id: LensModel
+      is_bold: True
+    left2:
+      id: Model
+      is_bold: False
+    right1:
+      id: Param
+      is_bold: True
+    right2:
+      id: Date
+      is_bold: False
+
+    # id: Custom
+    # is_bold: False
+    # value: '这是一个自定义的示例'
   white_margin:
     enable: false
     width: 3
