@@ -103,7 +103,7 @@ def resize_image_with_width(image, width):
     return resized_image
 
 
-def append_image_by_side(background, images, side='left', padding=100, is_start=False):
+def append_image_by_side(background, images, side='left', padding=200, is_start=False):
     """
     横向拼接图片
     :param background:
@@ -206,7 +206,7 @@ class ImageProcessor(object):
             # 插入一根线条用于分割 logo 和文字
             line = Image.new('RGB', (20, 1000), color='gray')
             line = padding_image(line, int(padding_ratio * line.height * .8))
-            append_image_by_side(watermark, [left], is_start=logo is None)
+            append_image_by_side(watermark, [left], is_start=True)
             append_image_by_side(watermark, [logo, line, right], side='right')
 
         watermark = resize_image_with_width(watermark, container.width)
