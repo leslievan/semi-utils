@@ -9,6 +9,8 @@ from utils import get_file_list
 id_to_name = {'Model': '相机机型', 'Make': '相机厂商', 'LensModel': '镜头型号', 'Custom': '自定义字段',
               'Param': '拍摄参数',
               'Date': '拍摄时间', 'None': '无'}
+s_line = '+' + '-' * 15 + '+' + '-' * 15 + '+'
+id_to_loc = {'left_top': '左上文字', 'right_top': '右上文字', 'left_bottom': '左下文字', 'right_bottom': '右下文字'}
 
 
 def print_current_setting():
@@ -18,7 +20,6 @@ def print_current_setting():
     """
     global state
 
-    s_line = '+' + '-' * 10 + '+' + '-' * 10 + '+'
     print(s_line)
     print(' ' * 8 + '当前设置')
     print(s_line)
@@ -26,14 +27,19 @@ def print_current_setting():
     print(' 【2】: Logo：{}'.format(config['logo']['enable']))
     print(' 【3】: 左上文字：{}'.format(id_to_name.setdefault(config['layout']['elements']['left_top']['name']), '值错误'))
     print(
-        ' 【4】: 左下文字：{}'.format(id_to_name.setdefault(config['layout']['elements']['left_bottom']['name']), '值错误'))
-    print(' 【5】: 右上文字：{}'.format(id_to_name.setdefault(config['layout']['elements']['right_top']['name']), '值错误'))
+        ' 【4】: 左下文字：{}'.format(id_to_name.setdefault(config['layout']['elements']['left_bottom']['name']),
+                                   '值错误'))
     print(
-        ' 【6】: 右下文字：{}'.format(id_to_name.setdefault(config['layout']['elements']['right_bottom']['name']), '值错误'))
+        ' 【5】: 右上文字：{}'.format(id_to_name.setdefault(config['layout']['elements']['right_top']['name']), '值错误'))
+    print(
+        ' 【6】: 右下文字：{}'.format(id_to_name.setdefault(config['layout']['elements']['right_bottom']['name']),
+                                   '值错误'))
     print(s_line)
-    user_input = input('输入【y 或回车】按照当前设置开始处理图片，或输入【数字】修改设置：\n')
+    user_input = input('输入【y 或回车】按照当前设置开始处理图片，输入【数字】修改设置，输入【x】退出程序\n')
     if user_input == 'y' or user_input == '':
         state = 100
+    elif user_input == 'x' or user_input == 'X':
+        exit(0)
     elif user_input.isdigit():
         state = int(user_input)
 
@@ -88,8 +94,15 @@ def modify_layout():
     global state
 
     while True:
-        user_input = input(
-            '输入【数字】选择布局类型：【1】: normal, 【2】: normal_with_right_logo, 【3】: square，或输入【0】返回主菜单\n')
+        print('输入【数字】选择布局类型：')
+        print('    【1】: normal')
+        print('    【2】: normal_with_right_logo')
+        print('    【3】: square')
+        print('输入【0】返回主菜单')
+        print('输入【x】退出程序')
+        user_input = input()
+        if user_input == 'x' or user_input == 'X':
+            exit(0)
         if user_input.isdigit():
             if user_input == '0':
                 return
@@ -116,7 +129,14 @@ def modify_logo():
     global state
 
     while True:
-        user_input = input('输入【数字】选择是否显示 logo：【1】: 显示 logo, 【2】: 不显示 logo，或输入【0】返回主菜单\n')
+        print('输入【数字】选择是否显示 logo：')
+        print('    【1】: 显示 logo')
+        print('    【2】: 不显示 logo')
+        print('输入【0】返回主菜单')
+        print('输入【x】退出程序')
+        user_input = input()
+        if user_input == 'x' or user_input == 'X':
+            exit(0)
         if user_input.isdigit():
             if user_input == '0':
                 return
@@ -140,10 +160,19 @@ def modify_element(key):
     global state
 
     while True:
-        user_input = input('输入数字选择显示内容：'
-                           '【1】：相机型号, 【2】：相机厂商，【3】：镜头型号，【4】：拍摄参数，'
-                           '【5】：拍摄日期，【6】：自定义字段，【7】：不显示，'
-                           '或输入【0】返回主菜单\n')
+        print('输入【数字】选择【{}】显示内容：'.format(id_to_loc[key]))
+        print('    【1】：相机型号')
+        print('    【2】：相机厂商')
+        print('    【3】：镜头型号')
+        print('    【4】：拍摄参数')
+        print('    【5】：拍摄日期')
+        print('    【6】：自定义字段')
+        print('    【7】：无')
+        print('输入【0】返回主菜单')
+        print('输入【x】退出程序')
+        user_input = input()
+        if user_input == 'x' or user_input == 'X':
+            exit(0)
         if user_input.isdigit():
             number = int(user_input)
             if number == 0:
@@ -185,6 +214,7 @@ if __name__ == '__main__':
             print_current_setting()
         elif state == 100:
             # 处理数据的代码
+            print(s_line)
             load_config()
             processing()
             save_config()
