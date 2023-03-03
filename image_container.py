@@ -22,7 +22,7 @@ class ImageContainer(object):
         self.date = self.exif['DateTimeOriginal'] if 'DateTimeOriginal' in self.exif else datetime.now().strftime(
             '%Y-%m-%d %H:%M:%S')
         self.focal_length = int(self.exif['FocalLength']) if 'FocalLength' in self.exif else 0
-        self.f_number = int(self.exif['FNumber']) if 'FNumber' in self.exif else 0
+        self.f_number = float(self.exif['FNumber']) if 'FNumber' in self.exif else .0
         self.exposure_time = str(
             self.exif['ExposureTime'].real) if 'ExposureTime' in self.exif else 'Unknown ExposureTime'
         self.iso = self.exif['ISOSpeedRatings'] if 'ISOSpeedRatings' in self.exif else 0
