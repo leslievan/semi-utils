@@ -60,6 +60,8 @@ class ImageContainer(object):
             return self.model
         elif element.name == 'Param':
             return self.get_param_str()
+        elif element.name == 'Make':
+            return self.make
         elif element.name == 'Date':
             return self._parse_datetime()
         elif element.name == 'LensModel':
