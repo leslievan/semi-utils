@@ -6,11 +6,17 @@ from image_container import ImageContainer
 from image_processor import ImageProcessor, padding_image
 from utils import get_file_list
 
-id_to_name = {'Model': '相机机型', 'Make': '相机厂商', 'LensModel': '镜头型号', 'Custom': '自定义字段',
-              'Param': '拍摄参数',
-              'Date': '拍摄时间', 'None': '无'}
+id_to_name = {'Model': '相机机型', 'Make': '相机厂商', 'LensModel': '镜头型号', 'Param': '拍摄参数', 'Date': '拍摄时间',
+              'None': '无'}
 s_line = '+' + '-' * 15 + '+' + '-' * 15 + '+'
 id_to_loc = {'left_top': '左上文字', 'right_top': '右上文字', 'left_bottom': '左下文字', 'right_bottom': '右下文字'}
+
+
+def parse_elem_value(element):
+    if element['name'] == 'Custom':
+        return '自定义字段 (' + (element['value'] if 'value' in element else '') + ')'
+    else:
+        return id_to_name.setdefault(element['name'], '值错误')
 
 
 def print_current_setting():
@@ -24,16 +30,11 @@ def print_current_setting():
     print(' ' * 8 + '当前设置')
     print(s_line)
     print(' 【1】: 布局：{}'.format(config['layout']['type']))
-    print(' 【2】: Logo：{}'.format(config['logo']['enable']))
-    print(' 【3】: 左上文字：{}'.format(id_to_name.setdefault(config['layout']['elements']['left_top']['name']), '值错误'))
-    print(
-        ' 【4】: 左下文字：{}'.format(id_to_name.setdefault(config['layout']['elements']['left_bottom']['name']),
-                                   '值错误'))
-    print(
-        ' 【5】: 右上文字：{}'.format(id_to_name.setdefault(config['layout']['elements']['right_top']['name']), '值错误'))
-    print(
-        ' 【6】: 右下文字：{}'.format(id_to_name.setdefault(config['layout']['elements']['right_bottom']['name']),
-                                   '值错误'))
+    print(' 【2】: Logo：{}'.format("显示" if config['logo']['enable'] else "不显示"))
+    print(' 【3】: 左上文字：{}'.format(parse_elem_value(config['layout']['elements']['left_top'])))
+    print(' 【4】: 左下文字：{}'.format(parse_elem_value(config['layout']['elements']['left_bottom'])))
+    print(' 【5】: 右上文字：{}'.format(parse_elem_value(config['layout']['elements']['right_top'])))
+    print(' 【6】: 右下文字：{}'.format(parse_elem_value(config['layout']['elements']['right_bottom'])))
     print(s_line)
     user_input = input('输入【y 或回车】按照当前设置开始处理图片，输入【数字】修改设置，输入【x】退出程序\n')
     if user_input == 'y' or user_input == '':
@@ -206,8 +207,9 @@ def modify_element(key):
             print('输入错误，请重新输入')
 
 
+state = 0
+
 if __name__ == '__main__':
-    state = 0
 
     while True:
         if state == 0:
@@ -217,7 +219,6 @@ if __name__ == '__main__':
             print(s_line)
             load_config()
             processing()
-            save_config()
         elif state == 1:
             modify_layout()
             # 修改布局类型的代码
@@ -247,3 +248,4 @@ if __name__ == '__main__':
         else:
             print("输入错误，请重新输入")
             state = 0
+        save_config()
