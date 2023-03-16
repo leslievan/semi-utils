@@ -64,7 +64,6 @@ def get_logo(make):
 
 
 # 读取配置
-global config
 with open('config.yaml', 'r', encoding='utf-8') as f:
     config = yaml.safe_load(f)
 
