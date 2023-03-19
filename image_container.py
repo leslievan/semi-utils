@@ -21,7 +21,9 @@ class ImageContainer(object):
         self.lens_model = ''.join(filter(lambda x: x in printable, self.lens_model))
         self.date = self.exif['DateTimeOriginal'] if 'DateTimeOriginal' in self.exif else datetime.now().strftime(
             '%Y-%m-%d %H:%M:%S')
-        self.focal_length = int(self.exif['FocalLength']) if 'FocalLength' in self.exif else 0
+        self.focal_length = int(self.exif['FocalLengthIn35mmFilm']) if 'FocalLengthIn35mmFilm' in self.exif else 0
+        if self.focal_length == 0:
+            self.focal_length = int(self.exif['FocalLength']) if 'FocalLength' in self.exif else 0
         self.f_number = float(self.exif['FNumber']) if 'FNumber' in self.exif else .0
         self.exposure_time = str(
             self.exif['ExposureTime'].real) if 'ExposureTime' in self.exif else 'Unknown ExposureTime'
