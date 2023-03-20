@@ -4,8 +4,8 @@ from PIL import Image, ImageDraw
 
 printable = set(string.printable)
 
-
 GRAY = '#6B696A'
+
 
 def concatenate_image(images, align='left'):
     widths, heights = zip(*(i.size for i in images))
@@ -183,14 +183,16 @@ class ImageProcessor(object):
 
         # 填充左边的文字内容
         left_top = self.text_to_image(container.get_attribute_str(config.left_top), is_bold=config.left_top.is_bold)
-        left_bottom = self.text_to_image(container.get_attribute_str(config.left_bottom), is_bold=config.left_bottom.is_bold,
-                                   fill=GRAY)
+        left_bottom = self.text_to_image(container.get_attribute_str(config.left_bottom),
+                                         is_bold=config.left_bottom.is_bold,
+                                         fill=GRAY)
         left = concatenate_image([left_top, left_bottom])
         left = padding_image(left, int(padding_ratio * left.height))
         # 填充右边的文字内容
         right_top = self.text_to_image(container.get_attribute_str(config.right_top), is_bold=config.right_top.is_bold)
-        right_bottom = self.text_to_image(container.get_attribute_str(config.right_bottom), is_bold=config.right_bottom.is_bold,
-                                     fill=GRAY)
+        right_bottom = self.text_to_image(container.get_attribute_str(config.right_bottom),
+                                          is_bold=config.right_bottom.is_bold,
+                                          fill=GRAY)
         right = concatenate_image([right_top, right_bottom])
         right = padding_image(right, int(padding_ratio * right.height))
 
