@@ -175,11 +175,11 @@ class ImageProcessor(object):
         :return:
         """
         ratio = .13
-        padding_ratio = .5
+        padding_ratio = .4
         if container.ratio > 1:
             ratio = .1
-            padding_ratio = .5
-        watermark = Image.new('RGB', (int(1000 / ratio), 1000), color='white')
+            padding_ratio = .3
+        watermark = Image.new('RGB', (int(1000 / ratio), 800), color='white')
 
         # 填充左边的文字内容
         left_top = self.text_to_image(container.get_attribute_str(config.left_top), is_bold=config.left_top.is_bold)
