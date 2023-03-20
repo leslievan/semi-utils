@@ -5,7 +5,35 @@ from PIL import Image, ImageDraw
 printable = set(string.printable)
 
 GRAY = '#6B696A'
+NORMAL_HEIGHT = 1000
+TINY_HEIGHT = 800
 
+
+def remove_white_edge(image):
+    # 获取像素信息
+    pixels = image.load()
+
+    # 获取图像大小
+    width, height = image.size
+
+    # 计算最小的 X、Y、最大的 X、Y 坐标
+    min_x, min_y = width - 1, height - 1
+    max_x, max_y = 0, 0
+    for y in range(height):
+        for x in range(width):
+            if pixels[x, y] != (255, 255, 255):
+                min_x = min(min_x, x)
+                min_y = min(min_y, y)
+                max_x = max(max_x, x)
+                max_y = max(max_y, y)
+
+    # 计算新的图像大小
+    new_width = max_x - min_x + 1
+    new_height = max_y - min_y + 1
+
+    # 裁剪图像
+    new_image = image.crop((min_x, min_y, max_x + 1, max_y + 1))
+    return new_image
 
 def concatenate_image(images, align='left'):
     widths, heights = zip(*(i.size for i in images))
@@ -175,11 +203,11 @@ class ImageProcessor(object):
         :return:
         """
         ratio = .13
-        padding_ratio = .4
+        padding_ratio = 0.618
         if container.ratio > 1:
             ratio = .1
-            padding_ratio = .3
-        watermark = Image.new('RGB', (int(1000 / ratio), 800), color='white')
+            padding_ratio = 0.618
+        watermark = Image.new('RGB', (int(NORMAL_HEIGHT / ratio), NORMAL_HEIGHT), color='white')
 
         # 填充左边的文字内容
         left_top = self.text_to_image(container.get_attribute_str(config.left_top), is_bold=config.left_top.is_bold)
@@ -187,6 +215,7 @@ class ImageProcessor(object):
                                          is_bold=config.left_bottom.is_bold,
                                          fill=GRAY)
         left = concatenate_image([left_top, left_bottom])
+        left = remove_white_edge(left)
         left = padding_image(left, int(padding_ratio * left.height))
         # 填充右边的文字内容
         right_top = self.text_to_image(container.get_attribute_str(config.right_top), is_bold=config.right_top.is_bold)
@@ -194,6 +223,7 @@ class ImageProcessor(object):
                                           is_bold=config.right_bottom.is_bold,
                                           fill=GRAY)
         right = concatenate_image([right_top, right_bottom])
+        right = remove_white_edge(right)
         right = padding_image(right, int(padding_ratio * right.height))
 
         logo = container.get_logo()
