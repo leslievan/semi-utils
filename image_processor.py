@@ -10,6 +10,11 @@ TINY_HEIGHT = 800
 
 
 def remove_white_edge(image):
+    """
+    移除图片白边
+    :param image: 图片对象
+    :return: 移除白边后的图片对象
+    """
     # 获取像素信息
     pixels = image.load()
 
@@ -35,7 +40,14 @@ def remove_white_edge(image):
     new_image = image.crop((min_x, min_y, max_x + 1, max_y + 1))
     return new_image
 
+
 def concatenate_image(images, align='left'):
+    """
+    将多张图片拼接成一列
+    :param images: 图片对象列表
+    :param align: 对齐方向，left/center/right
+    :return: 拼接后的图片对象
+    """
     widths, heights = zip(*(i.size for i in images))
 
     sum_height = sum(heights)
@@ -63,6 +75,13 @@ def concatenate_image(images, align='left'):
 
 
 def padding_image(image, padding_size, padding_location='tb'):
+    """
+    在图片四周填充白色像素
+    :param image: 图片对象
+    :param padding_size: 填充像素大小
+    :param padding_location: 填充位置，top/bottom/left/right
+    :return: 填充白色像素后的图片对象
+    """
     if image is None:
         return None
 
@@ -85,6 +104,11 @@ def padding_image(image, padding_size, padding_location='tb'):
 
 
 def square_image(image):
+    """
+    将图片按照正方形进行填充
+    :param image: 图片对象
+    :return: 填充后的图片对象
+    """
     # 计算图片的宽度和高度
     width, height = image.size
 
@@ -104,6 +128,12 @@ def square_image(image):
 
 
 def resize_image_with_height(image, height):
+    """
+    按照高度对图片进行缩放
+    :param image: 图片对象
+    :param height: 指定高度
+    :return: 按照高度缩放后的图片对象
+    """
     # 获取原始图片的宽度和高度
     width, old_height = image.size
 
@@ -119,6 +149,12 @@ def resize_image_with_height(image, height):
 
 
 def resize_image_with_width(image, width):
+    """
+    按照宽度对图片进行缩放
+    :param image: 图片对象
+    :param width: 指定宽度
+    :return: 按照宽度缩放后的图片对象
+    """
     # 获取原始图片的宽度和高度
     old_width, height = image.size
 
@@ -135,13 +171,13 @@ def resize_image_with_width(image, width):
 
 def append_image_by_side(background, images, side='left', padding=200, is_start=False):
     """
-    横向拼接图片
-    :param background:
-    :param images:
-    :param side:
-    :param padding:
-    :param is_start:
-    :return:
+    将图片横向拼接到背景图片中
+    :param background: 背景图片对象
+    :param images: 图片对象列表
+    :param side: 拼接方向，left/right
+    :param padding: 图片之间的间距
+    :param is_start: 是否在最左侧添加 padding
+    :return: 拼接后的图片对象
     """
     if 'right' == side:
         if is_start:
@@ -171,6 +207,9 @@ def append_image_by_side(background, images, side='left', padding=200, is_start=
 
 
 class ImageProcessor(object):
+    """
+    水印边框
+    """
     def __init__(self, font, bold_font):
         self.font = font
         self.bold_font = bold_font
@@ -195,10 +234,10 @@ class ImageProcessor(object):
     def normal_watermark(self, container, config, is_logo_left=True):
         """
         生成一个默认布局的水印图片
-        :param container:
-        :param config:
-        :param is_logo_left:
-        :return:
+        :param container: 图片对象
+        :param config: 水印配置
+        :param is_logo_left: logo 位置
+        :return: 添加水印后的图片对象
         """
         ratio = .13
         padding_ratio = 0.618
@@ -249,9 +288,7 @@ class ImageProcessor(object):
     def square_watermark(self, container):
         """
         生成一个1：1布局的水印图片
-        :param container:
-        :param config:
-        :param is_logo_left:
-        :return:
+        :param container: 图片对象
+        :return: 填充白边后的图片对象
         """
         return square_image(container.img)
