@@ -1,6 +1,6 @@
 base:
-  bold_font: ./fonts/SourceHanSansCN-Bold.otf
-  font: ./fonts/SourceHanSansCN-Light.otf
+  bold_font: ./fonts/OpenSans-Bold.ttf
+  font: ./fonts/OpenSans-Light.ttf
   input_dir: ./input
   output_dir: ./output
   quality: 100
@@ -14,8 +14,8 @@ layout:
       name: LensModel
     right_bottom:
       is_bold: false
-      name: Custom
-      value: "Photo by NONE"
+      name: Date
+      value: Photo by NONE
     right_top:
       is_bold: true
       name: Param
