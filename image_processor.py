@@ -210,6 +210,7 @@ class ImageProcessor(object):
     """
     水印边框
     """
+
     def __init__(self, font, bold_font):
         self.font = font
         self.bold_font = bold_font
@@ -239,29 +240,29 @@ class ImageProcessor(object):
         :param is_logo_left: logo 位置
         :return: 添加水印后的图片对象
         """
-        ratio = .13
-        padding_ratio = 0.618
-        if container.ratio > 1:
-            ratio = .1
-            padding_ratio = 0.618
+        ratio = .1 if container.ratio >= 1 else .13
+        padding_ratio = .618
+
         watermark = Image.new('RGB', (int(NORMAL_HEIGHT / ratio), NORMAL_HEIGHT), color='white')
+        empty_padding = Image.new('RGB', (10, 50), color='white')
 
         # 填充左边的文字内容
         left_top = self.text_to_image(container.get_attribute_str(config.left_top), is_bold=config.left_top.is_bold)
         left_bottom = self.text_to_image(container.get_attribute_str(config.left_bottom),
-                                         is_bold=config.left_bottom.is_bold,
-                                         fill=GRAY)
-        left = concatenate_image([left_top, left_bottom])
+                                         is_bold=config.left_bottom.is_bold, fill=GRAY)
+        left = concatenate_image([left_top, empty_padding, left_bottom])
         left = remove_white_edge(left)
-        left = padding_image(left, int(padding_ratio * left.height))
         # 填充右边的文字内容
         right_top = self.text_to_image(container.get_attribute_str(config.right_top), is_bold=config.right_top.is_bold)
         right_bottom = self.text_to_image(container.get_attribute_str(config.right_bottom),
-                                          is_bold=config.right_bottom.is_bold,
-                                          fill=GRAY)
-        right = concatenate_image([right_top, right_bottom])
+                                          is_bold=config.right_bottom.is_bold, fill=GRAY)
+        right = concatenate_image([right_top, empty_padding, right_bottom])
         right = remove_white_edge(right)
-        right = padding_image(right, int(padding_ratio * right.height))
+
+        max_height = max(left.height, right.height)
+        left = padding_image(left, int(max_height * padding_ratio), 'tb')
+        right = padding_image(right, int(max_height * padding_ratio), 't')
+        right = padding_image(right, left.height - right.height, 'b')
 
         logo = container.get_logo()
         if is_logo_left:
