@@ -4,7 +4,7 @@ from config import Layout, input_dir, config, font, bold_font, get_logo, white_m
     output_dir, quality, logo_enable, save_config, load_config
 from image_container import ImageContainer
 from image_processor import ImageProcessor, padding_image
-from utils import get_file_list
+from utils import get_file_list, copy_exif_data
 
 id_to_name = {'Model': '相机机型', 'Make': '相机厂商', 'LensModel': '镜头型号', 'Param': '拍摄参数', 'Date': '拍摄时间',
               'None': '无'}
@@ -58,8 +58,9 @@ def processing():
     print('当前共有 {} 张图片待处理'.format(len(file_list)))
     processor = ImageProcessor(font, bold_font)
     for file in tqdm(file_list):
+        source_path = os.path.join(input_dir, file)
         # 打开图片
-        container = ImageContainer(os.path.join(input_dir, file))
+        container = ImageContainer(source_path)
 
         # 添加logo
         if logo_enable:
@@ -80,9 +81,11 @@ def processing():
             watermark = padding_image(watermark, int(white_margin_width * min(container.width, container.height) / 100), 'tlr')
 
         # 保存图片
-        watermark.save(os.path.join(output_dir, file), quality=quality)
+        target_path = os.path.join(output_dir, file)
+        watermark.save(target_path, quality=quality)
         container.close()
         watermark.close()
+        copy_exif_data(source_path, target_path)
     print('处理完成，文件已输出至 output 文件夹中，请点击任意键退出或直接关闭'.format(len(file_list)))
     input()
     state = -1
