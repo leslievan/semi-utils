@@ -75,7 +75,7 @@ class ImageContainer(object):
             return ''
 
     def get_param_str(self):
-        return '  '.join([str(self.focal_length) + 'mm', 'f/' + "{:2.1f}".format(self.f_number), self.exposure_time,
+        return '  '.join([str(self.focal_length) + 'mm', 'f/' + str(self.f_number), self.exposure_time,
                           'ISO' + str(self.iso)])
 
     def get_original_ratio(self):
