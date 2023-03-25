@@ -21,7 +21,7 @@ layout:
       name: Param
   type: normal_with_right_logo
   white_margin:
-    enable: false
+    enable: true
     width: 3
 logo:
   enable: true

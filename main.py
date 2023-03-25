@@ -35,6 +35,7 @@ def print_current_setting():
     print(' 【4】: 左下文字：{}'.format(parse_elem_value(config['layout']['elements']['left_bottom'])))
     print(' 【5】: 右上文字：{}'.format(parse_elem_value(config['layout']['elements']['right_top'])))
     print(' 【6】: 右下文字：{}'.format(parse_elem_value(config['layout']['elements']['right_bottom'])))
+    print(' 【7】: 白色边框：{}'.format("显示" if config['layout']['white_margin']['enable'] else "不显示"))
     print(s_line)
     user_input = input('输入【y 或回车】按照当前设置开始处理图片，输入【数字】修改设置，输入【x】退出程序\n')
     if user_input == 'y' or user_input == '':
@@ -75,8 +76,8 @@ def processing():
             watermark = processor.normal_watermark(container, layout)
 
         # 添加白框
-        if white_margin_enable:
-            watermark = padding_image(watermark, int(white_margin_width * container.width / 100), 'tlr')
+        if config['layout']['white_margin']['enable']:
+            watermark = padding_image(watermark, int(white_margin_width * min(container.width, container.height) / 100), 'tlr')
 
         # 保存图片
         watermark.save(os.path.join(output_dir, file), quality=quality)
@@ -151,6 +152,37 @@ def modify_logo():
                 print('输入错误，请重新输入')
         else:
             print('输入错误，请重新输入')
+
+def modify_white_margin():
+    """
+    状态4：修改 margin
+    :return:
+    """
+    global state
+
+    while True:
+        print('输入【数字】选择是否显示白色边框：')
+        print('    【1】: 显示白色边框')
+        print('    【2】: 不显示白色边框')
+        print('输入【0】返回主菜单')
+        print('输入【x】退出程序')
+        user_input = input()
+        if user_input == 'x' or user_input == 'X':
+            exit(0)
+        if user_input.isdigit():
+            if user_input == '0':
+                return
+            elif user_input == '1':
+                config['layout']['white_margin']['enable'] = True
+                return
+            elif user_input == '2':
+                config['layout']['white_margin']['enable'] = False
+                return
+            else:
+                print('输入错误，请重新输入')
+        else:
+            print('输入错误，请重新输入')
+
 
 
 def modify_element(key):
@@ -241,6 +273,10 @@ if __name__ == '__main__':
             state = 0
         elif state == 6:
             modify_element('right_bottom')
+            # 修改右下文字的代码
+            state = 0
+        elif state == 7:
+            modify_white_margin()
             # 修改右下文字的代码
             state = 0
         elif state == -1:
