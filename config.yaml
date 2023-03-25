@@ -15,7 +15,7 @@ layout:
     right_bottom:
       is_bold: false
       name: Custom
-      value: "\u81EA\u5B9A\u4E49\u5B57\u6BB5"
+      value: "Photo by NONE"
     right_top:
       is_bold: true
       name: Param
