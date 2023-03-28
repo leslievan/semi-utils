@@ -251,13 +251,11 @@ class ImageProcessor(object):
         left_bottom = self.text_to_image(container.get_attribute_str(config.left_bottom),
                                          is_bold=config.left_bottom.is_bold, fill=GRAY)
         left = concatenate_image([left_top, empty_padding, left_bottom])
-        left = remove_white_edge(left)
         # 填充右边的文字内容
         right_top = self.text_to_image(container.get_attribute_str(config.right_top), is_bold=config.right_top.is_bold)
         right_bottom = self.text_to_image(container.get_attribute_str(config.right_bottom),
                                           is_bold=config.right_bottom.is_bold, fill=GRAY)
         right = concatenate_image([right_top, empty_padding, right_bottom])
-        right = remove_white_edge(right)
 
         max_height = max(left.height, right.height)
         left = padding_image(left, int(max_height * padding_ratio), 'tb')
