@@ -10,7 +10,8 @@ def get_file_list(path):
     :param path: 路径
     :return: 文件名
     """
-    file_list = [file for file in os.listdir(path) if 'jpg' in file or 'jpeg' in file or 'JPG' in file or 'JPEG' in file]
+    file_list = [file for file in os.listdir(path) if
+                 'jpg' in file or 'jpeg' in file or 'JPG' in file or 'JPEG' in file]
     return file_list
 
 

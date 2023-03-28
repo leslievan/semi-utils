@@ -1,6 +1,6 @@
 base:
-  bold_font: ./fonts/OpenSans-Bold.ttf
-  font: ./fonts/OpenSans-Light.ttf
+  bold_font: ./fonts/AlibabaPuHuiTi-2-85-Bold.otf
+  font: ./fonts/AlibabaPuHuiTi-2-45-Light.otf
   input_dir: ./input
   output_dir: ./output
   quality: 100

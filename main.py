@@ -1,6 +1,8 @@
 import os
+
 from tqdm import tqdm
-from config import Layout, input_dir, config, font, bold_font, get_logo, white_margin_enable, white_margin_width, \
+
+from config import Layout, input_dir, config, font, bold_font, get_logo, white_margin_width, \
     output_dir, quality, logo_enable, save_config, load_config
 from image_container import ImageContainer
 from image_processor import ImageProcessor, padding_image
@@ -78,7 +80,8 @@ def processing():
 
         # 添加白框
         if config['layout']['white_margin']['enable']:
-            watermark = padding_image(watermark, int(white_margin_width * min(container.width, container.height) / 100), 'tlr')
+            watermark = padding_image(watermark, int(white_margin_width * min(container.width, container.height) / 100),
+                                      'tlr')
 
         # 保存图片
         target_path = os.path.join(output_dir, file)
@@ -156,6 +159,7 @@ def modify_logo():
         else:
             print('输入错误，请重新输入')
 
+
 def modify_white_margin():
     """
     状态4：修改 margin
@@ -185,7 +189,6 @@ def modify_white_margin():
                 print('输入错误，请重新输入')
         else:
             print('输入错误，请重新输入')
-
 
 
 def modify_element(key):

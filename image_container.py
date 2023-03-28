@@ -8,6 +8,7 @@ from utils import get_exif
 
 printable = set(string.printable)
 
+
 class ImageContainer(object):
     def __init__(self, path):
         self.img = Image.open(path)
