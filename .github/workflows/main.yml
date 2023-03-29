@@ -28,7 +28,8 @@ jobs:
 
     - name: Modify Folder Name
       run: |
-        cat version | xargs -I{} mv dist/main dist/semi-utils-{}
+        pwd
+        ls
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
