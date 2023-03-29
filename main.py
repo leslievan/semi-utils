@@ -38,6 +38,7 @@ def print_current_setting():
     print(' 【5】: 右上文字：{}'.format(parse_elem_value(config['layout']['elements']['right_top'])))
     print(' 【6】: 右下文字：{}'.format(parse_elem_value(config['layout']['elements']['right_bottom'])))
     print(' 【7】: 白色边框：{}'.format("显示" if config['layout']['white_margin']['enable'] else "不显示"))
+    print(' 【8】: 等效焦距：{}'.format("使用" if config['param']['focal_length']['use_equivalent_focal_length'] else "不使用"))
     print(s_line)
     user_input = input('输入【y 或回车】按照当前设置开始处理图片，输入【数字】修改设置，输入【x】退出程序\n')
     if user_input == 'y' or user_input == '':
@@ -93,6 +94,31 @@ def processing():
     input()
     state = -1
 
+def modify_focal_length():
+    global state
+
+    while True:
+        print('输入【数字】选择是否使用等效焦距：')
+        print('    【1】: 使用等效焦距')
+        print('    【2】: 不使用等效焦距')
+        print('输入【0】返回主菜单')
+        print('输入【x】退出程序')
+        user_input = input()
+        if user_input == 'x' or user_input == 'X':
+            exit(0)
+        if user_input.isdigit():
+            if user_input == '0':
+                return
+            elif user_input == '1':
+                config['param']['focal_length']['use_equivalent_focal_length'] = True
+                return
+            elif user_input == '2':
+                config['param']['focal_length']['use_equivalent_focal_length'] = False
+                return
+            else:
+                print('输入错误，请重新输入')
+        else:
+            print('输入错误，请重新输入')
 
 def modify_layout():
     """
@@ -284,6 +310,9 @@ if __name__ == '__main__':
         elif state == 7:
             modify_white_margin()
             # 修改右下文字的代码
+            state = 0
+        elif state == 8:
+            modify_focal_length()
             state = 0
         elif state == -1:
             exit(0)

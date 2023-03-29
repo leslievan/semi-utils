@@ -56,3 +56,6 @@ logo:
     sony:
       id: SONY
       path: ./logos/sony.png
+param:
+  focal_length:
+    use_equivalent_focal_length: false
