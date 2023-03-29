@@ -16,13 +16,10 @@ class ImageContainer(object):
 
         # 相机机型
         self.model = self.exif['Model'] if 'Model' in self.exif else '无'
-        self.model = ''.join(filter(lambda x: x in printable, self.model))
         # 相机制造商
         self.make = self.exif['Make'] if 'Make' in self.exif else '无'
-        self.make = ''.join(filter(lambda x: x in printable, self.make))
         # 镜头型号
         self.lens_model = self.exif['LensModel'] if 'LensModel' in self.exif else '无'
-        self.lens_model = ''.join(filter(lambda x: x in printable, self.lens_model))
         # 拍摄日期
         self.date = self.exif['DateTimeOriginal'] \
             if 'DateTimeOriginal' in self.exif \
