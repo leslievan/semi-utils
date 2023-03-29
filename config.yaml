@@ -58,4 +58,4 @@ logo:
       path: ./logos/sony.png
 param:
   focal_length:
-    use_equivalent_focal_length: false
+    use_equivalent_focal_length: true
