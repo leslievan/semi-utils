@@ -28,7 +28,7 @@ jobs:
 
     - name: Modify Folder Name
       run: |
-        ls dist
+        Get-Content version | Rename-Item -Path "./dist/main" -NewName { "./dist/semi-utils-$_" }
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
