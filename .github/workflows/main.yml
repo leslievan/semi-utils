@@ -28,8 +28,7 @@ jobs:
 
     - name: Modify Folder Name
       run: |
-        pwd
-        ls
+        ls dist
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
