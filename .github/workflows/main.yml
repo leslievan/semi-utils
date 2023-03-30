@@ -28,9 +28,9 @@ jobs:
 
     - name: Modify Folder Name
       run: |
-        version=$(cat version)
-        echo dist/semi-utils-$version
-        mv dist/main dist/semi-utils-$version
+        $version = Get-Content version
+        echo $version
+        Rename-Item -Path "./dist/main" -NewName "./dist/semi-utils-$version"
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
