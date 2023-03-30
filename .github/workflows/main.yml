@@ -26,10 +26,6 @@ jobs:
       run: |
         pyinstaller main.spec
 
-    - name: Modify Folder Name
-      run: |
-        cat version | xargs -I{} mv dist/main dist/semi-utils-{}
-
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
       with:
