@@ -26,12 +26,6 @@ jobs:
       run: |
         pyinstaller main.spec
 
-    - name: Modify Folder Name
-      run: |
-        $version = Get-Content version
-        echo $version
-        Rename-Item -Path "./dist/main" -NewName "./dist/semi-utils-$version"
-
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
       with:
