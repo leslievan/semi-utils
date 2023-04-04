@@ -1,12 +1,9 @@
-import string
 from datetime import datetime
 
 from PIL import Image
 from PIL.Image import Transpose
 
 from utils import get_exif
-
-printable = set(string.printable)
 
 
 class ImageContainer(object):
@@ -62,14 +59,23 @@ class ImageContainer(object):
         # 水印图片
         self.watermark_img = None
 
-    def _parse_datetime(self):
+    def _parse_datetime(self) -> str:
+        """
+        解析日期，转换为指定的格式
+        :return: 指定格式的日期字符串，转换失败返回原始的时间字符串
+        """
         try:
             date = datetime.strptime(self.date, '%Y:%m:%d %H:%M:%S')
             return datetime.strftime(date, '%Y-%m-%d %H:%M')
         except ValueError:
             return self.date
 
-    def get_attribute_str(self, element):
+    def get_attribute_str(self, element) -> str:
+        """
+        通过 element 获取属性值
+        :param element: element 对象有 name 和 value 两个字段，通过 name 和 value 获取属性值
+        :return: 属性值字符串
+        """
         if element is None or element.name == '':
             return ''
         if element.name == 'Model':
@@ -88,7 +94,11 @@ class ImageContainer(object):
         else:
             return ''
 
-    def get_param_str(self):
+    def get_param_str(self) -> str:
+        """
+        组合拍摄参数，输出一个字符串
+        :return: 拍摄参数字符串
+        """
         focal_length = self.focal_length_in_35mm_film if self.use_equivalent_focal_length else self.focal_length
         return '  '.join([str(focal_length) + 'mm', 'f/' + str(self.f_number), self.exposure_time,
                           'ISO' + str(self.iso)])
@@ -99,10 +109,10 @@ class ImageContainer(object):
     def get_logo(self):
         return self.logo
 
-    def set_logo(self, logo):
+    def set_logo(self, logo) -> None:
         self.logo = logo
 
-    def is_use_equivalent_focal_length(self, flag):
+    def is_use_equivalent_focal_length(self, flag: bool) -> None:
         self.use_equivalent_focal_length = flag
 
     def close(self):
