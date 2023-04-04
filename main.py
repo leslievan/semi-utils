@@ -71,6 +71,9 @@ def processing():
         else:
             container.set_logo(None)
 
+        # 使用等效焦距
+        container.is_use_equivalent_focal_length(config['param']['focal_length']['use_equivalent_focal_length'])
+
         # 添加水印
         if 'normal_with_right_logo' == layout.type:
             watermark = processor.normal_watermark(container, layout, is_logo_left=False)

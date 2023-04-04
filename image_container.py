@@ -102,5 +102,8 @@ class ImageContainer(object):
     def set_logo(self, logo):
         self.logo = logo
 
+    def is_use_equivalent_focal_length(self, flag):
+        self.use_equivalent_focal_length = flag
+
     def close(self):
         self.img.close()
