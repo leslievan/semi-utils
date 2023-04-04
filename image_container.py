@@ -67,7 +67,7 @@ class ImageContainer(object):
             date = datetime.strptime(self.date, '%Y:%m:%d %H:%M:%S')
             return datetime.strftime(date, '%Y-%m-%d %H:%M')
         except ValueError:
-            return '无'
+            return self.date
 
     def get_attribute_str(self, element):
         if element is None or element.name == '':
