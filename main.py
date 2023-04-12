@@ -21,6 +21,13 @@ def parse_elem_value(element):
         return id_to_name.setdefault(element['name'], '值错误')
 
 
+def select_setting():
+    if 'normal' in config['layout']['type']:
+        return NORMAL_SETTING
+    else:
+        return SQUARE_SETTING
+
+
 def print_current_setting():
     """
     状态1：开始菜单
@@ -31,14 +38,9 @@ def print_current_setting():
     print(s_line)
     print(' ' * 8 + '当前设置')
     print(s_line)
-    print(' 【1】: 布局：{}'.format(config['layout']['type']))
-    print(' 【2】: Logo：{}'.format("显示" if config['logo']['enable'] else "不显示"))
-    print(' 【3】: 左上文字：{}'.format(parse_elem_value(config['layout']['elements']['left_top'])))
-    print(' 【4】: 左下文字：{}'.format(parse_elem_value(config['layout']['elements']['left_bottom'])))
-    print(' 【5】: 右上文字：{}'.format(parse_elem_value(config['layout']['elements']['right_top'])))
-    print(' 【6】: 右下文字：{}'.format(parse_elem_value(config['layout']['elements']['right_bottom'])))
-    print(' 【7】: 白色边框：{}'.format("显示" if config['layout']['white_margin']['enable'] else "不显示"))
-    print(' 【8】: 等效焦距：{}'.format("使用" if config['param']['focal_length']['use_equivalent_focal_length'] else "不使用"))
+    setting_items = select_setting()
+    for idx, item in enumerate(setting_items):
+        print(' 【{}】: {}'.format(idx + 1, item.display()))
     print(s_line)
     user_input = input('输入【y 或回车】按照当前设置开始处理图片，输入【数字】修改设置，输入【x】退出程序\n')
     if user_input == 'y' or user_input == '':
@@ -47,6 +49,90 @@ def print_current_setting():
         exit(0)
     elif user_input.isdigit():
         state = int(user_input)
+
+
+class SettingItem(object):
+    def __init__(self, name: str):
+        self.name = name
+
+    def get(self):
+        return self.name
+
+    def display(self) -> str:
+        return ': '.join([self.name, self.get()])
+
+
+class Pointer(object):
+    def __init__(self, obj):
+        self._container = []
+        self._container.append(obj)
+
+    def get(self):
+        return self._container[0]
+
+
+class NormalSettingItem(SettingItem):
+    def __init__(self, name: str, source: Pointer, keys: list):
+        super().__init__(name)
+        self.source = source
+        self.keys = keys
+
+    def get(self) -> str:
+        value = self.source.get()
+        for key in self.keys:
+            value = value[key]
+        return parse_elem_value(value)
+
+
+class PureSettingItem(NormalSettingItem):
+    def __init__(self, name: str, source: Pointer, keys: list):
+        super().__init__(name, source, keys)
+
+    def get(self) -> str:
+        value = self.source.get()
+        for key in self.keys:
+            value = value[key]
+        return value
+
+
+class BooleanSettingItem(SettingItem):
+    def __init__(self, name: str, value_if_true: str, value_if_false: str, source: Pointer, keys: list):
+        super().__init__(name)
+        self.value_if_true = value_if_true
+        self.value_if_false = value_if_false
+        self.source = source
+        self.keys = keys
+
+    def get(self) -> str:
+        value = self.source.get()
+        for key in self.keys:
+            value = value[key]
+        return self.value_if_true if value else self.value_if_false
+
+
+config_pointer = Pointer(config)
+layout_setting_item = PureSettingItem('布局', config_pointer, ['layout', 'type'])
+logo_setting_item = BooleanSettingItem('logo', '显示', '不显示', config_pointer, ['logo', 'enable'])
+left_top_setting_item = NormalSettingItem('左上角', config_pointer, ['layout', 'elements', 'left_top'])
+left_bottom_setting_item = NormalSettingItem('左下角', config_pointer, ['layout', 'elements', 'left_bottom'])
+right_top_setting_item = NormalSettingItem('右上角', config_pointer, ['layout', 'elements', 'right_top'])
+right_bottom_setting_item = NormalSettingItem('右下角', config_pointer, ['layout', 'elements', 'right_bottom'])
+white_margin_setting_item = BooleanSettingItem('白色边框', '显示', '不显示', config_pointer,
+                                               ['layout', 'white_margin', 'enable'])
+equivalent_focal_length_setting_item = BooleanSettingItem('等效焦距', '使用', '不使用', config_pointer,
+                                                          ['param', 'focal_length', 'use_equivalent_focal_length'])
+NORMAL_SETTING = []
+NORMAL_SETTING.append(layout_setting_item)
+NORMAL_SETTING.append(logo_setting_item)
+NORMAL_SETTING.append(left_top_setting_item)
+NORMAL_SETTING.append(left_bottom_setting_item)
+NORMAL_SETTING.append(right_top_setting_item)
+NORMAL_SETTING.append(right_bottom_setting_item)
+NORMAL_SETTING.append(white_margin_setting_item)
+NORMAL_SETTING.append(equivalent_focal_length_setting_item)
+
+SQUARE_SETTING = []
+SQUARE_SETTING.append(layout_setting_item)
 
 
 def processing():
@@ -97,6 +183,7 @@ def processing():
     input()
     state = -1
 
+
 def modify_focal_length():
     global state
 
@@ -122,6 +209,7 @@ def modify_focal_length():
                 print('输入错误，请重新输入')
         else:
             print('输入错误，请重新输入')
+
 
 def modify_layout():
     """
