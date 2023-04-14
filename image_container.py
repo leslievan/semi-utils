@@ -9,7 +9,7 @@ from utils import get_exif
 class ImageContainer(object):
     def __init__(self, path):
         self.img = Image.open(path)
-        self.exif = get_exif(self.img)
+        self.exif = get_exif(path)
 
         # 相机机型
         self.model = self.exif['Model'] if 'Model' in self.exif else '无'
