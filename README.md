@@ -21,7 +21,7 @@
 ## 效果展示
 
 > **布局：normal_with_right**
-> 
+>
 > logo 居右，下方文字内容可自定义
 
 ![](images/1-right.jpg)
@@ -29,7 +29,7 @@
 ---
 
 > **布局：normal_with_right**
-> 
+>
 > logo 居右，添加外包围白框，下方文字内容可自定义
 
 ![](images/1-right-margin.jpg)
@@ -37,7 +37,7 @@
 ---
 
 > **布局：normal**
-> 
+>
 > logo 居左，下方文字内容可自定义
 
 ![](images/1-left.jpg)
@@ -45,7 +45,7 @@
 ---
 
 > **布局：square**
-> 
+>
 > 布局：square" attr="正方形白色边框
 
 ![](images/1-square.jpg)
@@ -53,7 +53,7 @@
 ## 使用方法
 
 > **简要步骤**
-> 
+>
 > ![](images/steps.png)
 
 ### Windows
@@ -107,6 +107,50 @@
 | `logo.makes.item`      | 厂商配置，一个带有 `id` 和 `path` 两个键的字典     |
 | `logo.makes.item.id`   | 厂商标识，由 Exif 信息提供                   |
 | `logo.makes.item.path` | 厂商 logo 路径，可自定义                    |
+
+## 可能出现的问题
+
+### 运行 `pip install` 时提示 `command not found`
+
+**可能是因为没有安装 Python3**，可以通过以下几种方式安装 Python3。
+
+1. 使用 Homebrew 安装。
+
+   Homebrew 是 Mac 上的软件包管理器，可以轻松地安装许多应用程序和服务。
+
+   - 如果你已经安装了 `brew`，打开终端并输入以下命令来安装 Python3：
+
+     ```shell
+     brew install python3
+     ```
+
+     如果这条命令提示 `command not found`，代表你没有安装 `brew`，跳转下一步。
+
+    - 如果你没有安装 `brew`，打开终端并输入以下命令来安装 Homebrew：
+
+      ```shell
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      ```
+
+      然后输入以下命令来安装 Python3：
+
+      ```shell
+      brew install python3
+      ```
+
+2. 使用 dmg 包安装
+
+   你可以从 [Python 官网](https://www.python.org/downloads/macos/) 下载 Python3 的安装包，选择 Stable Release 下的任一版本即可，推荐 `3.10.11`，然后打开下载好的安装包按照提示安装即可。
+
+**验证安装**
+
+安装完成后，可以使用以下命令来验证 Python3 是否正确安装：
+
+```shell
+python3 --version
+```
+
+此命令将返回已安装的 Python3 版本号。
 
 ## 关于
 

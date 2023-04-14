@@ -8,7 +8,7 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[('config.yaml', '.'), ('./input', './input'), ('./output', './output'), ('./fonts', './fonts'), ('./logos', './logos')],
+    datas=[('config.yaml', '.'), ('./input', './input'), ('./output', './output'), ('./fonts', './fonts'), ('./logos', './logos'), ('./exiftool', './exiftool')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -46,5 +46,5 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='semi-utils-1_4_13',
+    name='semi-utils-1_4_14',
 )
