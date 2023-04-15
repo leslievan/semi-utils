@@ -159,3 +159,5 @@ python3 --version
 ## 许可证
 
 本项目的发布基于 [Apache License 2.0](LICENSE).
+
+本项目引用了 [exiftool](https://exiftool.org/)，其发布基于 [GPL v1 + Artistic License 2.0](https://exiftool.org/#license)。

@@ -65,7 +65,8 @@ class ImageContainer(object):
         :return: 指定格式的日期字符串，转换失败返回原始的时间字符串
         """
         try:
-            date = datetime.strptime(self.date, '%Y:%m:%d %H:%M:%S')
+            date = ''.join(filter(lambda x: x.isprintable(), self.date))
+            date = datetime.strptime(date, '%Y:%m:%d %H:%M:%S')
             return datetime.strftime(date, '%Y-%m-%d %H:%M')
         except ValueError:
             return self.date

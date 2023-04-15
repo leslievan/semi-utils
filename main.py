@@ -7,6 +7,7 @@ from config import Layout, input_dir, config, font, bold_font, get_logo, white_m
 from image_container import ImageContainer
 from image_processor import ImageProcessor, padding_image
 from utils import get_file_list, copy_exif_data
+import sys
 
 id_to_name = {'Model': '相机机型', 'Make': '相机厂商', 'LensModel': '镜头型号', 'Param': '拍摄参数', 'Date': '拍摄时间',
               'None': '无'}
@@ -46,7 +47,7 @@ def print_current_setting():
     if user_input == 'y' or user_input == '':
         state = 100
     elif user_input == 'x' or user_input == 'X':
-        exit(0)
+        sys.exit(0)
     elif user_input.isdigit():
         state = int(user_input)
 
@@ -195,7 +196,7 @@ def modify_focal_length():
         print('输入【x】退出程序')
         user_input = input()
         if user_input == 'x' or user_input == 'X':
-            exit(0)
+            sys.exit(0)
         if user_input.isdigit():
             if user_input == '0':
                 return
@@ -227,7 +228,7 @@ def modify_layout():
         print('输入【x】退出程序')
         user_input = input()
         if user_input == 'x' or user_input == 'X':
-            exit(0)
+            sys.exit(0)
         if user_input.isdigit():
             if user_input == '0':
                 return
@@ -261,7 +262,7 @@ def modify_logo():
         print('输入【x】退出程序')
         user_input = input()
         if user_input == 'x' or user_input == 'X':
-            exit(0)
+            sys.exit(0)
         if user_input.isdigit():
             if user_input == '0':
                 return
@@ -292,7 +293,7 @@ def modify_white_margin():
         print('输入【x】退出程序')
         user_input = input()
         if user_input == 'x' or user_input == 'X':
-            exit(0)
+            sys.exit(0)
         if user_input.isdigit():
             if user_input == '0':
                 return
@@ -328,7 +329,7 @@ def modify_element(key):
         print('输入【x】退出程序')
         user_input = input()
         if user_input == 'x' or user_input == 'X':
-            exit(0)
+            sys.exit(0)
         if user_input.isdigit():
             number = int(user_input)
             if number == 0:
@@ -406,7 +407,7 @@ if __name__ == '__main__':
             modify_focal_length()
             state = 0
         elif state == -1:
-            exit(0)
+            sys.exit(0)
         else:
             print("输入错误，请重新输入")
             state = 0
