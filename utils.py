@@ -1,16 +1,18 @@
 import os
+import platform
+import re
+import subprocess
 
+import charset_normalizer as cn
 import piexif
 from PIL import Image
 from PIL.ExifTags import TAGS
-import re
-import subprocess
-import platform
 
 if platform.system() == 'Windows':
     exiftool_path = './exiftool/exiftool.exe'
 else:
     exiftool_path = './exiftool/exiftool'
+
 
 def get_file_list(path):
     """
@@ -29,21 +31,6 @@ def get_exif(path):
     :param image:
     :return:
     """
-    output = subprocess.check_output([exiftool_path, '-charset', 'UTF8', path])
-    exif_dict = {}
-    for line in output.splitlines():
-        # 将每一行按冒号分隔成键值对
-        line = line.decode('utf-8')  # 将 bytes 转换为 str
-        kv_pair = line.split(':')
-        if len(kv_pair) < 2:
-            continue
-        key = kv_pair[0].strip()
-        value = ':'.join(kv_pair[1:]).strip()
-        # 将键中的空格移除
-        key = re.sub(r'\s+', '', key)
-        key = re.sub(r'/', '', key)
-        # 将键值对添加到字典中
-        exif_dict[key] = value
 
     _exif = {}
     with Image.open(path) as image:
@@ -53,12 +40,38 @@ def get_exif(path):
                 decoded_attr = TAGS.get(attr, attr)
                 _exif[decoded_attr] = value
 
-    if 'LensModel' in exif_dict:
-        _exif['LensModel'] = exif_dict['LensModel']
-    elif 'Lens' in exif_dict:
-        _exif['LensModel'] = exif_dict['Lens']
-    elif 'LensID' in exif_dict:
-        _exif['LensModel'] = exif_dict['LensID']
+    # 如果 exif 中不存在镜头信息，用 exiftool 读取
+    if 'LensModel' not in _exif:
+        # 使用 chardet 库检测文件编码
+        with open(path, 'rb') as f:
+            result = cn.detect(f.read())
+            encoding = result['encoding']
+
+        if encoding is None:
+            encoding = 'utf-8'
+        output = subprocess.check_output([exiftool_path, '-charset', 'UTF8', path])
+        lines = output.splitlines()
+        utf8_lines = [line.decode(encoding) for line in lines]
+
+        exif_dict = {}
+        for line in utf8_lines:
+            # 将每一行按冒号分隔成键值对
+            kv_pair = line.split(':')
+            if len(kv_pair) < 2:
+                continue
+            key = kv_pair[0].strip()
+            value = ':'.join(kv_pair[1:]).strip()
+            # 将键中的空格移除
+            key = re.sub(r'\s+', '', key)
+            key = re.sub(r'/', '', key)
+            # 将键值对添加到字典中
+            exif_dict[key] = value
+        if 'LensModel' in exif_dict:
+            _exif['LensModel'] = exif_dict['LensModel']
+        elif 'Lens' in exif_dict:
+            _exif['LensModel'] = exif_dict['Lens']
+        elif 'LensID' in exif_dict:
+            _exif['LensModel'] = exif_dict['LensID']
     return _exif
 
 
