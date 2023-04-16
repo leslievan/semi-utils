@@ -29,7 +29,7 @@ def get_exif(path):
     :param image:
     :return:
     """
-    output = subprocess.check_output([exiftool_path, path])
+    output = subprocess.check_output([exiftool_path, '-charset UTF8', path])
     exif_dict = {}
     for line in output.splitlines():
         # 将每一行按冒号分隔成键值对
@@ -63,15 +63,10 @@ def get_exif(path):
 
 
 def copy_exif_data(source_path, target_path):
-    try:
-        # 读取源照片的 exif 信息
-        src_exif = piexif.load(source_path)
+    # 读取源照片的 exif 信息
+    src_exif = piexif.load(source_path)
+    # 将 exif 信息转换为字节串
+    src_exif_bytes = piexif.dump(src_exif)
 
-        # 将 exif 信息转换为字节串
-        src_exif_bytes = piexif.dump(src_exif)
-
-        # 将源照片的 exif 信息写入 target_path
-        piexif.insert(src_exif_bytes, target_path)
-
-    except ValueError as e:
-        print("错误：{} exif 信息复制失败".format(source_path))
+    # 将源照片的 exif 信息写入 target_path
+    piexif.insert(src_exif_bytes, target_path)
