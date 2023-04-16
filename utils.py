@@ -1,20 +1,21 @@
 import os
+import platform
+import re
+import subprocess
 
 import piexif
 from PIL import Image
 from PIL.ExifTags import TAGS
-import re
-import subprocess
-import platform
 
 if platform.system() == 'Windows':
     exiftool_path = './exiftool/exiftool.exe'
 else:
     exiftool_path = './exiftool/exiftool'
 
+
 def get_file_list(path):
     """
-    获取文件列表
+    获取 jpg 文件列表
     :param path: 路径
     :return: 文件名
     """
@@ -23,11 +24,11 @@ def get_file_list(path):
     return file_list
 
 
-def get_exif(path):
+def get_exif(path) -> dict:
     """
     获取exif信息
-    :param image:
-    :return:
+    :param path: 照片路径
+    :return: exif信息
     """
     output = subprocess.check_output([exiftool_path, path])
     exif_dict = {}
@@ -62,7 +63,12 @@ def get_exif(path):
     return _exif
 
 
-def copy_exif_data(source_path, target_path):
+def copy_exif_data(source_path, target_path) -> None:
+    """
+    复制照片的 exif 信息
+    :param source_path: 原始照片路径
+    :param target_path: 目的照片路径
+    """
     try:
         # 读取源照片的 exif 信息
         src_exif = piexif.load(source_path)
@@ -73,5 +79,5 @@ def copy_exif_data(source_path, target_path):
         # 将源照片的 exif 信息写入 target_path
         piexif.insert(src_exif_bytes, target_path)
 
-    except ValueError as e:
+    except ValueError:
         print("错误：{} exif 信息复制失败".format(source_path))
