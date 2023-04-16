@@ -1,4 +1,3 @@
-
 class MenuComponent:
     def add(self, component):
         raise NotImplementedError
@@ -101,4 +100,3 @@ class MenuItem(MenuComponent):
 
     def run(self):
         self.process()
-
