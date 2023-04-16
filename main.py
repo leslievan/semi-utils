@@ -1,13 +1,23 @@
 import os
+import sys
 
 from tqdm import tqdm
 
-from config import Layout, input_dir, config, font, bold_font, get_logo, white_margin_width, \
-    output_dir, quality, logo_enable, save_config, load_config
+from config import Layout
+from config import bold_font
+from config import config
+from config import font
+from config import get_logo
+from config import input_dir
+from config import logo_enable
+from config import output_dir
+from config import quality
+from config import white_margin_width
 from image_container import ImageContainer
-from image_processor import ImageProcessor, padding_image
-from utils import get_file_list, copy_exif_data
-import sys
+from image_processor import ImageProcessor
+from image_processor import padding_image
+from utils import copy_exif_data
+from utils import get_file_list
 
 id_to_name = {'Model': '相机机型', 'Make': '相机厂商', 'LensModel': '镜头型号', 'Param': '拍摄参数', 'Date': '拍摄时间',
               'None': '无'}
