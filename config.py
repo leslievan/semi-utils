@@ -86,3 +86,180 @@ if white_margin_width > 30:
     white_margin_width = 30
 if white_margin_width < 0:
     white_margin_width = 0
+
+def set_normal_layout():
+    config['layout']['type'] = 'normal'
+
+
+def set_normal_with_right_logo_layout():
+    config['layout']['type'] = 'normal_with_right_logo'
+
+
+def set_square_layout():
+    config['layout']['type'] = 'square'
+
+
+def set_logo_enable():
+    config['logo']['enable'] = True
+
+
+def set_logo_disable():
+    config['logo']['enable'] = False
+
+
+def set_white_margin_enable():
+    config['layout']['white_margin']['enable'] = True
+
+
+def set_white_margin_disable():
+    config['layout']['white_margin']['enable'] = False
+
+
+def set_use_equivalent_focal_length_enable():
+    config['param']['focal_length']['use_equivalent_focal_length'] = True
+
+
+def set_use_equivalent_focal_length_disable():
+    config['param']['focal_length']['use_equivalent_focal_length'] = False
+
+
+def set_model(location):
+    config['layout']['elements'][location]['name'] = 'Model'
+
+
+def set_left_top_model():
+    set_model('left_top')
+
+
+def set_left_bottom_model():
+    set_model('left_bottom')
+
+
+def set_right_top_model():
+    set_model('right_top')
+
+
+def set_right_bottom_model():
+    set_model('right_bottom')
+
+
+def set_make(location):
+    config['layout']['elements'][location]['name'] = 'Make'
+
+
+def set_left_top_make():
+    set_make('left_top')
+
+
+def set_left_bottom_make():
+    set_make('left_bottom')
+
+
+def set_right_top_make():
+    set_make('right_top')
+
+
+def set_right_bottom_make():
+    set_make('right_bottom')
+
+
+def set_lens(location):
+    config['layout']['elements'][location]['name'] = 'Lens'
+
+
+def set_left_top_lens():
+    set_lens('left_top')
+
+
+def set_left_bottom_lens():
+    set_lens('left_bottom')
+
+
+def set_right_top_lens():
+    set_lens('right_top')
+
+
+def set_right_bottom_lens():
+    set_lens('right_bottom')
+
+
+def set_param(location):
+    config['layout']['elements'][location]['name'] = 'Param'
+
+
+def set_left_top_param():
+    set_param('left_top')
+
+
+def set_left_bottom_param():
+    set_param('left_bottom')
+
+
+def set_right_top_param():
+    set_param('right_top')
+
+
+def set_right_bottom_param():
+    set_param('right_bottom')
+
+
+def set_date(location):
+    config['layout']['elements'][location]['name'] = 'Date'
+
+
+def set_left_top_date():
+    set_date('left_top')
+
+
+def set_left_bottom_date():
+    set_date('left_bottom')
+
+
+def set_right_top_date():
+    set_date('right_top')
+
+
+def set_right_bottom_date():
+    set_date('right_bottom')
+
+
+def set_custom(location):
+    config['layout']['elements'][location]['name'] = 'Custom'
+    user_input = input('输入自定义字段的值：\n')
+    config['layout']['elements'][location]['value'] = user_input
+
+
+def set_left_top_custom():
+    set_custom('left_top')
+
+
+def set_left_bottom_custom():
+    set_custom('left_bottom')
+
+
+def set_right_top_custom():
+    set_custom('right_top')
+
+
+def set_right_bottom_custom():
+    set_custom('right_bottom')
+
+
+def set_none(location):
+    config['layout']['elements'][location]['name'] = 'None'
+
+
+def set_left_top_none():
+    set_none('left_top')
+
+
+def set_left_bottom_none():
+    set_none('left_bottom')
+
+
+def set_right_top_none():
+    set_none('right_top')
+
+
+def set_right_bottom_none():
+    set_none('right_bottom')
