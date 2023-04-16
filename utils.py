@@ -42,13 +42,7 @@ def get_exif(path):
 
     # 如果 exif 中不存在镜头信息，用 exiftool 读取
     if 'LensModel' not in _exif:
-        # 使用 chardet 库检测文件编码
-        with open(path, 'rb') as f:
-            result = cn.detect(f.read())
-            encoding = result['encoding']
-
-        if encoding is None:
-            encoding = 'utf-8'
+        encoding = 'utf-8'
         output = subprocess.check_output([exiftool_path, '-charset', 'UTF8', path])
         lines = output.splitlines()
         utf8_lines = [line.decode(encoding) for line in lines]
@@ -87,4 +81,4 @@ def copy_exif_data(source_path, target_path):
         piexif.insert(src_exif_bytes, target_path)
 
     except ValueError:
-        print("错误：{} exif 信息复制失败".format(source_path))
+        pass
