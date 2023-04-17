@@ -10,7 +10,6 @@ from init import config
 from init import root_menu
 from utils import copy_exif_data
 from utils import get_file_list
-from utils import padding_image
 
 
 def processing():
@@ -48,14 +47,7 @@ def processing():
         elif 'square' == config.get_layout_type():
             watermark = processor.square_watermark(container)
         else:
-            watermark = processor.normal_watermark(container, config)
-
-        # 添加白框
-        if config.is_white_margin_enable():
-            padding_size = int(config.get_white_margin_width() * min(container.width, container.height) / 100)
-            watermark = padding_image(watermark,
-                                      padding_size,
-                                      'tlr')
+            watermark = processor.normal_watermark(container, config, is_logo_left=True)
 
         # 保存图片
         target_path = Path(config.get_output_dir()).joinpath(source_path.name)
