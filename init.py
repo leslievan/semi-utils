@@ -51,18 +51,6 @@ normal_with_right_logo_menu.value = 'normal_with_right_logo'
 normal_with_right_logo_menu.set_procedure(config.set_normal_with_right_logo_layout)
 layout_menu.add(normal_with_right_logo_menu)
 
-# 创建菜单项：布局：normal_with_original_ratio
-normal_menu = MenuItem('normal(原始比例不变)[测试]')
-normal_menu.value = 'normal_with_original_ratio'
-normal_menu.set_procedure(config.set_normal_with_original_ratio_layout)
-layout_menu.add(normal_menu)
-
-# 创建菜单项：布局：normal_with_right_logo_and_original_ratio
-normal_menu = MenuItem('normal(原始比例不变, Logo 居右)[测试]')
-normal_menu.value = 'normal_with_right_logo_and_original_ratio'
-normal_menu.set_procedure(config.set_normal_with_right_logo_and_original_ratio_layout)
-layout_menu.add(normal_menu)
-
 # 创建菜单项：布局：square
 square_menu = MenuItem('1:1填充')
 square_menu.value = 'square'
