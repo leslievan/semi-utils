@@ -125,6 +125,12 @@ class Config(object):
     def set_square_layout(self):
         self._data['layout']['type'] = 'square'
 
+    def set_normal_with_original_ratio_layout(self):
+        self._data['layout']['type'] = 'normal_with_original_ratio'
+
+    def set_normal_with_right_logo_and_original_ratio_layout(self):
+        self._data['layout']['type'] = 'normal_with_right_logo_and_original_ratio'
+
     def set_logo_enable(self):
         self._data['logo']['enable'] = True
 
@@ -202,6 +208,21 @@ class Config(object):
 
     def set_right_bottom_param(self):
         self.set_param('right_bottom')
+
+    def set_datetime(self, location):
+        self._data['layout']['elements'][location]['name'] = 'Datetime'
+
+    def set_left_top_datetime(self):
+        self.set_datetime('left_top')
+
+    def set_left_bottom_datetime(self):
+        self.set_datetime('left_bottom')
+
+    def set_right_top_datetime(self):
+        self.set_datetime('right_top')
+
+    def set_right_bottom_datetime(self):
+        self.set_datetime('right_bottom')
 
     def set_date(self, location):
         self._data['layout']['elements'][location]['name'] = 'Date'

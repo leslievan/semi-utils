@@ -10,7 +10,9 @@ LENS_NAME = '镜头型号'
 LENS_VALUE = 'LensModel'
 PARAM_NAME = '拍摄参数'
 PARAM_VALUE = 'Param'
-DATE_NAME = '拍摄时间'
+DATETIME_NAME = '拍摄时间'
+DATETIME_VALUE = 'Datetime'
+DATE_NAME = '拍摄日期'
 DATE_VALUE = 'Date'
 CUSTOM_NAME = '自定义'
 CUSTOM_VALUE = 'Custom'
@@ -43,6 +45,18 @@ normal_with_right_logo_menu = MenuItem('normal(Logo 居右)')
 normal_with_right_logo_menu.value = 'normal_with_right_logo'
 normal_with_right_logo_menu.set_procedure(config.set_normal_with_right_logo_layout)
 layout_menu.add(normal_with_right_logo_menu)
+
+# 创建菜单项：布局：normal_with_original_ratio
+normal_menu = MenuItem('normal(原始比例不变)[测试]')
+normal_menu.value = 'normal_with_original_ratio'
+normal_menu.set_procedure(config.set_normal_with_original_ratio_layout)
+layout_menu.add(normal_menu)
+
+# 创建菜单项：布局：normal_with_right_logo_and_original_ratio
+normal_menu = MenuItem('normal(原始比例不变, Logo 居右)[测试]')
+normal_menu.value = 'normal_with_right_logo_and_original_ratio'
+normal_menu.set_procedure(config.set_normal_with_right_logo_and_original_ratio_layout)
+layout_menu.add(normal_menu)
 
 # 创建菜单项：布局：square
 square_menu = MenuItem('1:1填充')
@@ -98,6 +112,12 @@ left_top_param_menu.set_procedure(config.set_left_top_param)
 left_top_param_menu.value = PARAM_VALUE
 left_top_menu.add(left_top_param_menu)
 
+# 创建菜单项：左上角：拍摄时间
+left_top_datetime_menu = MenuItem(DATETIME_NAME)
+left_top_datetime_menu.set_procedure(config.set_left_top_datetime)
+left_top_datetime_menu.value = DATETIME_VALUE
+left_top_menu.add(left_top_datetime_menu)
+
 # 创建菜单项：左上角：拍摄日期
 left_top_date_menu = MenuItem(DATE_NAME)
 left_top_date_menu.set_procedure(config.set_left_top_date)
@@ -145,6 +165,12 @@ left_bottom_param_menu = MenuItem(PARAM_NAME)
 left_bottom_param_menu.set_procedure(config.set_left_bottom_param)
 left_bottom_param_menu.value = PARAM_VALUE
 left_bottom_menu.add(left_bottom_param_menu)
+
+# 创建菜单项：左下角：拍摄时间
+left_bottom_date_menu = MenuItem(DATETIME_NAME)
+left_bottom_date_menu.set_procedure(config.set_left_bottom_datetime)
+left_bottom_date_menu.value = DATETIME_VALUE
+left_bottom_menu.add(left_bottom_date_menu)
 
 # 创建菜单项：左下角：拍摄日期
 left_bottom_date_menu = MenuItem(DATE_NAME)
@@ -194,6 +220,12 @@ right_top_param_menu.set_procedure(config.set_right_top_param)
 right_top_param_menu.value = PARAM_VALUE
 right_top_menu.add(right_top_param_menu)
 
+# 创建菜单项：右上角：拍摄时间
+right_top_date_menu = MenuItem(DATETIME_NAME)
+right_top_date_menu.set_procedure(config.set_right_top_datetime)
+right_top_date_menu.value = DATETIME_VALUE
+right_top_menu.add(right_top_date_menu)
+
 # 创建菜单项：右上角：拍摄日期
 right_top_date_menu = MenuItem(DATE_NAME)
 right_top_date_menu.set_procedure(config.set_right_top_date)
@@ -241,6 +273,12 @@ right_bottom_param_menu = MenuItem(PARAM_NAME)
 right_bottom_param_menu.set_procedure(config.set_right_bottom_param)
 right_bottom_param_menu.value = PARAM_VALUE
 right_bottom_menu.add(right_bottom_param_menu)
+
+# 创建菜单项：右下角：拍摄时间
+right_bottom_date_menu = MenuItem(DATETIME_NAME)
+right_bottom_date_menu.set_procedure(config.set_right_bottom_datetime)
+right_bottom_date_menu.value = DATETIME_VALUE
+right_bottom_menu.add(right_bottom_date_menu)
 
 # 创建菜单项：右下角：拍摄日期
 right_bottom_date_menu = MenuItem(DATE_NAME)
