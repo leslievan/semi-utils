@@ -1,6 +1,15 @@
 import string
 
-from PIL import Image, ImageDraw
+from PIL import Image
+from PIL import ImageDraw
+
+from config import Config
+from entity.image_container import ImageContainer
+from utils import append_image_by_side
+from utils import concatenate_image
+from utils import padding_image
+from utils import resize_image_with_width
+from utils import square_image
 
 printable = set(string.printable)
 
@@ -34,7 +43,7 @@ class ImageProcessor(object):
         draw.text((0, 0), content, fill=fill, font=font)
         return image
 
-    def normal_watermark(self, container, config, is_logo_left=True):
+    def normal_watermark(self, container: ImageContainer, config: Config, is_logo_left=True):
         """
         生成一个默认布局的水印图片
         :param container: 图片对象
@@ -49,14 +58,16 @@ class ImageProcessor(object):
         empty_padding = Image.new('RGB', (10, 50), color='white')
 
         # 填充左边的文字内容
-        left_top = self.text_to_image(container.get_attribute_str(config.left_top), is_bold=config.left_top.is_bold)
-        left_bottom = self.text_to_image(container.get_attribute_str(config.left_bottom),
-                                         is_bold=config.left_bottom.is_bold, fill=GRAY)
+        left_top = self.text_to_image(container.get_attribute_str(config.get_left_top()),
+                                      is_bold=config.get_left_top().is_bold())
+        left_bottom = self.text_to_image(container.get_attribute_str(config.get_left_bottom()),
+                                         is_bold=config.get_left_bottom().is_bold(), fill=GRAY)
         left = concatenate_image([left_top, empty_padding, left_bottom])
         # 填充右边的文字内容
-        right_top = self.text_to_image(container.get_attribute_str(config.right_top), is_bold=config.right_top.is_bold)
-        right_bottom = self.text_to_image(container.get_attribute_str(config.right_bottom),
-                                          is_bold=config.right_bottom.is_bold, fill=GRAY)
+        right_top = self.text_to_image(container.get_attribute_str(config.get_right_top()),
+                                       is_bold=config.get_right_top().is_bold())
+        right_bottom = self.text_to_image(container.get_attribute_str(config.get_right_bottom()),
+                                          is_bold=config.get_right_bottom().is_bold(), fill=GRAY)
         right = concatenate_image([right_top, empty_padding, right_bottom])
 
         max_height = max(left.height, right.height)
@@ -86,7 +97,8 @@ class ImageProcessor(object):
         image.paste(watermark, (0, container.height))
         return image
 
-    def square_watermark(self, container):
+    @staticmethod
+    def square_watermark(container):
         """
         生成一个1：1布局的水印图片
         :param container: 图片对象

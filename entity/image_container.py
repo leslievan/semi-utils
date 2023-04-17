@@ -77,19 +77,19 @@ class ImageContainer(object):
         :param element: element 对象有 name 和 value 两个字段，通过 name 和 value 获取属性值
         :return: 属性值字符串
         """
-        if element is None or element.name == '':
+        if element is None or element.get_name() == '':
             return ''
-        if element.name == 'Model':
+        if element.get_name() == 'Model':
             return self.model
-        elif element.name == 'Param':
+        elif element.get_name() == 'Param':
             return self.get_param_str()
-        elif element.name == 'Make':
+        elif element.get_name() == 'Make':
             return self.make
-        elif element.name == 'Date':
+        elif element.get_name() == 'Date':
             return self._parse_datetime()
-        elif element.name == 'LensModel':
+        elif element.get_name() == 'LensModel':
             return self.lens_model
-        elif element.name == 'Custom':
+        elif element.get_name() == 'Custom':
             self.custom = element.value
             return self.custom
         else:
