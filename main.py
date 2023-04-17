@@ -175,7 +175,8 @@ def processing():
                                       'tlr')
 
         # 保存图片
-        target_path = Path(output_dir.encode('utf-8')).joinpath(source_path.name)
+        system_encoding = sys.getfilesystemencoding()
+        target_path = Path(output_dir.encode(system_encoding).decode('utf-8')).joinpath(source_path.name)
         watermark.save(target_path, quality=quality)
         container.close()
         watermark.close()
