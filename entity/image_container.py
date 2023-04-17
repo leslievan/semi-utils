@@ -4,13 +4,13 @@ from pathlib import Path
 from PIL import Image
 from PIL.Image import Transpose
 
-from init import CUSTOM_VALUE
-from init import DATETIME_VALUE
-from init import DATE_VALUE
-from init import LENS_VALUE
-from init import MAKE_VALUE
-from init import MODEL_VALUE
-from init import PARAM_VALUE
+from enums.constant import CUSTOM_VALUE
+from enums.constant import DATETIME_VALUE
+from enums.constant import DATE_VALUE
+from enums.constant import LENS_VALUE
+from enums.constant import MAKE_VALUE
+from enums.constant import MODEL_VALUE
+from enums.constant import PARAM_VALUE
 from utils import get_exif
 
 
@@ -72,6 +72,9 @@ class ImageContainer(object):
 
     def get_ratio(self):
         return self.img.width / self.img.height
+
+    def get_img(self):
+        return self.img
 
     def _parse_datetime(self) -> str:
         """
@@ -149,6 +152,17 @@ class ImageContainer(object):
 
     def is_use_equivalent_focal_length(self, flag: bool) -> None:
         self.use_equivalent_focal_length = flag
+
+    def get_watermark_img(self) -> Image.Image:
+        if self.watermark_img is None:
+            self.watermark_img = self.img.copy()
+        return self.watermark_img
+
+    def update_watermark_img(self, watermark_img) -> None:
+        original_watermark_img = self.watermark_img
+        self.watermark_img = watermark_img
+        if original_watermark_img is not None:
+            original_watermark_img.close()
 
     def close(self):
         self.img.close()

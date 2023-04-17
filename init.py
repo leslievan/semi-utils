@@ -1,23 +1,28 @@
 from entity.config import Config
+from entity.image_processor import EmptyProcessor
+from entity.image_processor import MarginProcessor
+from entity.image_processor import ShadowProcessor
+from entity.image_processor import SquareProcessor
+from entity.image_processor import WatermarkProcessor
 from entity.menu import *
+from enums.constant import CUSTOM_NAME
+from enums.constant import CUSTOM_VALUE
+from enums.constant import DATETIME_NAME
+from enums.constant import DATETIME_VALUE
+from enums.constant import DATE_NAME
+from enums.constant import DATE_VALUE
+from enums.constant import LENS_NAME
+from enums.constant import LENS_VALUE
+from enums.constant import MAKE_NAME
+from enums.constant import MAKE_VALUE
+from enums.constant import MODEL_NAME
+from enums.constant import MODEL_VALUE
+from enums.constant import NONE_NAME
+from enums.constant import NONE_VALUE
+from enums.constant import PARAM_NAME
+from enums.constant import PARAM_VALUE
 
 SEPARATE_LINE = '+' + '-' * 15 + '+' + '-' * 15 + '+'
-MODEL_NAME = '相机型号'
-MODEL_VALUE = 'Model'
-MAKE_NAME = '相机厂商'
-MAKE_VALUE = 'Make'
-LENS_NAME = '镜头型号'
-LENS_VALUE = 'LensModel'
-PARAM_NAME = '拍摄参数'
-PARAM_VALUE = 'Param'
-DATETIME_NAME = '拍摄时间'
-DATETIME_VALUE = 'Datetime'
-DATE_NAME = '拍摄日期'
-DATE_VALUE = 'Date'
-CUSTOM_NAME = '自定义'
-CUSTOM_VALUE = 'Custom'
-NONE_NAME = '无'
-NONE_VALUE = 'None'
 
 # 读取配置
 config = Config('config.yaml')
@@ -334,3 +339,9 @@ use_equivalent_focal_length_disable_menu = MenuItem('不使用')
 use_equivalent_focal_length_disable_menu.set_procedure(config.set_use_equivalent_focal_length_disable)
 use_equivalent_focal_length_disable_menu.value = False
 use_equivalent_focal_length_menu.add(use_equivalent_focal_length_disable_menu)
+
+EMPTY_PROCESSOR = EmptyProcessor(config)
+WATERMARK_PROCESSOR = WatermarkProcessor(config)
+MARGIN_PROCESSOR = MarginProcessor(config)
+SHADOW_PROCESSOR = ShadowProcessor(config)
+SQUARE_PROCESSOR = SquareProcessor(config)
