@@ -86,6 +86,16 @@ class Config(object):
     def is_logo_enable(self):
         return self._data['logo']['enable']
 
+    def is_logo_left(self):
+        if self._data['logo']['position'] == 'left':
+            return True
+
+    def set_logo_left(self):
+        self._data['logo']['position'] = 'left'
+
+    def unset_logo_left(self):
+        self._data['logo']['position'] = 'right'
+
     def is_white_margin_enable(self):
         return self._data['layout']['white_margin']['enable']
 
@@ -121,6 +131,7 @@ class Config(object):
 
     def set_normal_with_right_logo_layout(self):
         self._data['layout']['type'] = 'normal_with_right_logo'
+        self.unset_logo_left()
 
     def set_square_layout(self):
         self._data['layout']['type'] = 'square'
