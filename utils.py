@@ -1,6 +1,5 @@
 import platform
 import re
-import sys
 import subprocess
 from pathlib import Path
 
@@ -10,8 +9,10 @@ from PIL.ExifTags import TAGS
 
 if platform.system() == 'Windows':
     exiftool_path = './exiftool/exiftool.exe'
+    encoding = 'gbk'
 else:
     exiftool_path = './exiftool/exiftool'
+    encoding = 'utf-8'
 
 
 def get_file_list(path):
@@ -20,11 +21,10 @@ def get_file_list(path):
     :param path: 路径
     :return: 文件名
     """
-    system_encoding = sys.getfilesystemencoding()
-    path = path.encode(system_encoding).decode('utf-8')
     path = Path(path)
     return [file_path for file_path in path.iterdir()
             if file_path.is_file() and file_path.suffix in ['.jpg', '.jpeg', '.JPG', '.JPEG']]
+
 
 def get_exif(path):
     """
@@ -44,8 +44,10 @@ def get_exif(path):
         # 如果 exif 中不存在镜头信息，用 exiftool 读取
         if 'LensModel' not in _exif:
             output = subprocess.check_output([exiftool_path, '-charset', 'UTF8', path])
+
+            output = output.decode(encoding)
             lines = output.splitlines()
-            utf8_lines = [line.decode('utf-8') for line in lines]
+            utf8_lines = [line for line in lines]
 
             exif_dict = {}
             for line in utf8_lines:
@@ -66,8 +68,9 @@ def get_exif(path):
                 _exif['LensModel'] = exif_dict['Lens']
             elif 'LensID' in exif_dict:
                 _exif['LensModel'] = exif_dict['LensID']
-    except UnicodeDecodeError:
+    except UnicodeDecodeError as e:
         print('UnicodeDecodeError: {}'.format(path))
+        pass
     finally:
         pass
 
