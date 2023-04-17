@@ -5,6 +5,7 @@ from pathlib import Path
 
 import piexif
 from PIL import Image
+from PIL import ImageDraw
 from PIL.ExifTags import TAGS
 
 if platform.system() == 'Windows':
@@ -295,3 +296,20 @@ def append_image_by_side(background, images, side='left', padding=200, is_start=
             background.paste(i, (x_offset, 0))
             x_offset += i.width
             x_offset += padding
+
+
+def text_to_image(self, content, font, bold_font, is_bold=False, fill='black') -> Image.Image:
+    """
+    将文字内容转换为图片
+    :param content:
+    :param is_bold:
+    :param fill:
+    :return:
+    """
+    if content == '':
+        content = '   '
+    text_width, text_height = font.getsize(content)
+    image = Image.new('RGB', (text_width, text_height), color='white')
+    draw = ImageDraw.Draw(image)
+    draw.text((0, 0), content, fill=fill, font=font)
+    return image

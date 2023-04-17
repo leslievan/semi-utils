@@ -26,22 +26,7 @@ class ImageProcessor(object):
         self.font = font
         self.bold_font = bold_font
 
-    def text_to_image(self, content, is_bold=False, fill='black'):
-        """
-        将文字内容转换为图片
-        :param content:
-        :param is_bold:
-        :param fill:
-        :return:
-        """
-        if content == '':
-            content = '   '
-        font = self.bold_font if is_bold else self.font
-        text_width, text_height = font.getsize(content)
-        image = Image.new('RGB', (text_width, text_height), color='white')
-        draw = ImageDraw.Draw(image)
-        draw.text((0, 0), content, fill=fill, font=font)
-        return image
+
 
     def normal_watermark(self, container: ImageContainer, config: Config, is_logo_left=True):
         """
