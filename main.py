@@ -1,6 +1,6 @@
-import os
 import sys
 from pathlib import Path
+
 from tqdm import tqdm
 
 from entity.image_container import ImageContainer

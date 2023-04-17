@@ -1,4 +1,3 @@
-import os
 import platform
 import re
 import subprocess
@@ -14,7 +13,6 @@ if platform.system() == 'Windows':
 else:
     exiftool_path = './exiftool/exiftool'
     encoding = 'utf-8'
-
 
 
 def get_file_list(path):
