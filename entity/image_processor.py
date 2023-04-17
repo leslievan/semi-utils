@@ -3,7 +3,7 @@ import string
 from PIL import Image
 from PIL import ImageDraw
 
-from config import Config
+from entity.config import Config
 from entity.image_container import ImageContainer
 from utils import append_image_by_side
 from utils import concatenate_image
