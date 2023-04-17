@@ -37,8 +37,14 @@ def processing():
         container.is_use_equivalent_focal_length(config.use_equivalent_focal_length())
 
         # 添加水印
-        if 'normal_with_right_logo' == config.get_layout_type():
+        if 'normal' == config.get_layout_type():
+            watermark = processor.normal_watermark(container, config, is_logo_left=True)
+        elif 'normal_with_right_logo' == config.get_layout_type():
             watermark = processor.normal_watermark(container, config, is_logo_left=False)
+        elif 'normal_with_original_ratio' == config.get_layout_type():
+            watermark = processor.normal_watermark_with_original_ratio(container, config, is_logo_left=True)
+        elif 'normal_with_right_logo_with_original_ratio' == config.get_layout_type():
+            watermark = processor.normal_watermark_with_original_ratio(container, config, is_logo_left=False)
         elif 'square' == config.get_layout_type():
             watermark = processor.square_watermark(container)
         else:
