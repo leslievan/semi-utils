@@ -119,7 +119,7 @@ class ImageProcessor(object):
         """
         return square_image(container.img)
 
-    def watermark_copyright(self, container, config):
+    def watermark_copyright(self, container: ImageContainer, config):
         """
         生成一个只有文字的水印图片
         :param container: 图片对象
