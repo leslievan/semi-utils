@@ -4,8 +4,14 @@ from pathlib import Path
 from tqdm import tqdm
 
 from entity.image_container import ImageContainer
-from entity.image_processor import ImageProcessor
+from entity.image_processor import ProcessorChain
+from init import MARGIN_PROCESSOR
 from init import SEPARATE_LINE
+from init import WATERMARK_PROCESSOR
+from init import SHADOW_PROCESSOR
+from init import SQUARE_PROCESSOR
+from init import EMPTY_PROCESSOR
+
 from init import config
 from init import root_menu
 from utils import copy_exif_data
@@ -21,39 +27,37 @@ def processing():
 
     file_list = get_file_list(config.get_input_dir())
     print('当前共有 {} 张图片待处理'.format(len(file_list)))
-    processor = ImageProcessor(config.get_font(), config.get_bold_font())
+    processor_chain = ProcessorChain()
     for source_path in tqdm(file_list):
         # 打开图片
         container = ImageContainer(source_path)
-
         # 添加logo
         if config.is_logo_enable():
             container.set_logo(config.load_logo(container.make))
         else:
             container.set_logo(None)
-
         # 使用等效焦距
         container.is_use_equivalent_focal_length(config.use_equivalent_focal_length())
 
-        # 添加水印
-        if 'normal' == config.get_layout_type():
-            watermark = processor.normal_watermark(container, config, is_logo_left=True)
-        elif 'normal_with_right_logo' == config.get_layout_type():
-            watermark = processor.normal_watermark(container, config, is_logo_left=False)
-        elif 'normal_with_original_ratio' == config.get_layout_type():
-            watermark = processor.normal_watermark_with_original_ratio(container, config, is_logo_left=True)
-        elif 'normal_with_right_logo_with_original_ratio' == config.get_layout_type():
-            watermark = processor.normal_watermark_with_original_ratio(container, config, is_logo_left=False)
+        # 根据布局生成不同的水印
+        if 'normal' == config.get_layout_type() or 'normal_with_right_logo' == config.get_layout_type():
+            processor_chain.add(WATERMARK_PROCESSOR)
         elif 'square' == config.get_layout_type():
-            watermark = processor.square_watermark(container)
+            processor_chain.add(SQUARE_PROCESSOR)
         else:
-            watermark = processor.normal_watermark(container, config, is_logo_left=True)
+            processor_chain.add(WATERMARK_PROCESSOR)
+
+        if config.is_white_margin_enable():
+            processor_chain.add(MARGIN_PROCESSOR)
+
+        processor_chain.process(container)
 
         # 保存图片
         target_path = Path(config.get_output_dir()).joinpath(source_path.name)
-        watermark.save(target_path, quality=config.get_quality())
+
+        with container.get_watermark_img() as watermark:
+            watermark.save(target_path, quality=config.get_quality())
         container.close()
-        watermark.close()
         copy_exif_data(source_path, target_path)
     print('处理完成，文件已输出至 output 文件夹中，请点击任意键退出或直接关闭'.format(len(file_list)))
     input()
