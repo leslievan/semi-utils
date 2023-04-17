@@ -165,7 +165,7 @@ def concatenate_image(images, align='left'):
     return new_img
 
 
-def padding_image(image, padding_size, padding_location='tb'):
+def padding_image(image, padding_size, padding_location='tb') -> Image.Image:
     """
     在图片四周填充白色像素
     :param image: 图片对象
