@@ -123,20 +123,19 @@ class ImageProcessor(object):
         config.location: 文字的位置（0: 正下方，1: 左下方，2: 右下方，3:正中心）
         :return: 添加水印后的图片对象
         """
-        watermark = self.text_to_image(config.content, is_bold=True)
-        if config.location == 0 or config.location == 3:
-            offset_x = int((container.width - watermark.width) / 2)
-        elif config.location == 1:
-            offset_x = int(container.width * .05)
-        else:
-            offset_x = int(container.width * .95 - watermark.width)
+        with self.text_to_image(config.content, is_bold=True) as watermark:
+            if config.location == 0 or config.location == 3:
+                offset_x = int((container.get_width() - watermark.width) / 2)
+            elif config.location == 1:
+                offset_x = int(container.get_width() * .05)
+            else:
+                offset_x = int(container.get_width() * .95 - watermark.width)
 
-        if config.location == 0:
-            offset_y = int(container.height * .95 - watermark.height)
-        elif config.location == 3:
-            offset_y = int((container.height - watermark.height) / 2)
-        else:
-            offset_y = int(container.height * .05)
-        container.img.paste(watermark, (offset_x, offset_y))
-        watermark.close()
+            if config.location == 0:
+                offset_y = int(container.get_height() * .95 - watermark.height)
+            elif config.location == 3:
+                offset_y = int((container.get_height() - watermark.height) / 2)
+            else:
+                offset_y = int(container.get_height() * .05)
+            container.img.paste(watermark, (offset_x, offset_y))
         return container.img
