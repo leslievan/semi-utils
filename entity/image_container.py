@@ -4,6 +4,13 @@ from pathlib import Path
 from PIL import Image
 from PIL.Image import Transpose
 
+from init import CUSTOM_VALUE
+from init import DATETIME_VALUE
+from init import DATE_VALUE
+from init import LENS_VALUE
+from init import MAKE_VALUE
+from init import MODEL_VALUE
+from init import PARAM_VALUE
 from utils import get_exif
 
 
@@ -51,14 +58,20 @@ class ImageContainer(object):
         self.logo = None
 
         # 图像信息
-        self.original_width = self.exif['ExifImageWidth'] if 'ExifImageWidth' in self.exif else 0
-        self.original_length = self.exif['ExifImageHeight'] if 'ExifImageHeight' in self.exif else 0
-        self.width = self.img.width
-        self.height = self.img.height
-        self.ratio = self.width / self.height
+        self.original_width = self.img.width
+        self.original_height = self.img.height
 
         # 水印图片
         self.watermark_img = None
+
+    def get_height(self):
+        return self.img.height
+
+    def get_width(self):
+        return self.img.width
+
+    def get_ratio(self):
+        return self.img.width / self.img.height
 
     def _parse_datetime(self) -> str:
         """
@@ -72,6 +85,18 @@ class ImageContainer(object):
         except ValueError:
             return self.date
 
+    def _parse_date(self) -> str:
+        """
+        解析日期，转换为指定的格式
+        :return: 指定格式的日期字符串，转换失败返回原始的时间字符串
+        """
+        try:
+            date = ''.join(filter(lambda x: x.isprintable(), self.date))
+            date = datetime.strptime(date, '%Y:%m:%d %H:%M:%S')
+            return datetime.strftime(date, '%Y-%m-%d')
+        except ValueError:
+            return self.date
+
     def get_attribute_str(self, element) -> str:
         """
         通过 element 获取属性值
@@ -80,17 +105,19 @@ class ImageContainer(object):
         """
         if element is None or element.get_name() == '':
             return ''
-        if element.get_name() == 'Model':
+        if element.get_name() == MODEL_VALUE:
             return self.model
-        elif element.get_name() == 'Param':
+        elif element.get_name() == PARAM_VALUE:
             return self.get_param_str()
-        elif element.get_name() == 'Make':
+        elif element.get_name() == MAKE_VALUE:
             return self.make
-        elif element.get_name() == 'Date':
+        elif element.get_name() == DATETIME_VALUE:
             return self._parse_datetime()
-        elif element.get_name() == 'LensModel':
+        elif element.get_name() == DATE_VALUE:
+            return self._parse_date()
+        elif element.get_name() == LENS_VALUE:
             return self.lens_model
-        elif element.get_name() == 'Custom':
+        elif element.get_name() == CUSTOM_VALUE:
             self.custom = element.value
             return self.custom
         else:
@@ -105,8 +132,14 @@ class ImageContainer(object):
         return '  '.join([str(focal_length) + 'mm', 'f/' + str(self.f_number), self.exposure_time,
                           'ISO' + str(self.iso)])
 
+    def get_original_height(self):
+        return self.original_height
+
+    def get_original_width(self):
+        return self.original_width
+
     def get_original_ratio(self):
-        return self.original_width / self.original_length
+        return self.original_width / self.original_height
 
     def get_logo(self):
         return self.logo
