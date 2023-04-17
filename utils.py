@@ -195,7 +195,7 @@ def padding_image(image, padding_size, padding_location='tb') -> Image.Image:
     return padding_img
 
 
-def square_image(image):
+def square_image(image, auto_close=True):
     """
     将图片按照正方形进行填充
     :param image: 图片对象
@@ -240,7 +240,7 @@ def resize_image_with_height(image, height):
     return resized_image
 
 
-def resize_image_with_width(image, width):
+def resize_image_with_width(image, width, auto_close=True):
     """
     按照宽度对图片进行缩放
     :param image: 图片对象
@@ -256,6 +256,10 @@ def resize_image_with_width(image, width):
 
     # 进行等比缩放
     resized_image = image.resize((width, new_height), Image.ANTIALIAS)
+
+    # 关闭图片对象
+    if auto_close:
+        image.close()
 
     # 返回缩放后的图片对象
     return resized_image
@@ -298,14 +302,12 @@ def append_image_by_side(background, images, side='left', padding=200, is_start=
             x_offset += padding
 
 
-def text_to_image(self, content, font, bold_font, is_bold=False, fill='black') -> Image.Image:
+def text_to_image(content, font, bold_font, is_bold=False, fill='black') -> Image.Image:
     """
     将文字内容转换为图片
-    :param content:
-    :param is_bold:
-    :param fill:
-    :return:
     """
+    if is_bold:
+        font = bold_font
     if content == '':
         content = '   '
     text_width, text_height = font.getsize(content)
