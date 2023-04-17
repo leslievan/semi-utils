@@ -19,9 +19,9 @@ def get_file_list(path):
     :param path: 路径
     :return: 文件名
     """
-    return [file_path for file_path in Path(path).iterdir()
+    path = Path(path.encode('utf-8'))
+    return [file_path for file_path in path.iterdir()
             if file_path.is_file() and file_path.suffix in ['.jpg', '.jpeg', '.JPG', '.JPEG']]
-
 
 def get_exif(path):
     """
