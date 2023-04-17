@@ -51,7 +51,7 @@ class ImageProcessor(object):
         :param is_logo_left: logo 位置
         :return: 添加水印后的图片对象
         """
-        ratio = .1 if container.ratio >= 1 else .13
+        ratio = .1 if container.get_ratio() >= 1 else .13
         padding_ratio = .618
 
         watermark = Image.new('RGB', (int(NORMAL_HEIGHT / ratio), NORMAL_HEIGHT), color='white')
@@ -95,7 +95,12 @@ class ImageProcessor(object):
         watermark = resize_image_with_width(watermark, container.get_width())
         image = Image.new('RGB', (container.get_width(), container.get_height() + watermark.height), color='white')
         image.paste(container.img)
-        image.paste(watermark, (0, container.height))
+        image.paste(watermark, (0, container.get_height()))
+        if config.is_white_margin_enable():
+            padding_size = int(config.get_white_margin_width() * min(container.get_width(), container.get_height()) / 100)
+            image = padding_image(image,
+                                  padding_size,
+                                  'tlr')
         return image
 
     def normal_watermark_with_original_ratio(self, container: ImageContainer, config: Config, is_logo_left=True):
