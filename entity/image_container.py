@@ -1,4 +1,5 @@
 from datetime import datetime
+from pathlib import Path
 
 from PIL import Image
 from PIL.Image import Transpose
@@ -7,7 +8,7 @@ from utils import get_exif
 
 
 class ImageContainer(object):
-    def __init__(self, path):
+    def __init__(self, path: Path):
         self.img = Image.open(path)
         self.exif = get_exif(path)
 

@@ -1,6 +1,6 @@
 import os
 import sys
-
+from pathlib import Path
 from tqdm import tqdm
 
 from entity.image_container import ImageContainer
@@ -23,8 +23,7 @@ def processing():
     file_list = get_file_list(config.get_input_dir())
     print('当前共有 {} 张图片待处理'.format(len(file_list)))
     processor = ImageProcessor(config.get_font(), config.get_bold_font())
-    for file in tqdm(file_list):
-        source_path = os.path.join(config.get_input_dir(), file)
+    for source_path in tqdm(file_list):
         # 打开图片
         container = ImageContainer(source_path)
 
@@ -52,12 +51,12 @@ def processing():
                                       padding_size,
                                       'tlr')
 
-            # 保存图片
-            target_path = os.path.join(config.get_output_dir(), file)
-            watermark.save(target_path, quality=config.get_quality())
-            container.close()
-            watermark.close()
-            copy_exif_data(source_path, target_path)
+        # 保存图片
+        target_path = Path(config.get_output_dir()).joinpath(source_path.name)
+        watermark.save(target_path, quality=config.get_quality())
+        container.close()
+        watermark.close()
+        copy_exif_data(source_path, target_path)
     print('处理完成，文件已输出至 output 文件夹中，请点击任意键退出或直接关闭'.format(len(file_list)))
     input()
     state = -1
