@@ -55,22 +55,22 @@ class ImageProcessor(object):
         padding_ratio = .618
 
         watermark = Image.new('RGB', (int(NORMAL_HEIGHT / ratio), NORMAL_HEIGHT), color='white')
-        empty_padding = Image.new('RGB', (10, 50), color='white')
-
-        # 填充左边的文字内容
-        left_top = self.text_to_image(container.get_attribute_str(config.get_left_top()),
-                                      is_bold=config.get_left_top().is_bold())
-        left_bottom = self.text_to_image(container.get_attribute_str(config.get_left_bottom()),
-                                         is_bold=config.get_left_bottom().is_bold(), fill=GRAY)
-        left = concatenate_image([left_top, empty_padding, left_bottom])
-        # 填充右边的文字内容
-        right_top = self.text_to_image(container.get_attribute_str(config.get_right_top()),
-                                       is_bold=config.get_right_top().is_bold())
-        right_bottom = self.text_to_image(container.get_attribute_str(config.get_right_bottom()),
-                                          is_bold=config.get_right_bottom().is_bold(), fill=GRAY)
-        right = concatenate_image([right_top, empty_padding, right_bottom])
+        with Image.new('RGB', (10, 50), color='white') as empty_padding:
+            # 填充左边的文字内容
+            left_top = self.text_to_image(container.get_attribute_str(config.get_left_top()),
+                                          is_bold=config.get_left_top().is_bold())
+            left_bottom = self.text_to_image(container.get_attribute_str(config.get_left_bottom()),
+                                             is_bold=config.get_left_bottom().is_bold(), fill=GRAY)
+            left = concatenate_image([left_top, empty_padding, left_bottom])
+            # 填充右边的文字内容
+            right_top = self.text_to_image(container.get_attribute_str(config.get_right_top()),
+                                           is_bold=config.get_right_top().is_bold())
+            right_bottom = self.text_to_image(container.get_attribute_str(config.get_right_bottom()),
+                                              is_bold=config.get_right_bottom().is_bold(), fill=GRAY)
+            right = concatenate_image([right_top, empty_padding, right_bottom])
 
         max_height = max(left.height, right.height)
+        # TODO padding_image 存在内存泄漏的问题
         left = padding_image(left, int(max_height * padding_ratio), 'tb')
         right = padding_image(right, int(max_height * padding_ratio), 't')
         right = padding_image(right, left.height - right.height, 'b')
@@ -91,10 +91,18 @@ class ImageProcessor(object):
             append_image_by_side(watermark, [left], is_start=True)
             append_image_by_side(watermark, [logo, line, right], side='right')
 
-        watermark = resize_image_with_width(watermark, container.width)
-        image = Image.new('RGB', (container.width, container.height + watermark.height), color='white')
+        # TODO resize_image_with_width 存在内存泄漏的问题
+        watermark = resize_image_with_width(watermark, container.get_width())
+        image = Image.new('RGB', (container.get_width(), container.get_height() + watermark.height), color='white')
         image.paste(container.img)
         image.paste(watermark, (0, container.height))
+        return image
+
+    def normal_watermark_with_original_ratio(self, container: ImageContainer, config: Config, is_logo_left=True):
+        image = self.normal_watermark(container, config, is_logo_left)
+        new_width = int(image.height * container.get_original_ratio())
+        padding_size = int((new_width - image.width) / 2)
+        image = padding_image(image, padding_size, 'lr')
         return image
 
     @staticmethod
