@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from tqdm import tqdm
 
@@ -147,8 +148,7 @@ def processing():
     layout = Layout(config['layout'])
     print('当前共有 {} 张图片待处理'.format(len(file_list)))
     processor = ImageProcessor(font, bold_font)
-    for file in tqdm(file_list):
-        source_path = os.path.join(input_dir, file)
+    for source_path in tqdm(file_list):
         # 打开图片
         container = ImageContainer(source_path)
 
@@ -175,7 +175,7 @@ def processing():
                                       'tlr')
 
         # 保存图片
-        target_path = os.path.join(output_dir, file)
+        target_path = Path(output_dir).joinpath(source_path.name)
         watermark.save(target_path, quality=quality)
         container.close()
         watermark.close()
