@@ -3,7 +3,6 @@ import platform
 import re
 import subprocess
 
-import charset_normalizer as cn
 import piexif
 from PIL import Image
 from PIL.ExifTags import TAGS
@@ -39,33 +38,37 @@ def get_exif(path):
             for attr, value in info.items():
                 decoded_attr = TAGS.get(attr, attr)
                 _exif[decoded_attr] = value
+    try:
+        # 如果 exif 中不存在镜头信息，用 exiftool 读取
+        if 'LensModel' not in _exif:
+            output = subprocess.check_output([exiftool_path, '-charset', 'UTF8', path])
+            lines = output.splitlines()
+            utf8_lines = [line.decode('utf-8') for line in lines]
 
-    # 如果 exif 中不存在镜头信息，用 exiftool 读取
-    if 'LensModel' not in _exif:
-        encoding = 'utf-8'
-        output = subprocess.check_output([exiftool_path, '-charset', 'UTF8', path])
-        lines = output.splitlines()
-        utf8_lines = [line.decode(encoding) for line in lines]
+            exif_dict = {}
+            for line in utf8_lines:
+                # 将每一行按冒号分隔成键值对
+                kv_pair = line.split(':')
+                if len(kv_pair) < 2:
+                    continue
+                key = kv_pair[0].strip()
+                value = ':'.join(kv_pair[1:]).strip()
+                # 将键中的空格移除
+                key = re.sub(r'\s+', '', key)
+                key = re.sub(r'/', '', key)
+                # 将键值对添加到字典中
+                exif_dict[key] = value
+            if 'LensModel' in exif_dict:
+                _exif['LensModel'] = exif_dict['LensModel']
+            elif 'Lens' in exif_dict:
+                _exif['LensModel'] = exif_dict['Lens']
+            elif 'LensID' in exif_dict:
+                _exif['LensModel'] = exif_dict['LensID']
+    except UnicodeDecodeError:
+        print('UnicodeDecodeError: {}'.format(path))
+    finally:
+        pass
 
-        exif_dict = {}
-        for line in utf8_lines:
-            # 将每一行按冒号分隔成键值对
-            kv_pair = line.split(':')
-            if len(kv_pair) < 2:
-                continue
-            key = kv_pair[0].strip()
-            value = ':'.join(kv_pair[1:]).strip()
-            # 将键中的空格移除
-            key = re.sub(r'\s+', '', key)
-            key = re.sub(r'/', '', key)
-            # 将键值对添加到字典中
-            exif_dict[key] = value
-        if 'LensModel' in exif_dict:
-            _exif['LensModel'] = exif_dict['LensModel']
-        elif 'Lens' in exif_dict:
-            _exif['LensModel'] = exif_dict['Lens']
-        elif 'LensID' in exif_dict:
-            _exif['LensModel'] = exif_dict['LensID']
     return _exif
 
 
