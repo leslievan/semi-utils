@@ -1,5 +1,6 @@
 import platform
 import re
+import sys
 import subprocess
 from pathlib import Path
 
@@ -19,7 +20,9 @@ def get_file_list(path):
     :param path: 路径
     :return: 文件名
     """
-    path = Path(path.encode('utf-8'))
+    system_encoding = sys.getfilesystemencoding()
+    path = path.encode(system_encoding).decode('utf-8')
+    path = Path(path)
     return [file_path for file_path in path.iterdir()
             if file_path.is_file() and file_path.suffix in ['.jpg', '.jpeg', '.JPG', '.JPEG']]
 
