@@ -20,7 +20,13 @@ NORMAL_HEIGHT = 1000
 
 
 class ProcessorComponent:
+    """
+    图片处理器组件
+    """
     def process(self, container: ImageContainer) -> None:
+        """
+        处理图片容器中的 watermark_img，将处理后的图片放回容器中
+        """
         raise NotImplementedError
 
     def add(self, component):
@@ -31,7 +37,7 @@ class ProcessorChain(ProcessorComponent):
     def __init__(self):
         self.components = []
 
-    def add(self, component):
+    def add(self, component) -> None:
         self.components.append(component)
 
     def process(self, container: ImageContainer) -> None:
