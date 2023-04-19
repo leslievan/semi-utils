@@ -6,6 +6,7 @@ from pathlib import Path
 import piexif
 from PIL import Image
 from PIL import ImageDraw
+from PIL import ImageOps
 from PIL.ExifTags import TAGS
 
 if platform.system() == 'Windows':
@@ -195,25 +196,26 @@ def padding_image(image, padding_size, padding_location='tb') -> Image.Image:
     return padding_img
 
 
-def square_image(image, auto_close=True):
+def square_image(image, auto_close=True) -> Image.Image:
     """
     将图片按照正方形进行填充
+    :param auto_close: 是否自动关闭图片对象
     :param image: 图片对象
     :return: 填充后的图片对象
     """
     # 计算图片的宽度和高度
     width, height = image.size
+    if width == height:
+        return image
 
     # 计算需要填充的白色区域大小
     delta_w = abs(width - height)
     padding = (delta_w // 2, 0) if width < height else (0, delta_w // 2)
 
-    # 创建新的正方形画布
-    square_size = max(width, height)
-    square_img = Image.new('RGB', (square_size, square_size), color='white')
+    square_img = ImageOps.expand(image, padding, fill='white')
 
-    # 将输入的图片粘贴到正方形画布的中心位置
-    square_img.paste(image, padding)
+    if auto_close:
+        image.close()
 
     # 返回正方形图片对象
     return square_img
