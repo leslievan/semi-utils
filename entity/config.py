@@ -25,6 +25,7 @@ class ElementConfig(object):
 
 # 字体大小，影响字体的清晰度
 FONT_SIZE = 240
+BOLD_FONT_SIZE = 260
 
 
 class Config(object):
@@ -41,8 +42,8 @@ class Config(object):
         self._left_bottom = ElementConfig(self._data['layout']['elements']['left_bottom'])
         self._right_top = ElementConfig(self._data['layout']['elements']['right_top'])
         self._right_bottom = ElementConfig(self._data['layout']['elements']['right_bottom'])
-        self.font = ImageFont.truetype(self._data['base']['font'], FONT_SIZE)
-        self.bold_font = ImageFont.truetype(self._data['base']['bold_font'], FONT_SIZE)
+        self.font = ImageFont.truetype(self._data['base']['font'], self._data['base']['font_size'])
+        self.bold_font = ImageFont.truetype(self._data['base']['bold_font'], self._data['base']['bold_font_size'])
         self.makes = self._data['logo']['makes']
 
     def load_logo(self, make) -> Image.Image:
