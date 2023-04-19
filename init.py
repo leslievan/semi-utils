@@ -2,6 +2,7 @@ from entity.config import Config
 from entity.image_processor import EmptyProcessor
 from entity.image_processor import MarginProcessor
 from entity.image_processor import ShadowProcessor
+from entity.image_processor import SimpleProcessor
 from entity.image_processor import SquareProcessor
 from entity.image_processor import WatermarkProcessor
 from entity.menu import *
@@ -56,6 +57,12 @@ square_menu = MenuItem('1:1填充')
 square_menu.value = 'square'
 square_menu.set_procedure(config.set_square_layout)
 layout_menu.add(square_menu)
+
+# 创建菜单项：布局：simple
+simple_menu = MenuItem('简洁')
+simple_menu.value = SimpleProcessor.LAYOUT_VALUE
+simple_menu.set_procedure(config.set_simple_layout)
+layout_menu.add(simple_menu)
 
 # 创建子菜单：logo
 logo_menu = SubMenu('logo')
@@ -351,3 +358,4 @@ WATERMARK_PROCESSOR = WatermarkProcessor(config)
 MARGIN_PROCESSOR = MarginProcessor(config)
 SHADOW_PROCESSOR = ShadowProcessor(config)
 SQUARE_PROCESSOR = SquareProcessor(config)
+SIMPLE_PROCESSOR = SimpleProcessor(config)

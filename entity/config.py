@@ -141,6 +141,9 @@ class Config(object):
     def set_normal_layout(self):
         self._data['layout']['type'] = 'normal'
 
+    def set_simple_layout(self):
+        self._data['layout']['type'] = 'simple'
+
     def set_normal_with_right_logo_layout(self):
         self._data['layout']['type'] = 'normal_with_right_logo'
         self.unset_logo_left()

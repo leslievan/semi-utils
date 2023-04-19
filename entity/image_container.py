@@ -70,6 +70,12 @@ class ImageContainer(object):
     def get_width(self):
         return self.get_watermark_img().width
 
+    def get_model(self):
+        return self.model
+
+    def get_make(self):
+        return self.make
+
     def get_ratio(self):
         return self.img.width / self.img.height
 
@@ -132,7 +138,7 @@ class ImageContainer(object):
         :return: 拍摄参数字符串
         """
         focal_length = self.focal_length_in_35mm_film if self.use_equivalent_focal_length else self.focal_length
-        return '  '.join([str(focal_length) + 'mm', 'f/' + str(self.f_number), self.exposure_time,
+        return ' '.join([str(focal_length) + 'mm', 'f/' + str(self.f_number), self.exposure_time,
                           'ISO' + str(self.iso)])
 
     def get_original_height(self):

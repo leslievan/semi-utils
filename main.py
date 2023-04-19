@@ -7,6 +7,7 @@ from entity.image_container import ImageContainer
 from entity.image_processor import ProcessorChain
 from init import MARGIN_PROCESSOR
 from init import SEPARATE_LINE
+from init import SIMPLE_PROCESSOR
 from init import WATERMARK_PROCESSOR
 from init import SHADOW_PROCESSOR
 from init import SQUARE_PROCESSOR
@@ -39,6 +40,8 @@ def processing():
         processor_chain.add(WATERMARK_PROCESSOR)
     elif 'square' == config.get_layout_type():
         processor_chain.add(SQUARE_PROCESSOR)
+    elif SIMPLE_PROCESSOR.LAYOUT_VALUE == config.get_layout_type():
+        processor_chain.add(SIMPLE_PROCESSOR)
     else:
         processor_chain.add(WATERMARK_PROCESSOR)
 
