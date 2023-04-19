@@ -221,7 +221,7 @@ def square_image(image, auto_close=True) -> Image.Image:
     return square_img
 
 
-def resize_image_with_height(image, height):
+def resize_image_with_height(image, height, auto_close=True):
     """
     按照高度对图片进行缩放
     :param image: 图片对象
@@ -237,6 +237,10 @@ def resize_image_with_height(image, height):
 
     # 进行等比缩放
     resized_image = image.resize((new_width, height), Image.ANTIALIAS)
+
+    # 关闭图片对象
+    if auto_close:
+        image.close()
 
     # 返回缩放后的图片对象
     return resized_image
@@ -317,3 +321,50 @@ def text_to_image(content, font, bold_font, is_bold=False, fill='black') -> Imag
     draw = ImageDraw.Draw(image)
     draw.text((0, 0), content, fill=fill, font=font)
     return image
+
+
+def merge_images(images, axis=0, align=0):
+    """
+    拼接多张图片
+    :param images: 图片对象列表
+    :param axis: 0 水平拼接，1 垂直拼接
+    :param align: 0 居中对齐，1 底部/右对齐，2 顶部/左对齐
+    :return: 拼接后的图片对象
+    """
+    # 获取每张图像的 size
+    widths, heights = zip(*(img.size for img in images))
+
+    # 计算输出图像的尺寸
+    if axis == 0:  # 水平拼接
+        total_width = sum(widths)
+        max_height = max(heights)
+    else:  # 垂直拼接
+        total_width = max(widths)
+        max_height = sum(heights)
+
+    # 创建输出图像
+    output_image = Image.new('RGB', (total_width, max_height), color=(255, 255, 255, 0))
+
+    # 拼接图像
+    x_offset, y_offset = 0, 0
+    for img in images:
+        if axis == 0:  # 水平拼接
+            if align == 1:  # 底部对齐
+                y_offset = max_height - img.size[1]
+            elif align == 2:  # 顶部对齐
+                y_offset = 0
+            else:  # 居中排列
+                y_offset = (max_height - img.size[1]) // 2
+            output_image.paste(img, (x_offset, y_offset))
+            x_offset += img.size[0]
+        else:  # 垂直拼接
+            if align == 1:  # 右对齐
+                x_offset = total_width - img.size[0]
+            elif align == 2:  # 左对齐
+                x_offset = 0
+            else:  # 居中排列
+                x_offset = (total_width - img.size[0]) // 2
+            output_image.paste(img, (x_offset, y_offset))
+            y_offset += img.size[1]
+
+    return output_image
