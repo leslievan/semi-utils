@@ -76,13 +76,13 @@ class WatermarkProcessor(ProcessorComponent):
         """
         config = self.config
 
-        ratio = .08 if container.get_ratio() >= 1 else .13
+        ratio = .1 if container.get_ratio() >= 1 else .13
         padding_ratio = .44 if container.get_ratio() >= 1 else .618
 
         # 创建一个空白的水印图片
         watermark = Image.new('RGB', (int(NORMAL_HEIGHT / ratio), NORMAL_HEIGHT), color='white')
 
-        with Image.new('RGB', (10, 50), color='white') as empty_padding:
+        with Image.new('RGB', (10, 100), color='white') as empty_padding:
             # 填充左边的文字内容
             left_top = text_to_image(container.get_attribute_str(config.get_left_top()),
                                      config.get_font(),
