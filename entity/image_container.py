@@ -65,10 +65,10 @@ class ImageContainer(object):
         self.watermark_img = None
 
     def get_height(self):
-        return self.img.height
+        return self.watermark_img.height
 
     def get_width(self):
-        return self.img.width
+        return self.watermark_img.width
 
     def get_ratio(self):
         return self.img.width / self.img.height
