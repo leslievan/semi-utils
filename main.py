@@ -47,7 +47,8 @@ def processing():
         else:
             processor_chain.add(WATERMARK_PROCESSOR)
 
-        if config.is_white_margin_enable():
+        # 如果需要添加白边，且不是正方形布局，则添加白边处理器
+        if config.is_white_margin_enable() and 'square' != config.get_layout_type():
             processor_chain.add(MARGIN_PROCESSOR)
 
         processor_chain.process(container)
