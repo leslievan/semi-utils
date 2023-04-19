@@ -27,7 +27,22 @@ def processing():
 
     file_list = get_file_list(config.get_input_dir())
     print('当前共有 {} 张图片待处理'.format(len(file_list)))
+
     processor_chain = ProcessorChain()
+    processor_chain.add(SHADOW_PROCESSOR)
+
+    # 根据布局生成不同的水印
+    if 'normal' == config.get_layout_type() or 'normal_with_right_logo' == config.get_layout_type():
+        processor_chain.add(WATERMARK_PROCESSOR)
+    elif 'square' == config.get_layout_type():
+        processor_chain.add(SQUARE_PROCESSOR)
+    else:
+        processor_chain.add(WATERMARK_PROCESSOR)
+
+    # 如果需要添加白边，且不是正方形布局，则添加白边处理器
+    if config.is_white_margin_enable() and 'square' != config.get_layout_type():
+        processor_chain.add(MARGIN_PROCESSOR)
+
     for source_path in tqdm(file_list):
         # 打开图片
         container = ImageContainer(source_path)
@@ -39,18 +54,7 @@ def processing():
         # 使用等效焦距
         container.is_use_equivalent_focal_length(config.use_equivalent_focal_length())
 
-        # 根据布局生成不同的水印
-        if 'normal' == config.get_layout_type() or 'normal_with_right_logo' == config.get_layout_type():
-            processor_chain.add(WATERMARK_PROCESSOR)
-        elif 'square' == config.get_layout_type():
-            processor_chain.add(SQUARE_PROCESSOR)
-        else:
-            processor_chain.add(WATERMARK_PROCESSOR)
-
-        # 如果需要添加白边，且不是正方形布局，则添加白边处理器
-        if config.is_white_margin_enable() and 'square' != config.get_layout_type():
-            processor_chain.add(MARGIN_PROCESSOR)
-
+        # 处理图片
         processor_chain.process(container)
 
         # 保存图片

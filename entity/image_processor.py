@@ -1,6 +1,8 @@
 import string
 
 from PIL import Image
+from PIL import ImageFilter
+from PIL import ImageOps
 
 from entity.config import Config
 from entity.image_container import ImageContainer
@@ -50,7 +52,22 @@ class ShadowProcessor(ProcessorComponent):
         self.config = config
 
     def process(self, container: ImageContainer) -> None:
-        pass
+        # 加载图像
+        image = container.get_watermark_img()
+
+        max_pixel = max(image.width, image.height)
+        # 计算阴影边框大小
+        radius = int(max_pixel / 512)
+
+        # 创建阴影效果
+        shadow = Image.new('RGB', image.size, color='#6B696A')
+        shadow = ImageOps.expand(shadow, border=(radius * 2, radius * 2, radius * 2, radius * 2), fill=(255, 255, 255))
+        # 模糊阴影
+        shadow = shadow.filter(ImageFilter.GaussianBlur(radius=radius))
+
+        # 将原始图像放置在阴影图像上方
+        shadow.paste(image, (radius, radius))
+        container.update_watermark_img(shadow)
 
 
 class SquareProcessor(ProcessorComponent):
@@ -128,7 +145,7 @@ class WatermarkProcessor(ProcessorComponent):
 
         watermark = resize_image_with_width(watermark, container.get_width())
         image = Image.new('RGB', (container.get_width(), container.get_height() + watermark.height), color='white')
-        image.paste(container.img)
+        image.paste(container.get_watermark_img())
         image.paste(watermark, (0, container.get_height()))
         container.update_watermark_img(image)
 
