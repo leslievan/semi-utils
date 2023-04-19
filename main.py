@@ -30,11 +30,11 @@ def processing():
 
     processor_chain = ProcessorChain()
 
-    # 如果需要添加阴影，则添加阴影处理器
-    if config.is_shadow_enable():
+    # 如果需要添加阴影，则添加阴影处理器，阴影处理器优先级最高，但是正方形布局不需要阴影
+    if config.is_shadow_enable() and 'square' != config.get_layout_type():
         processor_chain.add(SHADOW_PROCESSOR)
 
-    # 根据布局添加不同的处理器
+    # 根据布局添加不同的水印处理器
     if 'normal' == config.get_layout_type() or 'normal_with_right_logo' == config.get_layout_type():
         processor_chain.add(WATERMARK_PROCESSOR)
     elif 'square' == config.get_layout_type():
@@ -42,7 +42,7 @@ def processing():
     else:
         processor_chain.add(WATERMARK_PROCESSOR)
 
-    # 如果需要添加白边，且不是正方形布局，则添加白边处理器
+    # 如果需要添加白边，且不是正方形布局，则添加白边处理器，白边处理器优先级最低
     if config.is_white_margin_enable() and 'square' != config.get_layout_type():
         processor_chain.add(MARGIN_PROCESSOR)
 
