@@ -44,6 +44,8 @@ class Config(object):
         self._right_bottom = ElementConfig(self._data['layout']['elements']['right_bottom'])
         self.font = ImageFont.truetype(self._data['base']['font'], self._data['base']['font_size'])
         self.bold_font = ImageFont.truetype(self._data['base']['bold_font'], self._data['base']['bold_font_size'])
+        self.alternative_font = ImageFont.truetype(self._data['base']['alternative_font'], self._data['base']['font_size'])
+        self.alternative_bold_font = ImageFont.truetype(self._data['base']['alternative_bold_font'], self._data['base']['bold_font_size'])
         self.makes = self._data['logo']['makes']
 
     def load_logo(self, make) -> Image.Image:
@@ -294,3 +296,9 @@ class Config(object):
 
     def use_equivalent_focal_length(self):
         return self._data['param']['focal_length']['use_equivalent_focal_length']
+
+    def get_alternative_font(self):
+        return self.alternative_font
+
+    def get_alternative_bold_font(self):
+        return self.alternative_bold_font
