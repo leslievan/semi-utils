@@ -13,7 +13,7 @@ from utils import text_to_image
 
 printable = set(string.printable)
 
-GRAY = '#6B696A'
+GRAY = '#CBCBC9'
 NORMAL_HEIGHT = 1000
 
 
