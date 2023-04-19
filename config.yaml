@@ -6,6 +6,9 @@ base:
   input_dir: ./input
   output_dir: ./output
   quality: 100
+global:
+  shadow:
+    enable: false
 layout:
   elements:
     left_bottom:
@@ -65,7 +68,3 @@ logo:
 param:
   focal_length:
     use_equivalent_focal_length: false
-setting:
-  copyright:
-    content: null
-    location: null

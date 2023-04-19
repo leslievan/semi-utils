@@ -84,6 +84,15 @@ class Config(object):
         with open(self.path, 'w') as f:
             yaml.dump(self._data, f, encoding='utf-8')
 
+    def enable_shadow(self):
+        self._data['global']['shadow']['enable'] = True
+
+    def disable_shadow(self):
+        self._data['global']['shadow']['enable'] = False
+
+    def is_shadow_enable(self):
+        return self._data['global']['shadow']['enable']
+
     def is_logo_enable(self):
         return self._data['logo']['enable']
 

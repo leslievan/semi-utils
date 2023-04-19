@@ -29,9 +29,12 @@ def processing():
     print('当前共有 {} 张图片待处理'.format(len(file_list)))
 
     processor_chain = ProcessorChain()
-    processor_chain.add(SHADOW_PROCESSOR)
 
-    # 根据布局生成不同的水印
+    # 如果需要添加阴影，则添加阴影处理器
+    if config.is_shadow_enable():
+        processor_chain.add(SHADOW_PROCESSOR)
+
+    # 根据布局添加不同的处理器
     if 'normal' == config.get_layout_type() or 'normal_with_right_logo' == config.get_layout_type():
         processor_chain.add(WATERMARK_PROCESSOR)
     elif 'square' == config.get_layout_type():

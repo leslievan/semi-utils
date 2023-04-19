@@ -328,6 +328,24 @@ use_equivalent_focal_length_disable_menu.set_procedure(config.set_use_equivalent
 use_equivalent_focal_length_disable_menu.value = False
 use_equivalent_focal_length_menu.add(use_equivalent_focal_length_disable_menu)
 
+# 创建子菜单：阴影
+shadow_menu = SubMenu('阴影')
+shadow_menu.set_value_getter(config, lambda x: x['global']['shadow']['enable'])
+shadow_menu.set_compare_method(lambda x, y: x == y)
+root_menu.add(shadow_menu)
+
+# 创建菜单项：阴影：显示
+shadow_enable_menu = MenuItem('显示')
+shadow_enable_menu.set_procedure(config.enable_shadow)
+shadow_enable_menu.value = True
+shadow_menu.add(shadow_enable_menu)
+
+# 创建菜单项：阴影：不显示
+shadow_disable_menu = MenuItem('不显示')
+shadow_disable_menu.set_procedure(config.disable_shadow)
+shadow_disable_menu.value = False
+shadow_menu.add(shadow_disable_menu)
+
 EMPTY_PROCESSOR = EmptyProcessor(config)
 WATERMARK_PROCESSOR = WatermarkProcessor(config)
 MARGIN_PROCESSOR = MarginProcessor(config)
