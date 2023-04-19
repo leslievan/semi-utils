@@ -166,3 +166,4 @@ class ImageContainer(object):
 
     def close(self):
         self.img.close()
+        self.watermark_img.close()
