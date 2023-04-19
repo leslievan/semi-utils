@@ -70,8 +70,6 @@ class WatermarkProcessor(ProcessorComponent):
         """
         生成一个默认布局的水印图片
         :param container: 图片对象
-        :param config: 水印配置
-        :param is_logo_left: logo 位置
         :return: 添加水印后的图片对象
         """
         config = self.config
