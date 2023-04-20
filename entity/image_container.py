@@ -61,6 +61,7 @@ class ImageContainer(object):
             self.img = self.img.transpose(Transpose.ROTATE_270)
         elif self.orientation == 8:
             self.img = self.img.transpose(Transpose.ROTATE_90)
+        self.exif['Orientation'] = 1
 
         # 水印设置
         self.custom = '无'
