@@ -46,9 +46,17 @@
 
 > **布局：square**
 >
-> 布局：square" attr="正方形白色边框
+> 正方形白色边框
 
 ![](images/1-square.jpg)
+
+---
+
+>布局：简洁
+>
+>下方一行用于描述参数的文字
+
+![](images/1-simple.jpeg)
 
 ## 使用方法
 
