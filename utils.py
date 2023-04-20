@@ -79,18 +79,15 @@ def get_exif(path) -> dict:
     return _exif
 
 
-def copy_exif_data(source_path, target_path) -> None:
+def insert_exif(exif, target_path) -> None:
     """
     复制照片的 exif 信息
-    :param source_path: 原始照片路径
+    :param exif: exif 信息
     :param target_path: 目的照片路径
     """
     try:
-        # 读取源照片的 exif 信息
-        src_exif = piexif.load(str(source_path))
-
         # 将 exif 信息转换为字节串
-        src_exif_bytes = piexif.dump(src_exif)
+        src_exif_bytes = piexif.dump(exif)
 
         # 将源照片的 exif 信息写入 target_path
         piexif.insert(src_exif_bytes, str(target_path))

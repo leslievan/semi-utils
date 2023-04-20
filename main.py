@@ -15,7 +15,7 @@ from init import EMPTY_PROCESSOR
 
 from init import config
 from init import root_menu
-from utils import copy_exif_data
+from utils import insert_exif
 from utils import get_file_list
 
 
@@ -69,7 +69,7 @@ def processing():
         with container.get_watermark_img() as watermark:
             watermark.save(target_path, quality=config.get_quality())
         container.close()
-        copy_exif_data(source_path, target_path)
+        insert_exif(container.exif, target_path)
     print('处理完成，文件已输出至 output 文件夹中，请点击任意键退出或直接关闭'.format(len(file_list)))
     input()
     state = -1
