@@ -4,6 +4,13 @@ from pathlib import Path
 from PIL import Image
 from PIL.Image import Transpose
 
+from enums.constant import CUSTOM_VALUE
+from enums.constant import DATETIME_VALUE
+from enums.constant import DATE_VALUE
+from enums.constant import LENS_VALUE
+from enums.constant import MAKE_VALUE
+from enums.constant import MODEL_VALUE
+from enums.constant import PARAM_VALUE
 from utils import get_exif
 
 
@@ -54,20 +61,36 @@ class ImageContainer(object):
             self.img = self.img.transpose(Transpose.ROTATE_270)
         elif self.orientation == 8:
             self.img = self.img.transpose(Transpose.ROTATE_90)
+        self.exif['Orientation'] = 1
 
         # 水印设置
         self.custom = '无'
         self.logo = None
 
         # 图像信息
-        self.original_width = self.exif['ExifImageWidth'] if 'ExifImageWidth' in self.exif else 0
-        self.original_length = self.exif['ExifImageHeight'] if 'ExifImageHeight' in self.exif else 0
-        self.width = self.img.width
-        self.height = self.img.height
-        self.ratio = self.width / self.height
+        self.original_width = self.img.width
+        self.original_height = self.img.height
 
         # 水印图片
         self.watermark_img = None
+
+    def get_height(self):
+        return self.get_watermark_img().height
+
+    def get_width(self):
+        return self.get_watermark_img().width
+
+    def get_model(self):
+        return self.model
+
+    def get_make(self):
+        return self.make
+
+    def get_ratio(self):
+        return self.img.width / self.img.height
+
+    def get_img(self):
+        return self.img
 
     def _parse_datetime(self) -> str:
         """
@@ -81,25 +104,39 @@ class ImageContainer(object):
         except ValueError:
             return self.date
 
+    def _parse_date(self) -> str:
+        """
+        解析日期，转换为指定的格式
+        :return: 指定格式的日期字符串，转换失败返回原始的时间字符串
+        """
+        try:
+            date = ''.join(filter(lambda x: x.isprintable(), self.date))
+            date = datetime.strptime(date, '%Y:%m:%d %H:%M:%S')
+            return datetime.strftime(date, '%Y-%m-%d')
+        except ValueError:
+            return self.date
+
     def get_attribute_str(self, element) -> str:
         """
         通过 element 获取属性值
         :param element: element 对象有 name 和 value 两个字段，通过 name 和 value 获取属性值
         :return: 属性值字符串
         """
-        if element is None or element.name == '':
+        if element is None or element.get_name() == '':
             return ''
-        if element.name == 'Model':
+        if element.get_name() == MODEL_VALUE:
             return self.model
-        elif element.name == 'Param':
+        elif element.get_name() == PARAM_VALUE:
             return self.get_param_str()
-        elif element.name == 'Make':
+        elif element.get_name() == MAKE_VALUE:
             return self.make
-        elif element.name == 'Date':
+        elif element.get_name() == DATETIME_VALUE:
             return self._parse_datetime()
-        elif element.name == 'LensModel':
+        elif element.get_name() == DATE_VALUE:
+            return self._parse_date()
+        elif element.get_name() == LENS_VALUE:
             return self.lens_model
-        elif element.name == 'Custom':
+        elif element.get_name() == CUSTOM_VALUE:
             self.custom = element.value
             return self.custom
         else:
@@ -111,11 +148,17 @@ class ImageContainer(object):
         :return: 拍摄参数字符串
         """
         focal_length = self.focal_length_in_35mm_film if self.use_equivalent_focal_length else self.focal_length
-        return '  '.join([str(focal_length) + 'mm', 'f/' + str(self.f_number), self.exposure_time,
+        return ' '.join([str(focal_length) + 'mm', 'f/' + str(self.f_number), self.exposure_time,
                           'ISO' + str(self.iso)])
 
+    def get_original_height(self):
+        return self.original_height
+
+    def get_original_width(self):
+        return self.original_width
+
     def get_original_ratio(self):
-        return self.original_width / self.original_length
+        return self.original_width / self.original_height
 
     def get_logo(self):
         return self.logo
@@ -126,5 +169,17 @@ class ImageContainer(object):
     def is_use_equivalent_focal_length(self, flag: bool) -> None:
         self.use_equivalent_focal_length = flag
 
+    def get_watermark_img(self) -> Image.Image:
+        if self.watermark_img is None:
+            self.watermark_img = self.img.copy()
+        return self.watermark_img
+
+    def update_watermark_img(self, watermark_img) -> None:
+        original_watermark_img = self.watermark_img
+        self.watermark_img = watermark_img
+        if original_watermark_img is not None:
+            original_watermark_img.close()
+
     def close(self):
         self.img.close()
+        self.watermark_img.close()

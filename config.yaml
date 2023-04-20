@@ -1,9 +1,16 @@
 base:
+  alternative_bold_font: ./fonts/Roboto-Medium.ttf
+  alternative_font: ./fonts/Roboto-Regular.ttf
   bold_font: ./fonts/AlibabaPuHuiTi-2-85-Bold.otf
+  bold_font_size: 1
   font: ./fonts/AlibabaPuHuiTi-2-45-Light.otf
+  font_size: 1
   input_dir: ./input
   output_dir: ./output
   quality: 100
+global:
+  shadow:
+    enable: false
 layout:
   elements:
     left_bottom:
@@ -59,10 +66,7 @@ logo:
     sony:
       id: SONY
       path: ./logos/sony.png
+  position: right
 param:
   focal_length:
     use_equivalent_focal_length: false
-setting:
-  copyright:
-    content: null
-    location: null
