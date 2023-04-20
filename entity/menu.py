@@ -33,6 +33,21 @@ class MenuComponent:
         """
         raise NotImplementedError
 
+    def set_procedure(self, procedure: callable):
+        """
+        设置菜单对应的操作
+        :param procedure:
+        :return:
+        """
+        raise NotImplementedError
+
+    def run(self):
+        """
+        执行菜单对应的操作
+        :return:
+        """
+        raise NotImplementedError
+
 
 class Menu(MenuComponent):
     """
@@ -57,7 +72,7 @@ class Menu(MenuComponent):
         print(self.name)
         print('-' * 10)
         for idx, component in enumerate(self.components):
-            print('【{}】: {}'.format(idx + 1, component.get_item_value()))
+            print('【{}】: {}'.format(idx + 1, component.get_active_item()))
 
 
 class SubMenu(MenuComponent):
@@ -109,14 +124,14 @@ class SubMenu(MenuComponent):
             if self.compare_method(self.get_value(), component.get_value()):
                 self.is_active = idx
 
-    def get_item_value(self):
+    def get_active_item(self):
         """
         获取子菜单条目值，比如：“左上角: 相机型号”
         :return:
         """
         self.check_active()
         if self.is_active is not None:
-            return ': '.join([self.name, self.components[self.is_active].get_name()])
+            return ': '.join([self.name, self.components[self.is_active].get_active_item()])
         else:
             return ': '.join([self.name, ])
 
@@ -128,7 +143,7 @@ class SubMenu(MenuComponent):
         print(self.name)
         print('-' * 10)
         for idx, component in enumerate(self.components):
-            print('【{}】: {}'.format(idx + 1, ': '.join([self.name, self.components[idx].get_name()])))
+            print('【{}】: {}'.format(idx + 1, ': '.join([self.name, component.get_active_item()])))
 
 
 class MenuItem(MenuComponent):
@@ -137,15 +152,11 @@ class MenuItem(MenuComponent):
         self.procedure = None
         self.value = None
 
+    def get_active_item(self):
+        return self.name
+
     def add(self, component):
         pass
-
-    def get_name(self):
-        """
-        获取菜单项名称，用于打印菜单，比如：“相机型号”，提供给用户看
-        :return:
-        """
-        return self.name
 
     def get_value(self):
         """
