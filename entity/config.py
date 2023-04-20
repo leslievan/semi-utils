@@ -324,7 +324,7 @@ class Config(object):
         else:
             return 260
 
-    def get_font_padding_size(self):
+    def get_font_padding_level(self):
         bold_font_size = self._data['base']['bold_font_size'] if 1 <= self._data['base']['bold_font_size'] <= 3 else 1
         font_size = self._data['base']['font_size'] if 1 <= self._data['base']['font_size'] <= 3 else 1
         return bold_font_size + font_size
