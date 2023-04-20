@@ -307,9 +307,9 @@ class Config(object):
         if font_size == 1:
             return 240
         elif font_size == 2:
-            return 280
+            return 250
         elif font_size == 3:
-            return 320
+            return 300
         else:
             return 240
 
@@ -318,9 +318,9 @@ class Config(object):
         if font_size == 1:
             return 260
         elif font_size == 2:
-            return 300
+            return 290
         elif font_size == 3:
-            return 340
+            return 320
         else:
             return 260
 
