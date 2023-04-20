@@ -191,12 +191,12 @@ class SimpleProcessor(ProcessorComponent):
                                    self.config.get_alternative_bold_font(),
                                    is_bold=False,
                                    fill='#212121')
-        model = text_to_image(container.get_model(),
+        model = text_to_image(container.get_model().replace(r'/', ' ').replace(r'_', ' '),
                               self.config.get_alternative_font(),
                               self.config.get_alternative_bold_font(),
                               is_bold=True,
                               fill='#D32F2F')
-        make = text_to_image(container.get_make(),
+        make = text_to_image(container.get_make().split(' ')[0],
                              self.config.get_alternative_font(),
                              self.config.get_alternative_bold_font(),
                              is_bold=True,
