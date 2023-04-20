@@ -23,14 +23,23 @@ class ImageContainer(object):
             if 'DateTimeOriginal' in self.exif \
             else datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         # 焦距
-        self.focal_length = int(self.exif['FocalLength']) if 'FocalLength' in self.exif else 0
+        try:
+            self.focal_length = int(self.exif['FocalLength']) if 'FocalLength' in self.exif else 0
+        except ValueError:
+            self.focal_length = 0
         # 等效焦距
-        self.focal_length_in_35mm_film = int(self.exif['FocalLengthIn35mmFilm']) \
-            if 'FocalLengthIn35mmFilm' in self.exif else self.focal_length
+        try:
+            self.focal_length_in_35mm_film = int(self.exif['FocalLengthIn35mmFilm']) \
+                if 'FocalLengthIn35mmFilm' in self.exif else self.focal_length
+        except ValueError:
+            self.focal_length_in_35mm_film = self.focal_length
         # 是否使用等效焦距
         self.use_equivalent_focal_length = False
         # 光圈大小
-        self.f_number = float(self.exif['FNumber']) if 'FNumber' in self.exif else .0
+        try:
+            self.f_number = float(self.exif['FNumber']) if 'FNumber' in self.exif else .0
+        except ValueError:
+            self.f_number = .0
         # 曝光时间
         self.exposure_time = str(self.exif['ExposureTime'].real) \
             if 'ExposureTime' in self.exif else '0s'
