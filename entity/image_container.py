@@ -45,7 +45,7 @@ class ImageContainer(object):
         # 光圈大小
         try:
             self.f_number = float(self.exif['FNumber']) if 'FNumber' in self.exif else .0
-        except ValueError or ZeroDivisionError:
+        except:
             self.f_number = .0
         # 曝光时间
         self.exposure_time = str(self.exif['ExposureTime'].real) \
