@@ -115,12 +115,14 @@ if __name__ == '__main__':
             print(SEPARATE_LINE)
 
             # 处理用户输入
-            user_input = input('输入【数字】修改设置，输入【x】退出程序\n')
+            user_input = input('输入【数字】修改设置，输入【x】退出程序，输入【r】返回主菜单\n')
 
             # x 退出程序
             if user_input == 'x' or user_input == 'X':
                 sys.exit(0)
             # 数字合法则执行对应菜单项的处理函数
+            elif user_input == 'r' or user_input == 'R':
+                state = 0
             elif user_input.isdigit() and 1 <= int(user_input) <= len(submenu.components):
                 submenu.components[int(user_input) - 1].procedure()
                 state = 0
