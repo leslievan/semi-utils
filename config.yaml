@@ -2,9 +2,9 @@ base:
   alternative_bold_font: ./fonts/Roboto-Medium.ttf
   alternative_font: ./fonts/Roboto-Regular.ttf
   bold_font: ./fonts/AlibabaPuHuiTi-2-85-Bold.otf
-  bold_font_size: 300
+  bold_font_size: 1
   font: ./fonts/AlibabaPuHuiTi-2-45-Light.otf
-  font_size: 240
+  font_size: 1
   input_dir: ./input
   output_dir: ./output
   quality: 100
@@ -26,7 +26,7 @@ layout:
     right_top:
       is_bold: true
       name: Param
-  type: normal_with_right_logo
+  type: simple
   white_margin:
     enable: true
     width: 3

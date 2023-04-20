@@ -42,10 +42,6 @@ class Config(object):
         self._left_bottom = ElementConfig(self._data['layout']['elements']['left_bottom'])
         self._right_top = ElementConfig(self._data['layout']['elements']['right_top'])
         self._right_bottom = ElementConfig(self._data['layout']['elements']['right_bottom'])
-        self.font = ImageFont.truetype(self._data['base']['font'], self._data['base']['font_size'])
-        self.bold_font = ImageFont.truetype(self._data['base']['bold_font'], self._data['base']['bold_font_size'])
-        self.alternative_font = ImageFont.truetype(self._data['base']['alternative_font'], self._data['base']['font_size'])
-        self.alternative_bold_font = ImageFont.truetype(self._data['base']['alternative_bold_font'], self._data['base']['bold_font_size'])
         self.makes = self._data['logo']['makes']
 
     def load_logo(self, make) -> Image.Image:
@@ -131,12 +127,6 @@ class Config(object):
 
     def get_quality(self):
         return self._data['base']['quality']
-
-    def get_font(self):
-        return self.font
-
-    def get_bold_font(self):
-        return self.bold_font
 
     def set_normal_layout(self):
         self._data['layout']['type'] = 'normal'
@@ -301,7 +291,40 @@ class Config(object):
         return self._data['param']['focal_length']['use_equivalent_focal_length']
 
     def get_alternative_font(self):
-        return self.alternative_font
+        return ImageFont.truetype(self._data['base']['alternative_font'], self.get_font_size())
 
     def get_alternative_bold_font(self):
-        return self.alternative_bold_font
+        return ImageFont.truetype(self._data['base']['alternative_bold_font'], self.get_bold_font_size())
+
+    def get_font(self):
+        return ImageFont.truetype(self._data['base']['font'], self.get_font_size())
+
+    def get_bold_font(self):
+        return ImageFont.truetype(self._data['base']['bold_font'], self.get_bold_font_size())
+
+    def get_font_size(self):
+        font_size = self._data['base']['font_size']
+        if font_size == 1:
+            return 240
+        elif font_size == 2:
+            return 280
+        elif font_size == 3:
+            return 320
+        else:
+            return 240
+
+    def get_bold_font_size(self):
+        font_size = self._data['base']['bold_font_size']
+        if font_size == 1:
+            return 260
+        elif font_size == 2:
+            return 300
+        elif font_size == 3:
+            return 340
+        else:
+            return 260
+
+    def get_font_padding_size(self):
+        bold_font_size = self._data['base']['bold_font_size'] if 1 <= self._data['base']['bold_font_size'] <= 3 else 1
+        font_size = self._data['base']['font_size'] if 1 <= self._data['base']['font_size'] <= 3 else 1
+        return bold_font_size + font_size
