@@ -24,7 +24,7 @@ jobs:
 
     - name: Build Executable
       run: |
-        pyinstaller -F main.spec
+        pyinstaller --one-file main.spec
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
