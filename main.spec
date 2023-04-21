@@ -7,8 +7,8 @@ block_cipher = None
 a = Analysis(
     ['main.py'],
     pathex=[],
-    binaries=[],
-    datas=[('config.yaml', '.'), ('./input', './input'), ('./output', './output'), ('./fonts', './fonts'), ('./logos', './logos'), ('./exiftool', './exiftool')],
+    binaries=[('config.yaml', '.'), ('./input', './input'), ('./output', './output'), ('./fonts', './fonts'), ('./logos', './logos'), ('./exiftool', './exiftool')],
+    datas=[],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
