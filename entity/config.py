@@ -255,9 +255,15 @@ class Config(object):
     def set_right_bottom_date(self):
         self.set_date('right_bottom')
 
+    def get_custom_value(self, location):
+        if 'value' in self._data['layout']['elements'][location]:
+            return self._data['layout']['elements'][location]['value']
+        else:
+            return ''
+
     def set_custom(self, location):
         self._data['layout']['elements'][location]['name'] = 'Custom'
-        user_input = input('输入自定义字段的值：\n')
+        user_input = input('输入自定义字段的值（上次使用的值为：{}）\n'.format(self.get_custom_value(location)))
         self._data['layout']['elements'][location]['value'] = user_input
 
     def set_left_top_custom(self):
