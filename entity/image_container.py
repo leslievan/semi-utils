@@ -4,6 +4,7 @@ from pathlib import Path
 from PIL import Image
 from PIL.Image import Transpose
 
+from entity.config import ElementConfig
 from enums.constant import CUSTOM_VALUE
 from enums.constant import DATETIME_VALUE
 from enums.constant import DATE_VALUE
@@ -116,7 +117,7 @@ class ImageContainer(object):
         except ValueError:
             return self.date
 
-    def get_attribute_str(self, element) -> str:
+    def get_attribute_str(self, element: ElementConfig) -> str:
         """
         通过 element 获取属性值
         :param element: element 对象有 name 和 value 两个字段，通过 name 和 value 获取属性值
@@ -137,7 +138,7 @@ class ImageContainer(object):
         elif element.get_name() == LENS_VALUE:
             return self.lens_model
         elif element.get_name() == CUSTOM_VALUE:
-            self.custom = element.value
+            self.custom = element.get_value()
             return self.custom
         else:
             return ''
