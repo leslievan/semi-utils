@@ -22,6 +22,11 @@ jobs:
         pip install -r requirements.txt
         pip install pyinstaller
 
+    - name: Download exiftool
+      run: |
+        New-Item -Path "./exiftool" -ItemType "directory" -Force | Out-Null
+        Invoke-WebRequest -Uri "https://github.com/leslievan/semi-utils/raw/exiftool/exiftool/exiftool.exe" -OutFile "./exiftool/exiftool.exe"
+
     - name: Build Executable
       run: |
         pyinstaller main.spec
