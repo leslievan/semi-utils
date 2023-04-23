@@ -3,4 +3,5 @@
 release
 input
 output
-__pycache__
+__pycache_
+logos/logo_psds
