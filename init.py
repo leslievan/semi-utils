@@ -64,10 +64,10 @@ LAYOUT_ITEM = [Item('normal', 'normal'),
                Item('简洁', SimpleProcessor.LAYOUT_ID), ]
 
 for item in LAYOUT_ITEM:
-    layout_menu = MenuItem(item.get_name())
-    layout_menu._value = item.get_value()
-    layout_menu.set_procedure(config.set_layout, layout=item.get_value())
-    layout_menu.set_parent(root_menu)
+    item_menu = MenuItem(item.get_name())
+    item_menu._value = item.get_value()
+    item_menu.set_procedure(config.set_layout, layout=item.get_value())
+    layout_menu.add(item_menu)
 
 # 创建子菜单：logo
 logo_menu = SubMenu('logo')
