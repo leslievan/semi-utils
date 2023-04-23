@@ -12,10 +12,14 @@ from enums.constant import DATETIME_NAME
 from enums.constant import DATETIME_VALUE
 from enums.constant import DATE_NAME
 from enums.constant import DATE_VALUE
+from enums.constant import LENS_MAKE_NAME
+from enums.constant import LENS_MAKE_VALUE
 from enums.constant import LENS_NAME
 from enums.constant import LENS_VALUE
 from enums.constant import MAKE_NAME
 from enums.constant import MAKE_VALUE
+from enums.constant import MODEL_LENS_NAME
+from enums.constant import MODEL_LENS_VALUE
 from enums.constant import MODEL_NAME
 from enums.constant import MODEL_VALUE
 from enums.constant import NONE_NAME
@@ -352,6 +356,54 @@ shadow_disable_menu = MenuItem('不显示')
 shadow_disable_menu.set_procedure(config.disable_shadow)
 shadow_disable_menu.value = False
 shadow_menu.add(shadow_disable_menu)
+
+# 创建菜单项：左下角：MODEL_LENS_NAME
+left_bottom_lens_make_menu = MenuItem(MODEL_LENS_NAME)
+left_bottom_lens_make_menu.set_procedure(config.set_left_bottom_lens_make)
+left_bottom_lens_make_menu.value = MODEL_LENS_VALUE
+left_bottom_menu.add(left_bottom_lens_make_menu)
+
+# 创建菜单项：右下角：MODEL_LENS_NAME
+right_bottom_lens_make_menu = MenuItem(MODEL_LENS_NAME)
+right_bottom_lens_make_menu.set_procedure(config.set_right_bottom_lens_make)
+right_bottom_lens_make_menu.value = MODEL_LENS_VALUE
+right_bottom_menu.add(right_bottom_lens_make_menu)
+
+# 创建菜单项：左上角：MODEL_LENS_NAME
+left_top_lens_make_menu = MenuItem(MODEL_LENS_NAME)
+left_top_lens_make_menu.set_procedure(config.set_left_top_lens_make)
+left_top_lens_make_menu.value = MODEL_LENS_VALUE
+left_top_menu.add(left_top_lens_make_menu)
+
+# 创建菜单项：右上角：MODEL_LENS_NAME
+right_top_lens_make_menu = MenuItem(MODEL_LENS_NAME)
+right_top_lens_make_menu.set_procedure(config.set_right_top_lens_make)
+right_top_lens_make_menu.value = MODEL_LENS_VALUE
+right_top_menu.add(right_top_lens_make_menu)
+
+# 创建菜单项：左上角：LENS_MAKE_NAME
+left_top_lens_make_menu = MenuItem(LENS_MAKE_NAME)
+left_top_lens_make_menu.set_procedure(config.set_left_top_lens_make)
+left_top_lens_make_menu.value = LENS_MAKE_VALUE
+left_top_menu.add(left_top_lens_make_menu)
+
+# 创建菜单项：右上角：LENS_MAKE_NAME
+right_top_lens_make_menu = MenuItem(LENS_MAKE_NAME)
+right_top_lens_make_menu.set_procedure(config.set_right_top_lens_make)
+right_top_lens_make_menu.value = LENS_MAKE_VALUE
+right_top_menu.add(right_top_lens_make_menu)
+
+# 创建菜单项：左下角：LENS_MAKE_NAME
+left_bottom_lens_make_menu = MenuItem(LENS_MAKE_NAME)
+left_bottom_lens_make_menu.set_procedure(config.set_left_bottom_lens_make)
+left_bottom_lens_make_menu.value = LENS_MAKE_VALUE
+left_bottom_menu.add(left_bottom_lens_make_menu)
+
+# 创建菜单项：右下角：LENS_MAKE_NAME
+right_bottom_lens_make_menu = MenuItem(LENS_MAKE_NAME)
+right_bottom_lens_make_menu.set_procedure(config.set_right_bottom_lens_make)
+right_bottom_lens_make_menu.value = LENS_MAKE_VALUE
+right_bottom_menu.add(right_bottom_lens_make_menu)
 
 EMPTY_PROCESSOR = EmptyProcessor(config)
 WATERMARK_PROCESSOR = WatermarkProcessor(config)
