@@ -6,6 +6,7 @@ from tqdm import tqdm
 from entity.image_container import ImageContainer
 from entity.image_processor import ProcessorChain
 from init import MARGIN_PROCESSOR
+from init import PADDING_TO_ORIGINAL_RATIO_PROCESSOR
 from init import SEPARATE_LINE
 from init import SHADOW_PROCESSOR
 from init import SIMPLE_PROCESSOR
@@ -46,6 +47,10 @@ def processing():
     # 如果需要添加白边，且不是正方形布局，则添加白边处理器，白边处理器优先级最低
     if config.has_white_margin_enabled() and 'square' != config.get_layout_type():
         processor_chain.add(MARGIN_PROCESSOR)
+
+    # 如果需要按原有比例填充，且不是正方形布局，则添加填充处理器
+    if config.has_padding_with_original_ratio_enabled() and 'square' != config.get_layout_type():
+        processor_chain.add(PADDING_TO_ORIGINAL_RATIO_PROCESSOR)
 
     for source_path in tqdm(file_list):
         # 打开图片

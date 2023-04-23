@@ -1,6 +1,7 @@
 from entity.config import Config
 from entity.image_processor import EmptyProcessor
 from entity.image_processor import MarginProcessor
+from entity.image_processor import PaddingToOriginalRatioProcessor
 from entity.image_processor import ShadowProcessor
 from entity.image_processor import SimpleProcessor
 from entity.image_processor import SquareProcessor
@@ -199,9 +200,28 @@ shadow_disable_menu.set_procedure(config.disable_shadow)
 shadow_disable_menu._value = False
 shadow_menu.add(shadow_disable_menu)
 
+# 创建子菜单：按比例填充
+padding_with_ratio_menu = SubMenu('按比例填充')
+padding_with_ratio_menu.set_value_getter(config, lambda x: x['global']['padding_with_original_ratio']['enable'])
+padding_with_ratio_menu.set_compare_method(lambda x, y: x == y)
+more_setting_menu.add(padding_with_ratio_menu)
+
+# 创建菜单项：按比例填充：启用
+padding_with_ratio_enable_menu = MenuItem('启用')
+padding_with_ratio_enable_menu.set_procedure(config.enable_padding_with_original_ratio)
+padding_with_ratio_enable_menu._value = True
+padding_with_ratio_menu.add(padding_with_ratio_enable_menu)
+
+# 创建菜单项：按比例填充：不启用
+padding_with_ratio_disable_menu = MenuItem('不启用')
+padding_with_ratio_disable_menu.set_procedure(config.disable_padding_with_original_ratio)
+padding_with_ratio_disable_menu._value = False
+padding_with_ratio_menu.add(padding_with_ratio_disable_menu)
+
 EMPTY_PROCESSOR = EmptyProcessor(config)
 WATERMARK_PROCESSOR = WatermarkProcessor(config)
 MARGIN_PROCESSOR = MarginProcessor(config)
 SHADOW_PROCESSOR = ShadowProcessor(config)
 SQUARE_PROCESSOR = SquareProcessor(config)
 SIMPLE_PROCESSOR = SimpleProcessor(config)
+PADDING_TO_ORIGINAL_RATIO_PROCESSOR = PaddingToOriginalRatioProcessor(config)

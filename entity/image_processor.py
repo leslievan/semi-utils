@@ -229,3 +229,23 @@ class SimpleProcessor(ProcessorComponent):
 
         watermark_img = merge_images([container.get_watermark_img(), watermark], 1, 1)
         container.update_watermark_img(watermark_img)
+
+
+class PaddingToOriginalRatioProcessor(ProcessorComponent):
+    LAYOUT_ID = 'padding_to_original_ratio'
+
+    def __init__(self, config: Config):
+        self.config = config
+
+    def process(self, container: ImageContainer) -> None:
+        original_ratio = container.get_original_ratio()
+        ratio = container.get_ratio()
+        if original_ratio > ratio:
+            # 如果原始比例大于当前比例，说明宽度大于高度，需要填充高度
+            padding_size = int(container.get_width() / original_ratio - container.get_height())
+            padding_img = ImageOps.expand(container.get_watermark_img(), (0, padding_size), fill='white')
+        else:
+            # 如果原始比例小于当前比例，说明高度大于宽度，需要填充宽度
+            padding_size = int(container.get_height() * original_ratio - container.get_width())
+            padding_img = ImageOps.expand(container.get_watermark_img(), (padding_size, 0), fill='white')
+        container.update_watermark_img(padding_img)

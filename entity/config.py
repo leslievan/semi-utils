@@ -231,3 +231,12 @@ class Config(object):
             self.set_custom(location)
         else:
             self._data['layout']['elements'][location]['name'] = name
+
+    def enable_padding_with_original_ratio(self):
+        self._data['global']['padding_with_original_ratio']['enable'] = True
+
+    def disable_padding_with_original_ratio(self):
+        self._data['global']['padding_with_original_ratio']['enable'] = False
+
+    def has_padding_with_original_ratio_enabled(self):
+        return self._data['global']['padding_with_original_ratio']['enable']
