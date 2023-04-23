@@ -83,7 +83,8 @@
 
    ```shell
    cd ~/semi-utils
-   pip install -r requirements.txt
+   chmod +x install.sh
+   ./install.sh
    ```
 
 - 将需要添加水印的图片复制到 `~/semi-utils/input` 文件夹中

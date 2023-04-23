@@ -9,6 +9,8 @@ base:
   output_dir: ./output
   quality: 100
 global:
+  padding_with_original_ratio:
+    enable: true
   shadow:
     enable: false
 layout:
