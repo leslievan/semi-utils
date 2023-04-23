@@ -4,11 +4,10 @@ import yaml
 from PIL import Image
 from PIL import ImageFont
 
-from enums.constant import LENS_MAKE_VALUE
+from enums.constant import CUSTOM_VALUE
 from enums.constant import LOCATION_LEFT_TOP
 from enums.constant import LOCATION_RIGHT_BOTTOM
 from enums.constant import LOCATION_RIGHT_TOP
-from enums.constant import MODEL_LENS_VALUE
 
 
 class ElementConfig(object):
@@ -171,96 +170,6 @@ class Config(object):
     def set_use_equivalent_focal_length_disable(self):
         self._data['param']['focal_length']['use_equivalent_focal_length'] = False
 
-    def set_model(self, location):
-        self._data['layout']['elements'][location]['name'] = 'Model'
-
-    def set_left_top_model(self):
-        self.set_model(LOCATION_LEFT_TOP)
-
-    def set_left_bottom_model(self):
-        self.set_model(LOCATION_RIGHT_BOTTOM)
-
-    def set_right_top_model(self):
-        self.set_model(LOCATION_RIGHT_TOP)
-
-    def set_right_bottom_model(self):
-        self.set_model(LOCATION_RIGHT_BOTTOM)
-
-    def set_make(self, location):
-        self._data['layout']['elements'][location]['name'] = 'Make'
-
-    def set_left_top_make(self):
-        self.set_make(LOCATION_LEFT_TOP)
-
-    def set_left_bottom_make(self):
-        self.set_make(LOCATION_RIGHT_BOTTOM)
-
-    def set_right_top_make(self):
-        self.set_make(LOCATION_RIGHT_TOP)
-
-    def set_right_bottom_make(self):
-        self.set_make(LOCATION_RIGHT_BOTTOM)
-
-    def set_lens(self, location):
-        self._data['layout']['elements'][location]['name'] = 'LensModel'
-
-    def set_left_top_lens(self):
-        self.set_lens(LOCATION_LEFT_TOP)
-
-    def set_left_bottom_lens(self):
-        self.set_lens(LOCATION_RIGHT_BOTTOM)
-
-    def set_right_top_lens(self):
-        self.set_lens(LOCATION_RIGHT_TOP)
-
-    def set_right_bottom_lens(self):
-        self.set_lens(LOCATION_RIGHT_BOTTOM)
-
-    def set_param(self, location):
-        self._data['layout']['elements'][location]['name'] = 'Param'
-
-    def set_left_top_param(self):
-        self.set_param(LOCATION_LEFT_TOP)
-
-    def set_left_bottom_param(self):
-        self.set_param(LOCATION_RIGHT_BOTTOM)
-
-    def set_right_top_param(self):
-        self.set_param(LOCATION_RIGHT_TOP)
-
-    def set_right_bottom_param(self):
-        self.set_param(LOCATION_RIGHT_BOTTOM)
-
-    def set_datetime(self, location):
-        self._data['layout']['elements'][location]['name'] = 'Datetime'
-
-    def set_left_top_datetime(self):
-        self.set_datetime(LOCATION_LEFT_TOP)
-
-    def set_left_bottom_datetime(self):
-        self.set_datetime(LOCATION_RIGHT_BOTTOM)
-
-    def set_right_top_datetime(self):
-        self.set_datetime(LOCATION_RIGHT_TOP)
-
-    def set_right_bottom_datetime(self):
-        self.set_datetime(LOCATION_RIGHT_BOTTOM)
-
-    def set_date(self, location):
-        self._data['layout']['elements'][location]['name'] = 'Date'
-
-    def set_left_top_date(self):
-        self.set_date(LOCATION_LEFT_TOP)
-
-    def set_left_bottom_date(self):
-        self.set_date(LOCATION_RIGHT_BOTTOM)
-
-    def set_right_top_date(self):
-        self.set_date(LOCATION_RIGHT_TOP)
-
-    def set_right_bottom_date(self):
-        self.set_date(LOCATION_RIGHT_BOTTOM)
-
     def get_custom_value(self, location):
         if 'value' in self._data['layout']['elements'][location]:
             return self._data['layout']['elements'][location]['value']
@@ -271,33 +180,6 @@ class Config(object):
         self._data['layout']['elements'][location]['name'] = 'Custom'
         user_input = input('输入自定义字段的值（上次使用的值为：{}）\n'.format(self.get_custom_value(location)))
         self._data['layout']['elements'][location]['value'] = user_input
-
-    def set_left_top_custom(self):
-        self.set_custom(LOCATION_LEFT_TOP)
-
-    def set_left_bottom_custom(self):
-        self.set_custom(LOCATION_RIGHT_BOTTOM)
-
-    def set_right_top_custom(self):
-        self.set_custom(LOCATION_RIGHT_TOP)
-
-    def set_right_bottom_custom(self):
-        self.set_custom(LOCATION_RIGHT_BOTTOM)
-
-    def set_none(self, location):
-        self._data['layout']['elements'][location]['name'] = 'None'
-
-    def set_left_top_none(self):
-        self.set_none(LOCATION_LEFT_TOP)
-
-    def set_left_bottom_none(self):
-        self.set_none(LOCATION_RIGHT_BOTTOM)
-
-    def set_right_top_none(self):
-        self.set_none(LOCATION_RIGHT_TOP)
-
-    def set_right_bottom_none(self):
-        self.set_none(LOCATION_RIGHT_BOTTOM)
 
     def use_equivalent_focal_length(self):
         return self._data['param']['focal_length']['use_equivalent_focal_length']
@@ -342,28 +224,7 @@ class Config(object):
         return bold_font_size + font_size
 
     def set_element_name(self, location, name):
-        self._data['layout']['elements'][location]['name'] = name
-
-    def set_left_top_lens_make(self):
-        self.set_element_name(LOCATION_LEFT_TOP, LENS_MAKE_VALUE)
-
-    def set_left_bottom_lens_make(self):
-        self.set_element_name(LOCATION_RIGHT_BOTTOM, LENS_MAKE_VALUE)
-
-    def set_right_top_lens_make(self):
-        self.set_element_name(LOCATION_RIGHT_TOP, LENS_MAKE_VALUE)
-
-    def set_right_bottom_lens_make(self):
-        self.set_element_name(LOCATION_RIGHT_BOTTOM, LENS_MAKE_VALUE)
-
-    def set_left_top_model_lens(self):
-        self.set_element_name(LOCATION_LEFT_TOP, MODEL_LENS_VALUE)
-
-    def set_left_bottom_model_lens(self):
-        self.set_element_name(LOCATION_RIGHT_BOTTOM, MODEL_LENS_VALUE)
-
-    def set_right_top_model_lens(self):
-        self.set_element_name(LOCATION_RIGHT_TOP, MODEL_LENS_VALUE)
-
-    def set_right_bottom_model_lens(self):
-        self.set_element_name(LOCATION_RIGHT_BOTTOM, MODEL_LENS_VALUE)
+        if CUSTOM_VALUE == name:
+            self.set_custom(location)
+        else:
+            self._data['layout']['elements'][location]['name'] = name
