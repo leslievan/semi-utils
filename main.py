@@ -7,16 +7,14 @@ from entity.image_container import ImageContainer
 from entity.image_processor import ProcessorChain
 from init import MARGIN_PROCESSOR
 from init import SEPARATE_LINE
-from init import SIMPLE_PROCESSOR
-from init import WATERMARK_PROCESSOR
 from init import SHADOW_PROCESSOR
+from init import SIMPLE_PROCESSOR
 from init import SQUARE_PROCESSOR
-from init import EMPTY_PROCESSOR
-
+from init import WATERMARK_PROCESSOR
 from init import config
 from init import root_menu
-from utils import insert_exif
 from utils import get_file_list
+from utils import insert_exif
 
 
 def processing():
@@ -124,7 +122,7 @@ if __name__ == '__main__':
             elif user_input == 'r' or user_input == 'R':
                 state = 0
             elif user_input.isdigit() and 1 <= int(user_input) <= len(submenu.components):
-                submenu.components[int(user_input) - 1].procedure()
+                submenu.components[int(user_input) - 1].run()
                 state = 0
             else:
                 print('输入错误，请重新输入')
