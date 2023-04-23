@@ -6,3 +6,5 @@ output
 __pycache_
 logos/logo_psds
 exiftool
+build
+dist
