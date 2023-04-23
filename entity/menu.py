@@ -148,12 +148,13 @@ class SubMenu(MenuComponent):
 
 class MenuItem(MenuComponent):
     def __init__(self, name):
-        self.name = name
-        self.procedure = None
-        self.value = None
+        self._name: str = name
+        self._procedure: callable = None
+        self._procedure_args: dict | None = None
+        self._value: str | None = None
 
     def get_active_item(self):
-        return self.name
+        return self._name
 
     def add(self, component):
         pass
@@ -163,25 +164,26 @@ class MenuItem(MenuComponent):
         获取菜单项值，用于比较当前选中项，比如：“LensModel”，提供给配置文件读取
         :return:
         """
-        return self.value
+        return self._value
 
     def remove(self, component):
         pass
 
     def display(self):
-        print(self.name)
+        print(self._name)
 
-    def set_procedure(self, procedure: callable):
+    def set_procedure(self, procedure: callable, **kwargs):
         """
         设置菜单项的处理方法，比如：更新左上角为相机型号
         :param procedure: 一个无参数的 callable 对象，用于回调
         :return: 
         """
-        self.procedure = procedure
+        self._procedure = procedure
+        self._procedure_args = kwargs
 
     def run(self):
         """
         执行菜单项的处理方法
         :return:
         """
-        self.procedure()
+        self._procedure(**self._procedure_args)
