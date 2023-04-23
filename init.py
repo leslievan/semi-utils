@@ -75,14 +75,14 @@ logo_menu.set_value_getter(config, lambda x: x['logo']['enable'])
 logo_menu.set_compare_method(lambda x, y: x == y)
 root_menu.add(logo_menu)
 
-# 创建菜单项：logo：显示
-logo_enable_menu = MenuItem('显示')
+# 创建菜单项：logo：启用
+logo_enable_menu = MenuItem('启用')
 logo_enable_menu._value = True
 logo_enable_menu.set_procedure(config.enable_logo)
 logo_menu.add(logo_enable_menu)
 
-# 创建菜单项：logo：不显示
-logo_disable_menu = MenuItem('不显示')
+# 创建菜单项：logo：不启用
+logo_disable_menu = MenuItem('不启用')
 logo_disable_menu._value = False
 logo_disable_menu.set_procedure(config.disable_logo)
 logo_menu.add(logo_disable_menu)
@@ -151,14 +151,14 @@ white_margin_menu.set_value_getter(config, lambda x: x['layout']['white_margin']
 white_margin_menu.set_compare_method(lambda x, y: x == y)
 more_setting_menu.add(white_margin_menu)
 
-# 创建菜单项：白色边框：显示
-white_margin_enable_menu = MenuItem('显示')
+# 创建菜单项：白色边框：启用
+white_margin_enable_menu = MenuItem('启用')
 white_margin_enable_menu.set_procedure(config.enable_white_margin)
 white_margin_enable_menu._value = True
 white_margin_menu.add(white_margin_enable_menu)
 
-# 创建菜单项：白色边框：不显示
-white_margin_disable_menu = MenuItem('不显示')
+# 创建菜单项：白色边框：不启用
+white_margin_disable_menu = MenuItem('不启用')
 white_margin_disable_menu.set_procedure(config.disable_white_margin)
 white_margin_disable_menu._value = False
 white_margin_menu.add(white_margin_disable_menu)
@@ -170,14 +170,14 @@ use_equivalent_focal_length_menu.set_value_getter(config,
 use_equivalent_focal_length_menu.set_compare_method(lambda x, y: x == y)
 more_setting_menu.add(use_equivalent_focal_length_menu)
 
-# 创建菜单项：等效焦距：使用
-use_equivalent_focal_length_enable_menu = MenuItem('使用')
+# 创建菜单项：等效焦距：启用
+use_equivalent_focal_length_enable_menu = MenuItem('启用')
 use_equivalent_focal_length_enable_menu.set_procedure(config.enable_equivalent_focal_length)
 use_equivalent_focal_length_enable_menu._value = True
 use_equivalent_focal_length_menu.add(use_equivalent_focal_length_enable_menu)
 
-# 创建菜单项：等效焦距：不使用
-use_equivalent_focal_length_disable_menu = MenuItem('不使用')
+# 创建菜单项：等效焦距：不启用
+use_equivalent_focal_length_disable_menu = MenuItem('不启用')
 use_equivalent_focal_length_disable_menu.set_procedure(config.disable_equivalent_focal_length)
 use_equivalent_focal_length_disable_menu._value = False
 use_equivalent_focal_length_menu.add(use_equivalent_focal_length_disable_menu)
@@ -188,14 +188,14 @@ shadow_menu.set_value_getter(config, lambda x: x['global']['shadow']['enable'])
 shadow_menu.set_compare_method(lambda x, y: x == y)
 more_setting_menu.add(shadow_menu)
 
-# 创建菜单项：阴影：显示
-shadow_enable_menu = MenuItem('显示')
+# 创建菜单项：阴影：启用
+shadow_enable_menu = MenuItem('启用')
 shadow_enable_menu.set_procedure(config.enable_shadow)
 shadow_enable_menu._value = True
 shadow_menu.add(shadow_enable_menu)
 
-# 创建菜单项：阴影：不显示
-shadow_disable_menu = MenuItem('不显示')
+# 创建菜单项：阴影：不启用
+shadow_disable_menu = MenuItem('不启用')
 shadow_disable_menu.set_procedure(config.disable_shadow)
 shadow_disable_menu._value = False
 shadow_menu.add(shadow_disable_menu)
