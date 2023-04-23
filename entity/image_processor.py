@@ -31,6 +31,7 @@ class ProcessorComponent:
     """
     图片处理器组件
     """
+    LAYOUT_ID = None
 
     def process(self, container: ImageContainer) -> None:
         """
@@ -55,6 +56,8 @@ class ProcessorChain(ProcessorComponent):
 
 
 class EmptyProcessor(ProcessorComponent):
+    LAYOUT_ID = 'empty'
+
     def __init__(self, config: Config):
         self.config = config
 
@@ -63,6 +66,8 @@ class EmptyProcessor(ProcessorComponent):
 
 
 class ShadowProcessor(ProcessorComponent):
+    LAYOUT_ID = 'shadow'
+
     def __init__(self, config: Config):
         self.config = config
 
@@ -86,6 +91,8 @@ class ShadowProcessor(ProcessorComponent):
 
 
 class SquareProcessor(ProcessorComponent):
+    LAYOUT_ID = 'square'
+
     def __init__(self, config: Config):
         self.config = config
 
@@ -95,6 +102,8 @@ class SquareProcessor(ProcessorComponent):
 
 
 class WatermarkProcessor(ProcessorComponent):
+    LAYOUT_ID = 'watermark'
+
     def __init__(self, config: Config):
         self.config = config
 
@@ -166,6 +175,8 @@ class WatermarkProcessor(ProcessorComponent):
 
 
 class MarginProcessor(ProcessorComponent):
+    LAYOUT_ID = 'margin'
+
     def __init__(self, config: Config):
         self.config = config
 
@@ -177,7 +188,7 @@ class MarginProcessor(ProcessorComponent):
 
 
 class SimpleProcessor(ProcessorComponent):
-    LAYOUT_VALUE = 'simple'
+    LAYOUT_ID = 'simple'
 
     def __init__(self, config: Config):
         self.config = config

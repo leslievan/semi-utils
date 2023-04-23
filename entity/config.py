@@ -39,15 +39,15 @@ class Config(object):
     """
 
     def __init__(self, path):
-        self.path = path
-        with open(self.path, 'r', encoding='utf-8') as f:
+        self._path = path
+        with open(self._path, 'r', encoding='utf-8') as f:
             self._data = yaml.safe_load(f)
         self._logos = {}
         self._left_top = ElementConfig(self._data['layout']['elements'][LOCATION_LEFT_TOP])
         self._left_bottom = ElementConfig(self._data['layout']['elements'][LOCATION_RIGHT_BOTTOM])
         self._right_top = ElementConfig(self._data['layout']['elements'][LOCATION_RIGHT_TOP])
         self._right_bottom = ElementConfig(self._data['layout']['elements'][LOCATION_RIGHT_BOTTOM])
-        self.makes = self._data['logo']['makes']
+        self._makes = self._data['logo']['makes']
 
     def load_logo(self, make) -> Image.Image:
         """
@@ -59,7 +59,7 @@ class Config(object):
         if make in self._logos:
             return self._logos[make]
         # 未读取到内存中的 logo
-        for m in self.makes.values():
+        for m in self._makes.values():
             if m['id'].lower() in make.lower():
                 logo = Image.open(m['path'])
                 self._logos[make] = logo
@@ -84,7 +84,7 @@ class Config(object):
         return self._right_bottom
 
     def save(self):
-        with open(self.path, 'w') as f:
+        with open(self._path, 'w') as f:
             yaml.dump(self._data, f, encoding='utf-8')
 
     def enable_shadow(self):
@@ -93,10 +93,10 @@ class Config(object):
     def disable_shadow(self):
         self._data['global']['shadow']['enable'] = False
 
-    def is_shadow_enable(self):
+    def has_shadow_enabled(self):
         return self._data['global']['shadow']['enable']
 
-    def is_logo_enable(self):
+    def has_logo_enabled(self):
         return self._data['logo']['enable']
 
     def is_logo_left(self):
@@ -106,10 +106,10 @@ class Config(object):
     def set_logo_left(self):
         self._data['logo']['position'] = 'left'
 
-    def unset_logo_left(self):
+    def set_logo_right(self):
         self._data['logo']['position'] = 'right'
 
-    def is_white_margin_enable(self):
+    def has_white_margin_enabled(self):
         return self._data['layout']['white_margin']['enable']
 
     def get_white_margin_width(self) -> int:
@@ -133,6 +133,9 @@ class Config(object):
     def get_quality(self):
         return self._data['base']['quality']
 
+    def set_layout(self, layout):
+        self._data['layout']['type'] = layout
+
     def set_normal_layout(self):
         self._data['layout']['type'] = 'normal'
 
@@ -141,7 +144,7 @@ class Config(object):
 
     def set_normal_with_right_logo_layout(self):
         self._data['layout']['type'] = 'normal_with_right_logo'
-        self.unset_logo_left()
+        self.set_logo_right()
 
     def set_square_layout(self):
         self._data['layout']['type'] = 'square'
@@ -152,22 +155,22 @@ class Config(object):
     def set_normal_with_right_logo_and_original_ratio_layout(self):
         self._data['layout']['type'] = 'normal_with_right_logo_and_original_ratio'
 
-    def set_logo_enable(self):
+    def enable_logo(self):
         self._data['logo']['enable'] = True
 
-    def set_logo_disable(self):
+    def disable_logo(self):
         self._data['logo']['enable'] = False
 
-    def set_white_margin_enable(self):
+    def enable_white_margin(self):
         self._data['layout']['white_margin']['enable'] = True
 
-    def set_white_margin_disable(self):
+    def disable_white_margin(self):
         self._data['layout']['white_margin']['enable'] = False
 
-    def set_use_equivalent_focal_length_enable(self):
+    def enable_equivalent_focal_length(self):
         self._data['param']['focal_length']['use_equivalent_focal_length'] = True
 
-    def set_use_equivalent_focal_length_disable(self):
+    def disable_equivalent_focal_length(self):
         self._data['param']['focal_length']['use_equivalent_focal_length'] = False
 
     def get_custom_value(self, location):

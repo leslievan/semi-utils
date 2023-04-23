@@ -57,29 +57,16 @@ layout_menu.set_value_getter(config, lambda x: x['layout']['type'])
 layout_menu.set_compare_method(lambda x, y: x == y)
 root_menu.add(layout_menu)
 
-# 创建菜单项：布局：normal
-normal_menu = MenuItem('normal')
-normal_menu._value = 'normal'
-normal_menu.set_procedure(config.set_normal_layout)
-layout_menu.add(normal_menu)
+LAYOUT_ITEM = [Item('normal', 'normal'),
+               Item('normal(Logo 居右)', 'normal_with_right_logo'),
+               Item('1:1填充', SquareProcessor.LAYOUT_ID),
+               Item('简洁', SimpleProcessor.LAYOUT_ID), ]
 
-# 创建菜单项：布局：normal_with_right_logo
-normal_with_right_logo_menu = MenuItem('normal(Logo 居右)')
-normal_with_right_logo_menu._value = 'normal_with_right_logo'
-normal_with_right_logo_menu.set_procedure(config.set_normal_with_right_logo_layout)
-layout_menu.add(normal_with_right_logo_menu)
-
-# 创建菜单项：布局：square
-square_menu = MenuItem('1:1填充')
-square_menu._value = 'square'
-square_menu.set_procedure(config.set_square_layout)
-layout_menu.add(square_menu)
-
-# 创建菜单项：布局：simple
-simple_menu = MenuItem('简洁')
-simple_menu._value = SimpleProcessor.LAYOUT_VALUE
-simple_menu.set_procedure(config.set_simple_layout)
-layout_menu.add(simple_menu)
+for item in LAYOUT_ITEM:
+    layout_menu = MenuItem(item.get_name())
+    layout_menu._value = item.get_value()
+    layout_menu.set_procedure(config.set_layout, layout=item.get_value())
+    layout_menu.set_parent(root_menu)
 
 # 创建子菜单：logo
 logo_menu = SubMenu('logo')
@@ -90,13 +77,13 @@ root_menu.add(logo_menu)
 # 创建菜单项：logo：显示
 logo_enable_menu = MenuItem('显示')
 logo_enable_menu._value = True
-logo_enable_menu.set_procedure(config.set_logo_enable)
+logo_enable_menu.set_procedure(config.enable_logo)
 logo_menu.add(logo_enable_menu)
 
 # 创建菜单项：logo：不显示
 logo_disable_menu = MenuItem('不显示')
 logo_disable_menu._value = False
-logo_disable_menu.set_procedure(config.set_logo_disable)
+logo_disable_menu.set_procedure(config.disable_logo)
 logo_menu.add(logo_disable_menu)
 
 # 创建子菜单：左上角文字
@@ -151,21 +138,27 @@ for location, menu in LOCATION_MENU_MAP.items():
         menu_item._value = item.get_value()
         menu.add(menu_item)
 
+# 更多设置
+more_setting_menu = SubMenu('更多设置')
+more_setting_menu.set_value_getter(config, lambda x: None)
+more_setting_menu.set_compare_method(lambda x, y: False)
+root_menu.add(more_setting_menu)
+
 # 创建子菜单：白色边框
 white_margin_menu = SubMenu('白色边框')
 white_margin_menu.set_value_getter(config, lambda x: x['layout']['white_margin']['enable'])
 white_margin_menu.set_compare_method(lambda x, y: x == y)
-root_menu.add(white_margin_menu)
+more_setting_menu.add(white_margin_menu)
 
 # 创建菜单项：白色边框：显示
 white_margin_enable_menu = MenuItem('显示')
-white_margin_enable_menu.set_procedure(config.set_white_margin_enable)
+white_margin_enable_menu.set_procedure(config.enable_white_margin)
 white_margin_enable_menu._value = True
 white_margin_menu.add(white_margin_enable_menu)
 
 # 创建菜单项：白色边框：不显示
 white_margin_disable_menu = MenuItem('不显示')
-white_margin_disable_menu.set_procedure(config.set_white_margin_disable)
+white_margin_disable_menu.set_procedure(config.disable_white_margin)
 white_margin_disable_menu._value = False
 white_margin_menu.add(white_margin_disable_menu)
 
@@ -174,17 +167,17 @@ use_equivalent_focal_length_menu = SubMenu('等效焦距')
 use_equivalent_focal_length_menu.set_value_getter(config,
                                                   lambda x: x['param']['focal_length']['use_equivalent_focal_length'])
 use_equivalent_focal_length_menu.set_compare_method(lambda x, y: x == y)
-root_menu.add(use_equivalent_focal_length_menu)
+more_setting_menu.add(use_equivalent_focal_length_menu)
 
 # 创建菜单项：等效焦距：使用
 use_equivalent_focal_length_enable_menu = MenuItem('使用')
-use_equivalent_focal_length_enable_menu.set_procedure(config.set_use_equivalent_focal_length_enable)
+use_equivalent_focal_length_enable_menu.set_procedure(config.enable_equivalent_focal_length)
 use_equivalent_focal_length_enable_menu._value = True
 use_equivalent_focal_length_menu.add(use_equivalent_focal_length_enable_menu)
 
 # 创建菜单项：等效焦距：不使用
 use_equivalent_focal_length_disable_menu = MenuItem('不使用')
-use_equivalent_focal_length_disable_menu.set_procedure(config.set_use_equivalent_focal_length_disable)
+use_equivalent_focal_length_disable_menu.set_procedure(config.disable_equivalent_focal_length)
 use_equivalent_focal_length_disable_menu._value = False
 use_equivalent_focal_length_menu.add(use_equivalent_focal_length_disable_menu)
 
@@ -192,7 +185,7 @@ use_equivalent_focal_length_menu.add(use_equivalent_focal_length_disable_menu)
 shadow_menu = SubMenu('阴影')
 shadow_menu.set_value_getter(config, lambda x: x['global']['shadow']['enable'])
 shadow_menu.set_compare_method(lambda x, y: x == y)
-root_menu.add(shadow_menu)
+more_setting_menu.add(shadow_menu)
 
 # 创建菜单项：阴影：显示
 shadow_enable_menu = MenuItem('显示')
