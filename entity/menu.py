@@ -3,6 +3,9 @@ class MenuComponent:
     抽象菜单组件，提供基础的接口
     """
 
+    def __init__(self):
+        self._parent = None
+
     def add(self, component):
         """
         添加子项
@@ -10,6 +13,21 @@ class MenuComponent:
         :return:
         """
         raise NotImplementedError
+
+    def get_parent(self):
+        """
+        获取父项
+        :return:
+        """
+        raise NotImplementedError
+
+    def set_parent(self, component):
+        """
+        设置父项
+        :param component:
+        :return:
+        """
+        self._parent = component
 
     def remove(self, component):
         """
@@ -33,20 +51,12 @@ class MenuComponent:
         """
         raise NotImplementedError
 
-    def set_procedure(self, procedure: callable):
+    def is_leaf(self):
         """
-        设置菜单对应的操作
-        :param procedure:
+        判断是否为叶子节点
         :return:
         """
-        raise NotImplementedError
-
-    def run(self):
-        """
-        执行菜单对应的操作
-        :return:
-        """
-        raise NotImplementedError
+        return False
 
 
 class Menu(MenuComponent):
@@ -55,11 +65,13 @@ class Menu(MenuComponent):
     """
 
     def __init__(self, name):
+        super().__init__()
         self.name = name
         self.components = []
 
     def add(self, component):
         self.components.append(component)
+        component.set_parent(self)
 
     def remove(self, component):
         self.components.remove(component)
@@ -77,6 +89,7 @@ class Menu(MenuComponent):
 
 class SubMenu(MenuComponent):
     def __init__(self, name):
+        super().__init__()
         self.name = name
         self.components = []
         self.source = None
@@ -84,8 +97,15 @@ class SubMenu(MenuComponent):
         self.is_active = None
         self.compare_method = None
 
+    def get_parent(self):
+        return self._parent
+
+    def set_parent(self, component):
+        self._parent = component
+
     def add(self, component):
         self.components.append(component)
+        component.set_parent(self)
 
     def remove(self, component):
         self.components.remove(component)
@@ -148,6 +168,7 @@ class SubMenu(MenuComponent):
 
 class MenuItem(MenuComponent):
     def __init__(self, name):
+        super().__init__()
         self._name: str = name
         self._procedure: callable = None
         self._procedure_args: dict | None = None
@@ -187,3 +208,11 @@ class MenuItem(MenuComponent):
         :return:
         """
         self._procedure(**self._procedure_args)
+        print('设置成功')
+
+    def is_leaf(self):
+        """
+        判断是否为叶子节点
+        :return:
+        """
+        return True
