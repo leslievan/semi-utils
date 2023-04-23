@@ -34,49 +34,40 @@ def get_exif(path) -> dict:
     :param path: 照片路径
     :return: exif信息
     """
-
-    _exif = {}
-    with Image.open(path) as image:
-        info = image._getexif()
-        if info:
-            for attr, value in info.items():
-                decoded_attr = TAGS.get(attr, attr)
-                _exif[decoded_attr] = value
+    exif_dict = {}
     try:
         # 如果 exif 中不存在镜头信息，用 exiftool 读取
-        if 'LensModel' not in _exif:
-            output = subprocess.check_output([exiftool_path, '-charset', 'UTF8', path])
+        # if 'LensModel' not in _exif:
+        output = subprocess.check_output([exiftool_path, '-charset', 'UTF8', path])
 
-            output = output.decode(encoding)
-            lines = output.splitlines()
-            utf8_lines = [line for line in lines]
+        output = output.decode(encoding)
+        lines = output.splitlines()
+        utf8_lines = [line for line in lines]
 
-            exif_dict = {}
-            for line in utf8_lines:
-                # 将每一行按冒号分隔成键值对
-                kv_pair = line.split(':')
-                if len(kv_pair) < 2:
-                    continue
-                key = kv_pair[0].strip()
-                value = ':'.join(kv_pair[1:]).strip()
-                # 将键中的空格移除
-                key = re.sub(r'\s+', '', key)
-                key = re.sub(r'/', '', key)
-                # 将键值对添加到字典中
-                exif_dict[key] = value
-            if 'LensModel' in exif_dict:
-                _exif['LensModel'] = exif_dict['LensModel']
-            elif 'Lens' in exif_dict:
-                _exif['LensModel'] = exif_dict['Lens']
-            elif 'LensID' in exif_dict:
-                _exif['LensModel'] = exif_dict['LensID']
+        for line in utf8_lines:
+            # 将每一行按冒号分隔成键值对
+            kv_pair = line.split(':')
+            if len(kv_pair) < 2:
+                continue
+            key = kv_pair[0].strip()
+            value = ':'.join(kv_pair[1:]).strip()
+            # 将键中的空格移除
+            key = re.sub(r'\s+', '', key)
+            key = re.sub(r'/', '', key)
+            # 将键值对添加到字典中
+            exif_dict[key] = value
     except UnicodeDecodeError as e:
-        print('UnicodeDecodeError: {}'.format(path))
-        pass
+        # 如果 exiftool 无法读取，用 piexif 读取
+        with Image.open(path) as image:
+            info = image._getexif()
+            if info:
+                for attr, value in info.items():
+                    decoded_attr = TAGS.get(attr, attr)
+                    exif_dict[decoded_attr] = value
     finally:
         pass
 
-    return _exif
+    return exif_dict
 
 
 def insert_exif(exif, target_path) -> None:
