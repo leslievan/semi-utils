@@ -1,68 +1,99 @@
+import re
 from datetime import datetime
+from enum import Enum
 from pathlib import Path
 
 from PIL import Image
 from PIL.Image import Transpose
+from dateutil import parser
 
 from entity.config import ElementConfig
 from enums.constant import CUSTOM_VALUE
 from enums.constant import DATETIME_VALUE
 from enums.constant import DATE_VALUE
+from enums.constant import LENS_MAKE_VALUE
 from enums.constant import LENS_VALUE
 from enums.constant import MAKE_VALUE
+from enums.constant import MODEL_LENS_VALUE
 from enums.constant import MODEL_VALUE
 from enums.constant import PARAM_VALUE
 from utils import get_exif
 
 
+class ExifId(Enum):
+    CAMERA_MODEL = 'CameraModelName'
+    CAMERA_MAKE = 'Make'
+    LENS_MODEL = 'LensModel'
+    LENS_MAKE = 'LensMake'
+    DATETIME = 'DateTimeOriginal'
+    FOCAL_LENGTH = 'FocalLength'
+    FOCAL_LENGTH_IN_35MM_FILM = 'FocalLengthIn35mmFormat'
+    F_NUMBER = 'FNumber'
+    ISO = 'ISO'
+    EXPOSURE_TIME = 'ExposureTime'
+    SHUTTER_SPEED_VALUE = 'ShutterSpeedValue'
+    ORIENTATION = 'Orientation'
+
+
+PATTERN = re.compile(r"\d+\.\d+")  # 匹配小数
+
+
 class ImageContainer(object):
     def __init__(self, path: Path):
-        self.img = Image.open(path)
-        self.exif = get_exif(path)
+        self.path: Path = path
+        self.target_path: Path | None = None
+        self.img: Image.Image = Image.open(path)
+        self.exif: dict = get_exif(path)
 
         # 相机机型
-        self.model = self.exif['Model'] if 'Model' in self.exif else '无'
+        self.model: str = self.exif[ExifId.CAMERA_MODEL.value] if ExifId.CAMERA_MODEL.value in self.exif else '无'
         # 相机制造商
-        self.make = self.exif['Make'] if 'Make' in self.exif else '无'
+        self.make: str = self.exif[ExifId.CAMERA_MAKE.value] if ExifId.CAMERA_MAKE.value in self.exif else '无'
         # 镜头型号
-        self.lens_model = self.exif['LensModel'] if 'LensModel' in self.exif else '无'
+        self.lens_model: str = self.exif[ExifId.LENS_MODEL.value] if ExifId.LENS_MODEL.value in self.exif else '无'
+        # 镜头制造商
+        self.lens_make: str = self.exif[ExifId.LENS_MAKE.value] if ExifId.LENS_MAKE.value in self.exif else '无'
         # 拍摄日期
-        self.date = self.exif['DateTimeOriginal'] \
-            if 'DateTimeOriginal' in self.exif \
-            else datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        # 焦距
         try:
-            self.focal_length = int(self.exif['FocalLength']) if 'FocalLength' in self.exif else 0
+            self.date: datetime = parser.parse(self.exif[ExifId.DATETIME.value]) \
+                if ExifId.DATETIME.value in self.exif \
+                else datetime.now()
         except ValueError:
-            self.focal_length = 0
+            self.date: datetime = datetime.now()
+        # 焦距
+        focal_length = PATTERN.findall(self.exif[ExifId.FOCAL_LENGTH.value]) \
+            if ExifId.FOCAL_LENGTH.value in self.exif \
+            else ['0']
+        try:
+            self.focal_length: str = focal_length[0] if focal_length else '0'
+        except ValueError:
+            # 如果转换错误，使用 0
+            self.focal_length: str = '0'
         # 等效焦距
         try:
-            self.focal_length_in_35mm_film = int(self.exif['FocalLengthIn35mmFilm']) \
-                if 'FocalLengthIn35mmFilm' in self.exif else self.focal_length
+            self.focal_length_in_35mm_film: str = focal_length[-1] if focal_length else '0'
         except ValueError:
-            self.focal_length_in_35mm_film = self.focal_length
+            # 如果转换错误，使用焦距
+            self.focal_length_in_35mm_film: str = self.focal_length
         # 是否使用等效焦距
-        self.use_equivalent_focal_length = False
+        self.use_equivalent_focal_length: bool = False
         # 光圈大小
-        try:
-            self.f_number = float(self.exif['FNumber']) if 'FNumber' in self.exif else .0
-        except:
-            self.f_number = .0
+        self.f_number: str = self.exif[ExifId.F_NUMBER.value] if ExifId.F_NUMBER.value in self.exif else '0.0'
         # 曝光时间
-        self.exposure_time = str(self.exif['ExposureTime'].real) \
-            if 'ExposureTime' in self.exif else '0s'
+        self.exposure_time: str = str(self.exif[ExifId.EXPOSURE_TIME.value]) \
+            if ExifId.EXPOSURE_TIME.value in self.exif else '0s'
         # 感光度
-        self.iso = self.exif['ISOSpeedRatings'] if 'ISOSpeedRatings' in self.exif else 0
+        self.iso: str = self.exif[ExifId.ISO.value] if ExifId.ISO.value in self.exif else '0'
 
         # 修正图像方向
-        self.orientation = self.exif['Orientation'] if 'Orientation' in self.exif else 0
+        self.orientation = self.exif[ExifId.ORIENTATION.value] if ExifId.ORIENTATION.value in self.exif else 0
         if self.orientation == 3:
             self.img = self.img.transpose(Transpose.ROTATE_180)
         elif self.orientation == 6:
             self.img = self.img.transpose(Transpose.ROTATE_270)
         elif self.orientation == 8:
             self.img = self.img.transpose(Transpose.ROTATE_90)
-        self.exif['Orientation'] = 1
+        self.exif[ExifId.ORIENTATION.value] = 1
 
         # 水印设置
         self.custom = '无'
@@ -98,24 +129,14 @@ class ImageContainer(object):
         解析日期，转换为指定的格式
         :return: 指定格式的日期字符串，转换失败返回原始的时间字符串
         """
-        try:
-            date = ''.join(filter(lambda x: x.isprintable(), self.date))
-            date = datetime.strptime(date, '%Y:%m:%d %H:%M:%S')
-            return datetime.strftime(date, '%Y-%m-%d %H:%M')
-        except ValueError:
-            return self.date
+        return datetime.strftime(self.date, '%Y-%m-%d %H:%M')
 
     def _parse_date(self) -> str:
         """
         解析日期，转换为指定的格式
         :return: 指定格式的日期字符串，转换失败返回原始的时间字符串
         """
-        try:
-            date = ''.join(filter(lambda x: x.isprintable(), self.date))
-            date = datetime.strptime(date, '%Y:%m:%d %H:%M:%S')
-            return datetime.strftime(date, '%Y-%m-%d')
-        except ValueError:
-            return self.date
+        return datetime.strftime(self.date, '%Y-%m-%d')
 
     def get_attribute_str(self, element: ElementConfig) -> str:
         """
@@ -140,6 +161,10 @@ class ImageContainer(object):
         elif element.get_name() == CUSTOM_VALUE:
             self.custom = element.get_value()
             return self.custom
+        elif element.get_name() == MODEL_LENS_VALUE:
+            return ' '.join([self.model, self.lens_model])
+        elif element.get_name() == LENS_MAKE_VALUE:
+            return ' '.join([self.lens_make, self.lens_model])
         else:
             return ''
 
@@ -149,8 +174,8 @@ class ImageContainer(object):
         :return: 拍摄参数字符串
         """
         focal_length = self.focal_length_in_35mm_film if self.use_equivalent_focal_length else self.focal_length
-        return ' '.join([str(focal_length) + 'mm', 'f/' + str(self.f_number), self.exposure_time,
-                          'ISO' + str(self.iso)])
+        return ' '.join([str(focal_length) + 'mm', 'f/' + self.f_number, self.exposure_time,
+                         'ISO' + str(self.iso)])
 
     def get_original_height(self):
         return self.original_height
