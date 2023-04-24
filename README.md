@@ -79,7 +79,36 @@
 
 ### macOS/Linux
 
-- 下载源码后解压，比如解压到 `~/semi-utils`
+#### 使用 git
+
+- **安装需要的依赖（正式运行前执行一次即可）**
+
+  打开命令行/终端，输入：
+
+  ```shell
+  # 使用 git 将代码下载到本地，比如 ~/semi-utils，如果要下载到其他路径替换掉下面命令中的路径即可
+  git clone --depth 1 https://github.com/leslievan/semi-utils.git ~/semi-utils
+  cd ~/semi-utils
+  chmod +x install.sh
+  ./install.sh
+  ```
+
+- 将需要添加水印的图片复制到 `~/semi-utils/input` 文件夹中
+
+- 打开命令行/终端，输入
+
+   ```shell
+   cd ~/semi-utils
+   python ~/semi-utils/main.py
+   ```
+
+- 按照提示输入 `y或回车` 开始执行
+
+- 处理好的图片存放在 `~/semi-utils/output` 中
+
+#### 手动下载
+
+- 下载[源码](https://github.com/leslievan/semi-utils/archive/refs/tags/v1.4.16.zip)后解压，比如解压到 `~/semi-utils`
 
 - **安装需要的依赖（正式运行前执行一次即可）**
 
