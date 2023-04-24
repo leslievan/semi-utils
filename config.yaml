@@ -10,7 +10,7 @@ base:
   quality: 100
 global:
   padding_with_original_ratio:
-    enable: true
+    enable: false
   shadow:
     enable: false
 layout:
@@ -71,4 +71,4 @@ logo:
   position: right
 param:
   focal_length:
-    use_equivalent_focal_length: false
+    use_equivalent_focal_length: true
