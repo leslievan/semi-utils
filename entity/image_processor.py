@@ -115,7 +115,7 @@ class WatermarkProcessor(ProcessorComponent):
         """
         config = self.config
 
-        ratio = (.06 if container.get_ratio() >= 1 else .09) + 0.02 * config.get_font_padding_level()
+        ratio = (.04 if container.get_ratio() >= 1 else .09) + 0.02 * config.get_font_padding_level()
         padding_ratio = (.52 if container.get_ratio() >= 1 else .7) - 0.04 * config.get_font_padding_level()
 
         # 创建一个空白的水印图片
