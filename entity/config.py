@@ -5,6 +5,7 @@ from PIL import Image
 from PIL import ImageFont
 
 from enums.constant import CUSTOM_VALUE
+from enums.constant import LOCATION_LEFT_BOTTOM
 from enums.constant import LOCATION_LEFT_TOP
 from enums.constant import LOCATION_RIGHT_BOTTOM
 from enums.constant import LOCATION_RIGHT_TOP
@@ -44,7 +45,7 @@ class Config(object):
             self._data = yaml.safe_load(f)
         self._logos = {}
         self._left_top = ElementConfig(self._data['layout']['elements'][LOCATION_LEFT_TOP])
-        self._left_bottom = ElementConfig(self._data['layout']['elements'][LOCATION_RIGHT_BOTTOM])
+        self._left_bottom = ElementConfig(self._data['layout']['elements'][LOCATION_LEFT_BOTTOM])
         self._right_top = ElementConfig(self._data['layout']['elements'][LOCATION_RIGHT_TOP])
         self._right_bottom = ElementConfig(self._data['layout']['elements'][LOCATION_RIGHT_BOTTOM])
         self._makes = self._data['logo']['makes']
