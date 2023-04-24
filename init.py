@@ -7,26 +7,30 @@ from entity.image_processor import SimpleProcessor
 from entity.image_processor import SquareProcessor
 from entity.image_processor import WatermarkProcessor
 from entity.menu import *
+from enums.constant import CAMERA_MAKE_CAMERA_MODEL_NAME
+from enums.constant import CAMERA_MAKE_CAMERA_MODEL_VALUE
 from enums.constant import CUSTOM_NAME
 from enums.constant import CUSTOM_VALUE
 from enums.constant import DATETIME_NAME
 from enums.constant import DATETIME_VALUE
 from enums.constant import DATE_NAME
 from enums.constant import DATE_VALUE
-from enums.constant import LENS_MAKE_NAME
-from enums.constant import LENS_MAKE_VALUE
+from enums.constant import LENS_MAKE_LENS_MODEL_NAME
+from enums.constant import LENS_MAKE_LENS_MODEL_VALUE
 from enums.constant import LENS_NAME
 from enums.constant import LENS_VALUE
 from enums.constant import MAKE_NAME
 from enums.constant import MAKE_VALUE
-from enums.constant import MODEL_LENS_NAME
-from enums.constant import MODEL_LENS_VALUE
+from enums.constant import CAMERA_MODEL_LENS_MODEL_NAME
+from enums.constant import CAMERA_MODEL_LENS_MODEL_VALUE
 from enums.constant import MODEL_NAME
 from enums.constant import MODEL_VALUE
 from enums.constant import NONE_NAME
 from enums.constant import NONE_VALUE
 from enums.constant import PARAM_NAME
 from enums.constant import PARAM_VALUE
+from enums.constant import TOTAL_PIXEL_NAME
+from enums.constant import TOTAL_PIXEL_VALUE
 
 SEPARATE_LINE = '+' + '-' * 15 + '+' + '-' * 15 + '+'
 
@@ -121,8 +125,10 @@ ITEM_LIST = [
     Item(DATE_NAME, DATE_VALUE),
     Item(CUSTOM_NAME, CUSTOM_VALUE),
     Item(NONE_NAME, NONE_VALUE),
-    Item(LENS_MAKE_NAME, LENS_MAKE_VALUE),
-    Item(MODEL_LENS_NAME, MODEL_LENS_VALUE),
+    Item(LENS_MAKE_LENS_MODEL_NAME, LENS_MAKE_LENS_MODEL_VALUE),
+    Item(CAMERA_MODEL_LENS_MODEL_NAME, CAMERA_MODEL_LENS_MODEL_VALUE),
+    Item(TOTAL_PIXEL_NAME, TOTAL_PIXEL_VALUE),
+    Item(CAMERA_MAKE_CAMERA_MODEL_NAME, CAMERA_MAKE_CAMERA_MODEL_VALUE),
 ]
 
 # 菜单位置与菜单项的映射

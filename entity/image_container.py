@@ -8,15 +8,18 @@ from PIL.Image import Transpose
 from dateutil import parser
 
 from entity.config import ElementConfig
+from enums.constant import CAMERA_MAKE_CAMERA_MODEL_VALUE
 from enums.constant import CUSTOM_VALUE
 from enums.constant import DATETIME_VALUE
 from enums.constant import DATE_VALUE
-from enums.constant import LENS_MAKE_VALUE
+from enums.constant import LENS_MAKE_LENS_MODEL_VALUE
 from enums.constant import LENS_VALUE
 from enums.constant import MAKE_VALUE
-from enums.constant import MODEL_LENS_VALUE
+from enums.constant import CAMERA_MODEL_LENS_MODEL_VALUE
 from enums.constant import MODEL_VALUE
 from enums.constant import PARAM_VALUE
+from enums.constant import TOTAL_PIXEL_VALUE
+from utils import calculate_pixel_count
 from utils import get_exif
 
 
@@ -44,6 +47,11 @@ class ImageContainer(object):
         self.target_path: Path | None = None
         self.img: Image.Image = Image.open(path)
         self.exif: dict = get_exif(path)
+        # 图像信息
+        self.original_width = self.img.width
+        self.original_height = self.img.height
+
+        self._param_dict = dict()
 
         # 相机机型
         self.model: str = self.exif[ExifId.CAMERA_MODEL.value] if ExifId.CAMERA_MODEL.value in self.exif else '无'
@@ -70,7 +78,8 @@ class ImageContainer(object):
         # 等效焦距
         try:
             focal_length_in_35mm_film = PATTERN.search(self.exif[ExifId.FOCAL_LENGTH_IN_35MM_FILM.value])
-            self.focal_length_in_35mm_film: str = focal_length_in_35mm_film.group(1) if focal_length_in_35mm_film else '0'
+            self.focal_length_in_35mm_film: str = focal_length_in_35mm_film.group(
+                1) if focal_length_in_35mm_film else '0'
         except (KeyError, ValueError):
             # 如果转换错误，使用焦距
             self.focal_length_in_35mm_film: str = self.focal_length
@@ -98,12 +107,11 @@ class ImageContainer(object):
         self.custom = '无'
         self.logo = None
 
-        # 图像信息
-        self.original_width = self.img.width
-        self.original_height = self.img.height
-
         # 水印图片
         self.watermark_img = None
+
+        self._param_dict[TOTAL_PIXEL_VALUE] = calculate_pixel_count(self.original_width, self.original_height)
+        self._param_dict[CAMERA_MAKE_CAMERA_MODEL_VALUE] = ' '.join([self.make, self.model])
 
     def get_height(self):
         return self.get_watermark_img().height
@@ -143,6 +151,9 @@ class ImageContainer(object):
         :param element: element 对象有 name 和 value 两个字段，通过 name 和 value 获取属性值
         :return: 属性值字符串
         """
+        if element.get_name() in self._param_dict:
+            return self._param_dict[element.get_name()]
+
         if element is None or element.get_name() == '':
             return ''
         if element.get_name() == MODEL_VALUE:
@@ -160,9 +171,9 @@ class ImageContainer(object):
         elif element.get_name() == CUSTOM_VALUE:
             self.custom = element.get_value()
             return self.custom
-        elif element.get_name() == MODEL_LENS_VALUE:
+        elif element.get_name() == CAMERA_MODEL_LENS_MODEL_VALUE:
             return ' '.join([self.model, self.lens_model])
-        elif element.get_name() == LENS_MAKE_VALUE:
+        elif element.get_name() == LENS_MAKE_LENS_MODEL_VALUE:
             return ' '.join([self.lens_make, self.lens_model])
         else:
             return ''
@@ -208,3 +219,6 @@ class ImageContainer(object):
     def close(self):
         self.img.close()
         self.watermark_img.close()
+
+    def get_total_pixel(self):
+        return self._total_pixel

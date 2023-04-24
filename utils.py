@@ -356,3 +356,12 @@ def merge_images(images, axis=0, align=0):
             y_offset += img.size[1]
 
     return output_image
+
+
+def calculate_pixel_count(width: int, height: int) -> str:
+    # 计算像素总数
+    pixel_count = width * height
+    # 计算百万像素数
+    megapixel_count = pixel_count / 1000000.0
+    # 返回结果字符串
+    return f"{megapixel_count:.2f} MP"
