@@ -71,4 +71,4 @@ logo:
   position: right
 param:
   focal_length:
-    use_equivalent_focal_length: true
+    use_equivalent_focal_length: false
