@@ -39,7 +39,7 @@ def processing():
         processor_chain.add(WATERMARK_PROCESSOR)
     elif 'square' == config.get_layout_type():
         processor_chain.add(SQUARE_PROCESSOR)
-    elif SIMPLE_PROCESSOR.LAYOUT_VALUE == config.get_layout_type():
+    elif SIMPLE_PROCESSOR.LAYOUT_ID == config.get_layout_type():
         processor_chain.add(SIMPLE_PROCESSOR)
     else:
         processor_chain.add(WATERMARK_PROCESSOR)

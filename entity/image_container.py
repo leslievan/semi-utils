@@ -35,7 +35,7 @@ class ExifId(Enum):
     ORIENTATION = 'Orientation'
 
 
-PATTERN = re.compile(r"\d+\.\d+")  # 匹配小数
+PATTERN = re.compile(r"(\d+)\.")  # 匹配小数
 
 
 class ImageContainer(object):
@@ -61,18 +61,17 @@ class ImageContainer(object):
         except ValueError:
             self.date: datetime = datetime.now()
         # 焦距
-        focal_length = PATTERN.findall(self.exif[ExifId.FOCAL_LENGTH.value]) \
-            if ExifId.FOCAL_LENGTH.value in self.exif \
-            else ['0']
         try:
-            self.focal_length: str = focal_length[0] if focal_length else '0'
-        except ValueError:
+            focal_length = PATTERN.search(self.exif[ExifId.FOCAL_LENGTH.value])
+            self.focal_length: str = focal_length.group(1) if focal_length else '0'
+        except (KeyError, ValueError):
             # 如果转换错误，使用 0
             self.focal_length: str = '0'
         # 等效焦距
         try:
-            self.focal_length_in_35mm_film: str = focal_length[-1] if focal_length else '0'
-        except ValueError:
+            focal_length_in_35mm_film = PATTERN.search(self.exif[ExifId.FOCAL_LENGTH_IN_35MM_FILM.value])
+            self.focal_length_in_35mm_film: str = focal_length_in_35mm_film.group(1) if focal_length_in_35mm_film else '0'
+        except (KeyError, ValueError):
             # 如果转换错误，使用焦距
             self.focal_length_in_35mm_film: str = self.focal_length
         # 是否使用等效焦距
@@ -80,7 +79,7 @@ class ImageContainer(object):
         # 光圈大小
         self.f_number: str = self.exif[ExifId.F_NUMBER.value] if ExifId.F_NUMBER.value in self.exif else '0.0'
         # 曝光时间
-        self.exposure_time: str = str(self.exif[ExifId.EXPOSURE_TIME.value]) \
+        self.exposure_time: str = str(self.exif[ExifId.EXPOSURE_TIME.value]) + 's' \
             if ExifId.EXPOSURE_TIME.value in self.exif else '0s'
         # 感光度
         self.iso: str = self.exif[ExifId.ISO.value] if ExifId.ISO.value in self.exif else '0'

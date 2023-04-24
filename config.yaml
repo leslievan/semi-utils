@@ -10,7 +10,7 @@ base:
   quality: 100
 global:
   padding_with_original_ratio:
-    enable: true
+    enable: false
   shadow:
     enable: false
 layout:
@@ -23,7 +23,7 @@ layout:
       name: LensModel
     right_bottom:
       is_bold: false
-      name: Date
+      name: Datetime
       value: Photo by NONE
     right_top:
       is_bold: true
