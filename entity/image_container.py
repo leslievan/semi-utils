@@ -3,6 +3,7 @@ from datetime import datetime
 from enum import Enum
 from pathlib import Path
 
+import piexif
 from PIL import Image
 from PIL.Image import Transpose
 from dateutil import parser
@@ -234,5 +235,7 @@ class ImageContainer(object):
             self.watermark_img = self.watermark_img.transpose(Transpose.ROTATE_270)
         else:
             pass
-        self.watermark_img.save(target_path, quality=quality)
-        insert_exif(self.path, target_path)
+        exif_dict = piexif.load(self.img.info['exif'])
+        exif_bytes = piexif.dump(exif_dict)
+        self.watermark_img.save(target_path, quality=quality, exif_bytes=exif_bytes)
+
