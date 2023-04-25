@@ -77,8 +77,7 @@ def insert_exif(source_path, target_path) -> None:
     """
     try:
         # 将 exif 信息转换为字节串
-        output = subprocess.check_output([exiftool_path, '-tagsfromfile', source_path, '-overwrite_original', target_path])
-        print(output)
+        subprocess.check_output([exiftool_path, '-tagsfromfile', source_path, '-overwrite_original', target_path])
     except ValueError:
         pass
 
