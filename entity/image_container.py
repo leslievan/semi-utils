@@ -223,5 +223,16 @@ class ImageContainer(object):
         self.img.close()
         self.watermark_img.close()
 
-    def get_total_pixel(self):
-        return self._total_pixel
+    def save(self, target_path, quality=100):
+        if self.orientation == "Rotate 0":
+            pass
+        elif self.orientation == "Rotate 90 CW":
+            self.watermark_img = self.watermark_img.transpose(Transpose.ROTATE_90)
+        elif self.orientation == "Rotate 180":
+            self.watermark_img = self.watermark_img.transpose(Transpose.ROTATE_180)
+        elif self.orientation == "Rotate 270 CW":
+            self.watermark_img = self.watermark_img.transpose(Transpose.ROTATE_270)
+        else:
+            pass
+        self.watermark_img.save(target_path, quality=quality)
+        insert_exif(self.path, target_path)

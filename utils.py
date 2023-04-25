@@ -3,7 +3,6 @@ import re
 import subprocess
 from pathlib import Path
 
-import piexif
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageOps
@@ -70,19 +69,16 @@ def get_exif(path) -> dict:
     return exif_dict
 
 
-def insert_exif(exif, target_path) -> None:
+def insert_exif(source_path, target_path) -> None:
     """
     复制照片的 exif 信息
-    :param exif: exif 信息
+    :param source_path: 源照片路径
     :param target_path: 目的照片路径
     """
     try:
         # 将 exif 信息转换为字节串
-        src_exif_bytes = piexif.dump(exif)
-
-        # 将源照片的 exif 信息写入 target_path
-        piexif.insert(src_exif_bytes, str(target_path))
-
+        output = subprocess.check_output([exiftool_path, '-tagsfromfile', source_path, '-overwrite_original', target_path])
+        print(output)
     except ValueError:
         pass
 
