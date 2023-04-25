@@ -22,7 +22,6 @@ from enums.constant import PARAM_VALUE
 from enums.constant import TOTAL_PIXEL_VALUE
 from utils import calculate_pixel_count
 from utils import get_exif
-from utils import insert_exif
 
 
 class ExifId(Enum):
@@ -235,7 +234,5 @@ class ImageContainer(object):
             self.watermark_img = self.watermark_img.transpose(Transpose.ROTATE_270)
         else:
             pass
-        exif_dict = piexif.load(self.img.info['exif'])
-        exif_bytes = piexif.dump(exif_dict)
-        self.watermark_img.save(target_path, quality=quality, exif_bytes=exif_bytes)
 
+        self.watermark_img.save(target_path, quality=quality, encoding='utf-8', exif=self.img.info['exif'])

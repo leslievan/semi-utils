@@ -57,6 +57,7 @@ def get_exif(path) -> dict:
             exif_dict[key] = value
     except UnicodeDecodeError as e:
         # 如果 exiftool 无法读取，用 piexif 读取
+        # TODO 用 piexif 读取时处理 Orientation
         with Image.open(path) as image:
             info = image._getexif()
             if info:
