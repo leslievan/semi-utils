@@ -3,19 +3,20 @@ from datetime import datetime
 from enum import Enum
 from pathlib import Path
 
+import piexif
 from PIL import Image
 from PIL.Image import Transpose
 from dateutil import parser
 
 from entity.config import ElementConfig
 from enums.constant import CAMERA_MAKE_CAMERA_MODEL_VALUE
+from enums.constant import CAMERA_MODEL_LENS_MODEL_VALUE
 from enums.constant import CUSTOM_VALUE
 from enums.constant import DATETIME_VALUE
 from enums.constant import DATE_VALUE
 from enums.constant import LENS_MAKE_LENS_MODEL_VALUE
 from enums.constant import LENS_VALUE
 from enums.constant import MAKE_VALUE
-from enums.constant import CAMERA_MODEL_LENS_MODEL_VALUE
 from enums.constant import MODEL_VALUE
 from enums.constant import PARAM_VALUE
 from enums.constant import TOTAL_PIXEL_VALUE
@@ -92,16 +93,18 @@ class ImageContainer(object):
             if ExifId.EXPOSURE_TIME.value in self.exif else '0s'
         # 感光度
         self.iso: str = self.exif[ExifId.ISO.value] if ExifId.ISO.value in self.exif else '0'
-
         # 修正图像方向
-        self.orientation = self.exif[ExifId.ORIENTATION.value] if ExifId.ORIENTATION.value in self.exif else 0
-        if self.orientation == 3:
-            self.img = self.img.transpose(Transpose.ROTATE_180)
-        elif self.orientation == 6:
+        self.orientation = self.exif[ExifId.ORIENTATION.value] if ExifId.ORIENTATION.value in self.exif else 1
+        if self.orientation == "Rotate 0":
+            pass
+        elif self.orientation == "Rotate 90 CW":
             self.img = self.img.transpose(Transpose.ROTATE_270)
-        elif self.orientation == 8:
+        elif self.orientation == "Rotate 180":
+            self.img = self.img.transpose(Transpose.ROTATE_180)
+        elif self.orientation == "Rotate 270 CW":
             self.img = self.img.transpose(Transpose.ROTATE_90)
-        self.exif[ExifId.ORIENTATION.value] = 1
+        else:
+            pass
 
         # 水印设置
         self.custom = '无'
@@ -220,5 +223,16 @@ class ImageContainer(object):
         self.img.close()
         self.watermark_img.close()
 
-    def get_total_pixel(self):
-        return self._total_pixel
+    def save(self, target_path, quality=100):
+        if self.orientation == "Rotate 0":
+            pass
+        elif self.orientation == "Rotate 90 CW":
+            self.watermark_img = self.watermark_img.transpose(Transpose.ROTATE_90)
+        elif self.orientation == "Rotate 180":
+            self.watermark_img = self.watermark_img.transpose(Transpose.ROTATE_180)
+        elif self.orientation == "Rotate 270 CW":
+            self.watermark_img = self.watermark_img.transpose(Transpose.ROTATE_270)
+        else:
+            pass
+
+        self.watermark_img.save(target_path, quality=quality, encoding='utf-8', exif=self.img.info['exif'])

@@ -14,8 +14,8 @@ from init import SQUARE_PROCESSOR
 from init import WATERMARK_PROCESSOR
 from init import config
 from init import root_menu
+from utils import ENCODING
 from utils import get_file_list
-from utils import insert_exif
 
 
 def processing():
@@ -67,12 +67,10 @@ def processing():
         processor_chain.process(container)
 
         # 保存图片
-        target_path = Path(config.get_output_dir()).joinpath(source_path.name)
+        target_path = Path(config.get_output_dir(), encoding=ENCODING).joinpath(source_path.name)
 
-        with container.get_watermark_img() as watermark:
-            watermark.save(target_path, quality=config.get_quality())
+        container.save(target_path, quality=config.get_quality())
         container.close()
-        insert_exif(container.exif, target_path)
     print('处理完成，文件已输出至 output 文件夹中，请点击任意键退出或直接关闭'.format(len(file_list)))
     input()
     state = -1

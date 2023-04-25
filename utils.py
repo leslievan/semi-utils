@@ -3,18 +3,17 @@ import re
 import subprocess
 from pathlib import Path
 
-import piexif
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageOps
 from PIL.ExifTags import TAGS
 
 if platform.system() == 'Windows':
-    exiftool_path = './exiftool/exiftool.exe'
-    encoding = 'gbk'
+    EXIFTOOL_PATH = './exiftool/exiftool.exe'
+    ENCODING = 'gbk'
 else:
-    exiftool_path = './exiftool/exiftool'
-    encoding = 'utf-8'
+    EXIFTOOL_PATH = './exiftool/exiftool'
+    ENCODING = 'utf-8'
 
 
 def get_file_list(path):
@@ -23,7 +22,7 @@ def get_file_list(path):
     :param path: 路径
     :return: 文件名
     """
-    path = Path(path)
+    path = Path(path, encoding=ENCODING)
     return [file_path for file_path in path.iterdir()
             if file_path.is_file() and file_path.suffix in ['.jpg', '.jpeg', '.JPG', '.JPEG']]
 
@@ -38,9 +37,9 @@ def get_exif(path) -> dict:
     try:
         # 如果 exif 中不存在镜头信息，用 exiftool 读取
         # if 'LensModel' not in _exif:
-        output = subprocess.check_output([exiftool_path, '-charset', 'UTF8', path])
+        output = subprocess.check_output([EXIFTOOL_PATH, '-charset', 'UTF8', path])
 
-        output = output.decode(encoding)
+        output = output.decode(ENCODING)
         lines = output.splitlines()
         utf8_lines = [line for line in lines]
 
@@ -58,6 +57,7 @@ def get_exif(path) -> dict:
             exif_dict[key] = value
     except UnicodeDecodeError as e:
         # 如果 exiftool 无法读取，用 piexif 读取
+        # TODO 用 piexif 读取时处理 Orientation
         with Image.open(path) as image:
             info = image._getexif()
             if info:
@@ -70,19 +70,15 @@ def get_exif(path) -> dict:
     return exif_dict
 
 
-def insert_exif(exif, target_path) -> None:
+def insert_exif(source_path, target_path) -> None:
     """
     复制照片的 exif 信息
-    :param exif: exif 信息
+    :param source_path: 源照片路径
     :param target_path: 目的照片路径
     """
     try:
         # 将 exif 信息转换为字节串
-        src_exif_bytes = piexif.dump(exif)
-
-        # 将源照片的 exif 信息写入 target_path
-        piexif.insert(src_exif_bytes, str(target_path))
-
+        subprocess.check_output([EXIFTOOL_PATH, '-tagsfromfile', source_path, '-overwrite_original', target_path])
     except ValueError:
         pass
 
