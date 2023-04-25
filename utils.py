@@ -9,11 +9,11 @@ from PIL import ImageOps
 from PIL.ExifTags import TAGS
 
 if platform.system() == 'Windows':
-    exiftool_path = './exiftool/exiftool.exe'
-    encoding = 'gbk'
+    EXIFTOOL_PATH = './exiftool/exiftool.exe'
+    ENCODING = 'gbk'
 else:
-    exiftool_path = './exiftool/exiftool'
-    encoding = 'utf-8'
+    EXIFTOOL_PATH = './exiftool/exiftool'
+    ENCODING = 'utf-8'
 
 
 def get_file_list(path):
@@ -22,7 +22,7 @@ def get_file_list(path):
     :param path: 路径
     :return: 文件名
     """
-    path = Path(path)
+    path = Path(path, encoding=ENCODING)
     return [file_path for file_path in path.iterdir()
             if file_path.is_file() and file_path.suffix in ['.jpg', '.jpeg', '.JPG', '.JPEG']]
 
@@ -37,9 +37,9 @@ def get_exif(path) -> dict:
     try:
         # 如果 exif 中不存在镜头信息，用 exiftool 读取
         # if 'LensModel' not in _exif:
-        output = subprocess.check_output([exiftool_path, '-charset', 'UTF8', path])
+        output = subprocess.check_output([EXIFTOOL_PATH, '-charset', 'UTF8', path])
 
-        output = output.decode(encoding)
+        output = output.decode(ENCODING)
         lines = output.splitlines()
         utf8_lines = [line for line in lines]
 
@@ -77,7 +77,7 @@ def insert_exif(source_path, target_path) -> None:
     """
     try:
         # 将 exif 信息转换为字节串
-        subprocess.check_output([exiftool_path, '-tagsfromfile', source_path, '-overwrite_original', target_path])
+        subprocess.check_output([EXIFTOOL_PATH, '-tagsfromfile', source_path, '-overwrite_original', target_path])
     except ValueError:
         pass
 

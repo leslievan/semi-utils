@@ -14,6 +14,7 @@ from init import SQUARE_PROCESSOR
 from init import WATERMARK_PROCESSOR
 from init import config
 from init import root_menu
+from utils import ENCODING
 from utils import get_file_list
 
 
@@ -66,7 +67,7 @@ def processing():
         processor_chain.process(container)
 
         # 保存图片
-        target_path = Path(config.get_output_dir()).joinpath(source_path.name)
+        target_path = Path(config.get_output_dir(), encoding=ENCODING).joinpath(source_path.name)
 
         container.save(target_path, quality=config.get_quality())
         container.close()
