@@ -13,4 +13,4 @@ tar -xzf Image-ExifTool-12.60.tar.gz -C ./exiftool --strip-components=1
 rm Image-ExifTool-12.60.tar.gz
 
 # 下载 python 依赖
-pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip3 install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple

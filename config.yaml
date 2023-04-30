@@ -62,8 +62,8 @@ logo:
     pentax:
       id: PENTAX
       path: ./logos/pentax.png
-    rioch:
-      id: RIOCH
+    ricoh:
+      id: RICOH
       path: ./logos/ricoh.png
     sony:
       id: SONY

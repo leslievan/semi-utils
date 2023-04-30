@@ -1,7 +1,12 @@
+from dataclasses import dataclass
+
 from entity.config import Config
+from entity.image_processor import BackgroundBlurProcessor
+from entity.image_processor import BackgroundBlurWithWhiteBorderProcessor
 from entity.image_processor import EmptyProcessor
 from entity.image_processor import MarginProcessor
 from entity.image_processor import PaddingToOriginalRatioProcessor
+from entity.image_processor import ProcessorComponent
 from entity.image_processor import ShadowProcessor
 from entity.image_processor import SimpleProcessor
 from entity.image_processor import SquareProcessor
@@ -9,6 +14,8 @@ from entity.image_processor import WatermarkProcessor
 from entity.menu import *
 from enums.constant import CAMERA_MAKE_CAMERA_MODEL_NAME
 from enums.constant import CAMERA_MAKE_CAMERA_MODEL_VALUE
+from enums.constant import CAMERA_MODEL_LENS_MODEL_NAME
+from enums.constant import CAMERA_MODEL_LENS_MODEL_VALUE
 from enums.constant import CUSTOM_NAME
 from enums.constant import CUSTOM_VALUE
 from enums.constant import DATETIME_NAME
@@ -21,8 +28,6 @@ from enums.constant import LENS_NAME
 from enums.constant import LENS_VALUE
 from enums.constant import MAKE_NAME
 from enums.constant import MAKE_VALUE
-from enums.constant import CAMERA_MODEL_LENS_MODEL_NAME
-from enums.constant import CAMERA_MODEL_LENS_MODEL_VALUE
 from enums.constant import MODEL_NAME
 from enums.constant import MODEL_VALUE
 from enums.constant import NONE_NAME
@@ -35,20 +40,35 @@ from enums.constant import TOTAL_PIXEL_VALUE
 SEPARATE_LINE = '+' + '-' * 15 + '+' + '-' * 15 + '+'
 
 
-class Item(object):
-    def __init__(self, name, value):
-        self._name = name
-        self._value = value
+@dataclass
+class ElementItem(object):
+    name: str
+    value: str
 
-    def get_name(self):
-        return self._name
 
-    def get_value(self):
-        return self._value
+@dataclass
+class LayoutItem(object):
+    name: str
+    value: str
+    processor: ProcessorComponent
+
+    @staticmethod
+    def from_processor(processor: ProcessorComponent):
+        return LayoutItem(processor.LAYOUT_NAME, processor.LAYOUT_ID, processor)
 
 
 # 读取配置
 config = Config('config.yaml')
+
+EMPTY_PROCESSOR = EmptyProcessor(config)
+WATERMARK_PROCESSOR = WatermarkProcessor(config)
+MARGIN_PROCESSOR = MarginProcessor(config)
+SHADOW_PROCESSOR = ShadowProcessor(config)
+SQUARE_PROCESSOR = SquareProcessor(config)
+SIMPLE_PROCESSOR = SimpleProcessor(config)
+PADDING_TO_ORIGINAL_RATIO_PROCESSOR = PaddingToOriginalRatioProcessor(config)
+BACKGROUND_BLUR_PROCESSOR = BackgroundBlurProcessor(config)
+BACKGROUND_BLUR_WITH_WHITE_BORDER_PROCESSOR = BackgroundBlurWithWhiteBorderProcessor(config)
 
 """
 以下是菜单的组织
@@ -62,15 +82,20 @@ layout_menu.set_value_getter(config, lambda x: x['layout']['type'])
 layout_menu.set_compare_method(lambda x, y: x == y)
 root_menu.add(layout_menu)
 
-LAYOUT_ITEM = [Item('normal', 'normal'),
-               Item('normal(Logo 居右)', 'normal_with_right_logo'),
-               Item('1:1填充', SquareProcessor.LAYOUT_ID),
-               Item('简洁', SimpleProcessor.LAYOUT_ID), ]
+layout_items = [
+    LayoutItem('normal', 'normal', WATERMARK_PROCESSOR),
+    LayoutItem('normal(Logo 居右)', 'normal_with_right_logo', WATERMARK_PROCESSOR),
+    LayoutItem('1:1填充', SquareProcessor.LAYOUT_ID, SQUARE_PROCESSOR),
+    LayoutItem.from_processor(SIMPLE_PROCESSOR),
+    LayoutItem.from_processor(BACKGROUND_BLUR_PROCESSOR),
+    LayoutItem.from_processor(BACKGROUND_BLUR_WITH_WHITE_BORDER_PROCESSOR),
+]
+layout_items_dict = {item.value: item for item in layout_items}
 
-for item in LAYOUT_ITEM:
-    item_menu = MenuItem(item.get_name())
-    item_menu._value = item.get_value()
-    item_menu.set_procedure(config.set_layout, layout=item.get_value())
+for item in layout_items:
+    item_menu = MenuItem(item.name)
+    item_menu._value = item.value
+    item_menu.set_procedure(config.set_layout, layout=item.value)
     layout_menu.add(item_menu)
 
 # 创建子菜单：logo
@@ -117,18 +142,18 @@ root_menu.add(right_bottom_menu)
 
 # 左上角、左下角、右上角、右下角可以使用的文字
 ITEM_LIST = [
-    Item(MODEL_NAME, MODEL_VALUE),
-    Item(MAKE_NAME, MAKE_VALUE),
-    Item(LENS_NAME, LENS_VALUE),
-    Item(PARAM_NAME, PARAM_VALUE),
-    Item(DATETIME_NAME, DATETIME_VALUE),
-    Item(DATE_NAME, DATE_VALUE),
-    Item(CUSTOM_NAME, CUSTOM_VALUE),
-    Item(NONE_NAME, NONE_VALUE),
-    Item(LENS_MAKE_LENS_MODEL_NAME, LENS_MAKE_LENS_MODEL_VALUE),
-    Item(CAMERA_MODEL_LENS_MODEL_NAME, CAMERA_MODEL_LENS_MODEL_VALUE),
-    Item(TOTAL_PIXEL_NAME, TOTAL_PIXEL_VALUE),
-    Item(CAMERA_MAKE_CAMERA_MODEL_NAME, CAMERA_MAKE_CAMERA_MODEL_VALUE),
+    ElementItem(MODEL_NAME, MODEL_VALUE),
+    ElementItem(MAKE_NAME, MAKE_VALUE),
+    ElementItem(LENS_NAME, LENS_VALUE),
+    ElementItem(PARAM_NAME, PARAM_VALUE),
+    ElementItem(DATETIME_NAME, DATETIME_VALUE),
+    ElementItem(DATE_NAME, DATE_VALUE),
+    ElementItem(CUSTOM_NAME, CUSTOM_VALUE),
+    ElementItem(NONE_NAME, NONE_VALUE),
+    ElementItem(LENS_MAKE_LENS_MODEL_NAME, LENS_MAKE_LENS_MODEL_VALUE),
+    ElementItem(CAMERA_MODEL_LENS_MODEL_NAME, CAMERA_MODEL_LENS_MODEL_VALUE),
+    ElementItem(TOTAL_PIXEL_NAME, TOTAL_PIXEL_VALUE),
+    ElementItem(CAMERA_MAKE_CAMERA_MODEL_NAME, CAMERA_MAKE_CAMERA_MODEL_VALUE),
 ]
 
 # 菜单位置与菜单项的映射
@@ -140,9 +165,9 @@ LOCATION_MENU_MAP = {'left_top': left_top_menu,
 # 将这些条目加入菜单
 for location, menu in LOCATION_MENU_MAP.items():
     for item in ITEM_LIST:
-        menu_item = MenuItem(item.get_name())
-        menu_item.set_procedure(config.set_element_name, location=location, name=item.get_value())
-        menu_item._value = item.get_value()
+        menu_item = MenuItem(item.name)
+        menu_item.set_procedure(config.set_element_name, location=location, name=item.value)
+        menu_item._value = item.value
         menu.add(menu_item)
 
 # 更多设置
@@ -223,11 +248,3 @@ padding_with_ratio_disable_menu = MenuItem('不启用')
 padding_with_ratio_disable_menu.set_procedure(config.disable_padding_with_original_ratio)
 padding_with_ratio_disable_menu._value = False
 padding_with_ratio_menu.add(padding_with_ratio_disable_menu)
-
-EMPTY_PROCESSOR = EmptyProcessor(config)
-WATERMARK_PROCESSOR = WatermarkProcessor(config)
-MARGIN_PROCESSOR = MarginProcessor(config)
-SHADOW_PROCESSOR = ShadowProcessor(config)
-SQUARE_PROCESSOR = SquareProcessor(config)
-SIMPLE_PROCESSOR = SimpleProcessor(config)
-PADDING_TO_ORIGINAL_RATIO_PROCESSOR = PaddingToOriginalRatioProcessor(config)

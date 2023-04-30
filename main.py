@@ -10,9 +10,8 @@ from init import PADDING_TO_ORIGINAL_RATIO_PROCESSOR
 from init import SEPARATE_LINE
 from init import SHADOW_PROCESSOR
 from init import SIMPLE_PROCESSOR
-from init import SQUARE_PROCESSOR
-from init import WATERMARK_PROCESSOR
 from init import config
+from init import layout_items_dict
 from init import root_menu
 from utils import ENCODING
 from utils import get_file_list
@@ -35,14 +34,10 @@ def processing():
         processor_chain.add(SHADOW_PROCESSOR)
 
     # 根据布局添加不同的水印处理器
-    if 'normal' == config.get_layout_type() or 'normal_with_right_logo' == config.get_layout_type():
-        processor_chain.add(WATERMARK_PROCESSOR)
-    elif 'square' == config.get_layout_type():
-        processor_chain.add(SQUARE_PROCESSOR)
-    elif SIMPLE_PROCESSOR.LAYOUT_ID == config.get_layout_type():
-        processor_chain.add(SIMPLE_PROCESSOR)
+    if config.get_layout_type() in layout_items_dict:
+        processor_chain.add(layout_items_dict.get(config.get_layout_type()).processor)
     else:
-        processor_chain.add(WATERMARK_PROCESSOR)
+        processor_chain.add(SIMPLE_PROCESSOR)
 
     # 如果需要添加白边，且不是正方形布局，则添加白边处理器，白边处理器优先级最低
     if config.has_white_margin_enabled() and 'square' != config.get_layout_type():
