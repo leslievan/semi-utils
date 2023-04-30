@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from entity.config import Config
 from entity.image_processor import BackgroundBlurProcessor
+from entity.image_processor import BackgroundBlurWithWhiteBorderProcessor
 from entity.image_processor import EmptyProcessor
 from entity.image_processor import MarginProcessor
 from entity.image_processor import PaddingToOriginalRatioProcessor
@@ -51,6 +52,10 @@ class LayoutItem(object):
     value: str
     processor: ProcessorComponent
 
+    @staticmethod
+    def from_processor(processor: ProcessorComponent):
+        return LayoutItem(processor.LAYOUT_NAME, processor.LAYOUT_ID, processor)
+
 
 # 读取配置
 config = Config('config.yaml')
@@ -63,6 +68,7 @@ SQUARE_PROCESSOR = SquareProcessor(config)
 SIMPLE_PROCESSOR = SimpleProcessor(config)
 PADDING_TO_ORIGINAL_RATIO_PROCESSOR = PaddingToOriginalRatioProcessor(config)
 BACKGROUND_BLUR_PROCESSOR = BackgroundBlurProcessor(config)
+BACKGROUND_BLUR_WITH_WHITE_BORDER_PROCESSOR = BackgroundBlurWithWhiteBorderProcessor(config)
 
 """
 以下是菜单的组织
@@ -80,8 +86,9 @@ layout_items = [
     LayoutItem('normal', 'normal', WATERMARK_PROCESSOR),
     LayoutItem('normal(Logo 居右)', 'normal_with_right_logo', WATERMARK_PROCESSOR),
     LayoutItem('1:1填充', SquareProcessor.LAYOUT_ID, SQUARE_PROCESSOR),
-    LayoutItem('简洁', SimpleProcessor.LAYOUT_ID, SIMPLE_PROCESSOR),
-    LayoutItem('背景模糊', BackgroundBlurProcessor.LAYOUT_ID, BACKGROUND_BLUR_PROCESSOR)
+    LayoutItem.from_processor(SIMPLE_PROCESSOR),
+    LayoutItem.from_processor(BACKGROUND_BLUR_PROCESSOR),
+    LayoutItem.from_processor(BACKGROUND_BLUR_WITH_WHITE_BORDER_PROCESSOR),
 ]
 layout_items_dict = {item.value: item for item in layout_items}
 

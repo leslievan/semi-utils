@@ -32,6 +32,7 @@ class ProcessorComponent:
     图片处理器组件
     """
     LAYOUT_ID = None
+    LAYOUT_NAME = None
 
     def process(self, container: ImageContainer) -> None:
         """
@@ -189,6 +190,7 @@ class MarginProcessor(ProcessorComponent):
 
 class SimpleProcessor(ProcessorComponent):
     LAYOUT_ID = 'simple'
+    LAYOUT_NAME = '简洁'
 
     def __init__(self, config: Config):
         self.config = config
@@ -253,14 +255,34 @@ class PaddingToOriginalRatioProcessor(ProcessorComponent):
 
 class BackgroundBlurProcessor(ProcessorComponent):
     LAYOUT_ID = 'background_blur'
+    LAYOUT_NAME = '背景模糊'
 
     def __init__(self, config: Config):
         self.config = config
 
     def process(self, container: ImageContainer) -> None:
         background = container.get_watermark_img()
-        background = background.filter(ImageFilter.GaussianBlur(radius=27))
+        background = background.filter(ImageFilter.GaussianBlur(radius=35))
         background = background.resize((int(container.get_width() * 1.1), int(container.get_height() * 1.1)))
         background.paste(container.get_watermark_img(),
                          (int(container.get_width() * 0.05), int(container.get_height() * 0.05)))
+        container.update_watermark_img(background)
+
+
+class BackgroundBlurWithWhiteBorderProcessor(ProcessorComponent):
+    LAYOUT_ID = 'background_blur_with_white_border'
+    LAYOUT_NAME = '背景模糊+白框'
+
+    def __init__(self, config: Config):
+        self.config = config
+
+    def process(self, container: ImageContainer) -> None:
+        padding_size = int(
+            self.config.get_white_margin_width() * min(container.get_width(), container.get_height()) / 256)
+        padding_img = padding_image(container.get_watermark_img(), padding_size, 'tblr')
+
+        background = container.get_img()
+        background = background.filter(ImageFilter.GaussianBlur(radius=35))
+        background = background.resize((int(padding_img.width * 1.1), int(padding_img.height * 1.1)))
+        background.paste(padding_img, (int(padding_img.width * 0.05), int(padding_img.height * 0.05)))
         container.update_watermark_img(background)
