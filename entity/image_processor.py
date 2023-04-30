@@ -249,3 +249,18 @@ class PaddingToOriginalRatioProcessor(ProcessorComponent):
             padding_size = int(container.get_height() * original_ratio - container.get_width())
             padding_img = ImageOps.expand(container.get_watermark_img(), (padding_size, 0), fill='white')
         container.update_watermark_img(padding_img)
+
+
+class BackgroundBlurProcessor(ProcessorComponent):
+    LAYOUT_ID = 'background_blur'
+
+    def __init__(self, config: Config):
+        self.config = config
+
+    def process(self, container: ImageContainer) -> None:
+        background = container.get_watermark_img()
+        background = background.filter(ImageFilter.GaussianBlur(radius=27))
+        background = background.resize((int(container.get_width() * 1.1), int(container.get_height() * 1.1)))
+        background.paste(container.get_watermark_img(),
+                         (int(container.get_width() * 0.05), int(container.get_height() * 0.05)))
+        container.update_watermark_img(background)
