@@ -37,7 +37,7 @@ def get_exif(path) -> dict:
     try:
         # 如果 exif 中不存在镜头信息，用 exiftool 读取
         # if 'LensModel' not in _exif:
-        output = subprocess.check_output([EXIFTOOL_PATH, '-charset', 'UTF8', path])
+        output = subprocess.check_output([EXIFTOOL_PATH, '-charset', 'UTF8', '-d', '%Y-%m-%d %H:%M:%S%3f%z', path])
 
         output = output.decode(ENCODING)
         lines = output.splitlines()
