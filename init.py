@@ -10,7 +10,9 @@ from entity.image_processor import ProcessorComponent
 from entity.image_processor import ShadowProcessor
 from entity.image_processor import SimpleProcessor
 from entity.image_processor import SquareProcessor
+from entity.image_processor import WatermarkLeftLogoProcessor
 from entity.image_processor import WatermarkProcessor
+from entity.image_processor import WatermarkRightLogoProcessor
 from entity.menu import *
 from enums.constant import CAMERA_MAKE_CAMERA_MODEL_NAME
 from enums.constant import CAMERA_MAKE_CAMERA_MODEL_VALUE
@@ -62,6 +64,8 @@ config = Config('config.yaml')
 
 EMPTY_PROCESSOR = EmptyProcessor(config)
 WATERMARK_PROCESSOR = WatermarkProcessor(config)
+WATERMARK_LEFT_LOGO_PROCESSOR = WatermarkLeftLogoProcessor(config)
+WATERMARK_RIGHT_LOGO_PROCESSOR = WatermarkRightLogoProcessor(config)
 MARGIN_PROCESSOR = MarginProcessor(config)
 SHADOW_PROCESSOR = ShadowProcessor(config)
 SQUARE_PROCESSOR = SquareProcessor(config)
@@ -83,9 +87,9 @@ layout_menu.set_compare_method(lambda x, y: x == y)
 root_menu.add(layout_menu)
 
 layout_items = [
-    LayoutItem('normal', 'normal', WATERMARK_PROCESSOR),
-    LayoutItem('normal(Logo 居右)', 'normal_with_right_logo', WATERMARK_PROCESSOR),
-    LayoutItem('1:1填充', SquareProcessor.LAYOUT_ID, SQUARE_PROCESSOR),
+    LayoutItem.from_processor(WATERMARK_LEFT_LOGO_PROCESSOR),
+    LayoutItem.from_processor(WATERMARK_RIGHT_LOGO_PROCESSOR),
+    LayoutItem.from_processor(SQUARE_PROCESSOR),
     LayoutItem.from_processor(SIMPLE_PROCESSOR),
     LayoutItem.from_processor(BACKGROUND_BLUR_PROCESSOR),
     LayoutItem.from_processor(BACKGROUND_BLUR_WITH_WHITE_BORDER_PROCESSOR),
