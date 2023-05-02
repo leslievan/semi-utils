@@ -93,6 +93,7 @@ class ShadowProcessor(ProcessorComponent):
 
 class SquareProcessor(ProcessorComponent):
     LAYOUT_ID = 'square'
+    LAYOUT_NAME = '1:1填充'
 
     def __init__(self, config: Config):
         self.config = config
@@ -173,6 +174,32 @@ class WatermarkProcessor(ProcessorComponent):
         image.paste(container.get_watermark_img())
         image.paste(watermark, (0, container.get_height()))
         container.update_watermark_img(image)
+
+
+class WatermarkRightLogoProcessor(ProcessorComponent):
+    LAYOUT_ID = 'watermark_right_logo'
+    LAYOUT_NAME = 'normal(Logo 居右)'
+
+    def __init__(self, config: Config):
+        self.config = config
+        self.watermark_processor = WatermarkProcessor(config)
+
+    def process(self, container: ImageContainer) -> None:
+        self.config.set_logo_right()
+        self.watermark_processor.process(container)
+
+
+class WatermarkLeftLogoProcessor(ProcessorComponent):
+    LAYOUT_ID = 'watermark_left_logo'
+    LAYOUT_NAME = 'normal'
+
+    def __init__(self, config: Config):
+        self.config = config
+        self.watermark_processor = WatermarkProcessor(config)
+
+    def process(self, container: ImageContainer) -> None:
+        self.config.set_logo_left()
+        self.watermark_processor.process(container)
 
 
 class MarginProcessor(ProcessorComponent):
