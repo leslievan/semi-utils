@@ -242,7 +242,7 @@ class SimpleProcessor(ProcessorComponent):
                              is_bold=True,
                              fill='#212121')
         first_line = merge_images([first_text, MIDDLE_HORIZONTAL_GAP, model, MIDDLE_HORIZONTAL_GAP, make], 0, 1)
-        second_line_text = container.get_param_str() + ', Made by Semi Utils'
+        second_line_text = container.get_param_str()
         second_line = text_to_image(second_line_text,
                                     self.config.get_alternative_font(),
                                     self.config.get_alternative_bold_font(),
