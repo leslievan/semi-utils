@@ -93,6 +93,7 @@ class ShadowProcessor(ProcessorComponent):
 
 class SquareProcessor(ProcessorComponent):
     LAYOUT_ID = 'square'
+    LAYOUT_NAME = '1:1填充'
 
     def __init__(self, config: Config):
         self.config = config
@@ -175,6 +176,32 @@ class WatermarkProcessor(ProcessorComponent):
         container.update_watermark_img(image)
 
 
+class WatermarkRightLogoProcessor(ProcessorComponent):
+    LAYOUT_ID = 'watermark_right_logo'
+    LAYOUT_NAME = 'normal(Logo 居右)'
+
+    def __init__(self, config: Config):
+        self.config = config
+        self.watermark_processor = WatermarkProcessor(config)
+
+    def process(self, container: ImageContainer) -> None:
+        self.config.set_logo_right()
+        self.watermark_processor.process(container)
+
+
+class WatermarkLeftLogoProcessor(ProcessorComponent):
+    LAYOUT_ID = 'watermark_left_logo'
+    LAYOUT_NAME = 'normal'
+
+    def __init__(self, config: Config):
+        self.config = config
+        self.watermark_processor = WatermarkProcessor(config)
+
+    def process(self, container: ImageContainer) -> None:
+        self.config.set_logo_left()
+        self.watermark_processor.process(container)
+
+
 class MarginProcessor(ProcessorComponent):
     LAYOUT_ID = 'margin'
 
@@ -215,7 +242,7 @@ class SimpleProcessor(ProcessorComponent):
                              is_bold=True,
                              fill='#212121')
         first_line = merge_images([first_text, MIDDLE_HORIZONTAL_GAP, model, MIDDLE_HORIZONTAL_GAP, make], 0, 1)
-        second_line_text = container.get_param_str() + ', Made by Semi Utils'
+        second_line_text = container.get_param_str()
         second_line = text_to_image(second_line_text,
                                     self.config.get_alternative_font(),
                                     self.config.get_alternative_bold_font(),

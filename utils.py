@@ -274,7 +274,7 @@ def append_image_by_side(background, images, side='left', padding=200, is_start=
         for i in images:
             if i is None:
                 continue
-            i = resize_image_with_height(i, background.height)
+            i = resize_image_with_height(i, background.height, auto_close=False)
             x_offset -= i.width
             x_offset -= padding
             background.paste(i, (x_offset, 0))
@@ -286,7 +286,7 @@ def append_image_by_side(background, images, side='left', padding=200, is_start=
         for i in images:
             if i is None:
                 continue
-            i = resize_image_with_height(i, background.height)
+            i = resize_image_with_height(i, background.height, auto_close=False)
             background.paste(i, (x_offset, 0))
             x_offset += i.width
             x_offset += padding
