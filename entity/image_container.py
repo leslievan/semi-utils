@@ -1,3 +1,4 @@
+import logging
 import re
 from datetime import datetime
 from enum import Enum
@@ -67,8 +68,9 @@ class ImageContainer(object):
             self.date: datetime = parser.parse(self.exif[ExifId.DATETIME.value]) \
                 if ExifId.DATETIME.value in self.exif \
                 else datetime.now()
-        except ValueError:
+        except ValueError as e:
             self.date: datetime = datetime.now()
+            logging.exception(f'Error: {self.path}: {str(e)}')
         # 焦距
         try:
             focal_length = PATTERN.search(self.exif[ExifId.FOCAL_LENGTH.value])

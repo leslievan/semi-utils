@@ -39,6 +39,10 @@ from enums.constant import PARAM_VALUE
 from enums.constant import TOTAL_PIXEL_NAME
 from enums.constant import TOTAL_PIXEL_VALUE
 
+import logging
+
+logging.basicConfig(filename='error.log', level=logging.ERROR)
+
 SEPARATE_LINE = '+' + '-' * 15 + '+' + '-' * 15 + '+'
 
 

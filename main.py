@@ -1,3 +1,4 @@
+import logging
 import sys
 from pathlib import Path
 
@@ -77,39 +78,43 @@ root_menu.set_parent(root_menu)
 
 if __name__ == '__main__':
     while True:
-        # 0：主菜单，100：处理图片，-1：退出程序，其他：子菜单
-        if state == 0:
-            # 显示主菜单
-            print(SEPARATE_LINE)
-            current_menu.display()
-            print(SEPARATE_LINE)
+        try:
+            # 0：主菜单，100：处理图片，-1：退出程序，其他：子菜单
+            if state == 0:
+                # 显示主菜单
+                print(SEPARATE_LINE)
+                current_menu.display()
+                print(SEPARATE_LINE)
 
-            # 处理用户输入
-            user_input = input('输入【y 或回车】按照当前设置开始处理图片，输入【数字】修改设置，输入【r】返回上一层菜单，输入【x】退出程序\n')
+                # 处理用户输入
+                user_input = input(
+                    '输入【y 或回车】按照当前设置开始处理图片，输入【数字】修改设置，输入【r】返回上一层菜单，输入【x】退出程序\n')
 
-            # y 或回车，跳转状态 100，开始处理图片
-            if user_input == 'y' or user_input == '':
-                state = 100
-            # x 退出程序
-            elif user_input == 'x' or user_input == 'X':
+                # y 或回车，跳转状态 100，开始处理图片
+                if user_input == 'y' or user_input == '':
+                    state = 100
+                # x 退出程序
+                elif user_input == 'x' or user_input == 'X':
+                    sys.exit(0)
+                # r 返回上一层
+                elif user_input == 'r' or user_input == 'R':
+                    current_menu = current_menu.get_parent()
+                # 数字合法则跳转到对应子菜单
+                elif user_input.isdigit() and 1 <= int(user_input) <= len(current_menu.components):
+                    current_menu = current_menu.components[int(user_input) - 1]
+                    if current_menu.is_leaf():
+                        current_menu.run()
+                        current_menu = root_menu
+                else:
+                    print('输入错误，请重新输入')
+            elif state == 100:
+                # 处理数据的代码
+                print(SEPARATE_LINE)
+                processing()
+            elif state == -1:
+                # 退出程序
                 sys.exit(0)
-            # r 返回上一层
-            elif user_input == 'r' or user_input == 'R':
-                current_menu = current_menu.get_parent()
-            # 数字合法则跳转到对应子菜单
-            elif user_input.isdigit() and 1 <= int(user_input) <= len(current_menu.components):
-                current_menu = current_menu.components[int(user_input) - 1]
-                if current_menu.is_leaf():
-                    current_menu.run()
-                    current_menu = root_menu
-            else:
-                print('输入错误，请重新输入')
-        elif state == 100:
-            # 处理数据的代码
-            print(SEPARATE_LINE)
-            processing()
-        elif state == -1:
-            # 退出程序
-            sys.exit(0)
-        # 保存配置
-        config.save()
+            # 保存配置
+            config.save()
+        except Exception as e:
+            logging.exception(f'Error: {str(e)}')
