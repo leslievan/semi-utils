@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from pathlib import Path
 
 from entity.config import Config
 from entity.image_processor import BackgroundBlurProcessor
@@ -38,6 +39,12 @@ from enums.constant import PARAM_NAME
 from enums.constant import PARAM_VALUE
 from enums.constant import TOTAL_PIXEL_NAME
 from enums.constant import TOTAL_PIXEL_VALUE
+
+import logging
+
+# 如果 logs 不存在，创建 logs
+Path('./logs').mkdir(parents=True, exist_ok=True)
+logging.basicConfig(filename='./logs/error.log', level=logging.ERROR)
 
 SEPARATE_LINE = '+' + '-' * 15 + '+' + '-' * 15 + '+'
 

@@ -1,3 +1,4 @@
+import logging
 import re
 from datetime import datetime
 from enum import Enum
@@ -67,23 +68,27 @@ class ImageContainer(object):
             self.date: datetime = parser.parse(self.exif[ExifId.DATETIME.value]) \
                 if ExifId.DATETIME.value in self.exif \
                 else datetime.now()
-        except ValueError:
+        except ValueError as e:
             self.date: datetime = datetime.now()
+            logging.exception(f'Error: {self.path}: {str(e)}')
         # 焦距
         try:
             focal_length = PATTERN.search(self.exif[ExifId.FOCAL_LENGTH.value])
             self.focal_length: str = focal_length.group(1) if focal_length else '0'
-        except (KeyError, ValueError):
+        except (KeyError, ValueError) as e:
             # 如果转换错误，使用 0
             self.focal_length: str = '0'
+            logging.exception(f'Error: {self.path}: {self.exif[ExifId.FOCAL_LENGTH]}: {str(e)}')
         # 等效焦距
         try:
             focal_length_in_35mm_film = PATTERN.search(self.exif[ExifId.FOCAL_LENGTH_IN_35MM_FILM.value])
             self.focal_length_in_35mm_film: str = focal_length_in_35mm_film.group(
                 1) if focal_length_in_35mm_film else '0'
-        except (KeyError, ValueError):
+        except (KeyError, ValueError) as e:
             # 如果转换错误，使用焦距
             self.focal_length_in_35mm_film: str = self.focal_length
+            logging.exception(f'Error: {self.path}: {self.exif[ExifId.FOCAL_LENGTH]}: {str(e)}')
+
         # 是否使用等效焦距
         self.use_equivalent_focal_length: bool = False
         # 光圈大小
