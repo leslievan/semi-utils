@@ -28,6 +28,9 @@ class ElementConfig(object):
     def get_value(self):
         return self.element['value'] if 'value' in self.element else None
 
+    def get_color(self):
+        return self.element['color'] if 'color' in self.element else '#ffffff'
+
 
 # 字体大小，影响字体的清晰度
 FONT_SIZE = 240

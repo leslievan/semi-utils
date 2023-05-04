@@ -128,21 +128,21 @@ class WatermarkProcessor(ProcessorComponent):
             left_top = text_to_image(container.get_attribute_str(config.get_left_top()),
                                      config.get_font(),
                                      config.get_bold_font(),
-                                     is_bold=config.get_left_top().is_bold())
+                                     is_bold=config.get_left_top().is_bold(), fill=config.get_left_top().get_color())
             left_bottom = text_to_image(container.get_attribute_str(config.get_left_bottom()),
                                         config.get_font(),
                                         config.get_bold_font(),
-                                        is_bold=config.get_left_bottom().is_bold(), fill=GRAY)
+                                        is_bold=config.get_left_bottom().is_bold(), fill=config.get_left_bottom().get_color())
             left = concatenate_image([left_top, empty_padding, left_bottom])
             # 填充右边的文字内容
             right_top = text_to_image(container.get_attribute_str(config.get_right_top()),
                                       config.get_font(),
                                       config.get_bold_font(),
-                                      is_bold=config.get_right_top().is_bold())
+                                      is_bold=config.get_right_top().is_bold(), fill=config.get_right_top().get_color())
             right_bottom = text_to_image(container.get_attribute_str(config.get_right_bottom()),
                                          config.get_font(),
                                          config.get_bold_font(),
-                                         is_bold=config.get_right_bottom().is_bold(), fill=GRAY)
+                                         is_bold=config.get_right_bottom().is_bold(), fill=config.get_right_bottom().get_color())
             right = concatenate_image([right_top, empty_padding, right_bottom])
 
         max_height = max(left.height, right.height)
