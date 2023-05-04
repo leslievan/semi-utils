@@ -4,7 +4,6 @@ from datetime import datetime
 from enum import Enum
 from pathlib import Path
 
-import piexif
 from PIL import Image
 from PIL.Image import Transpose
 from dateutil import parser
