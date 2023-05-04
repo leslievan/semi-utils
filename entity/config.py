@@ -29,7 +29,10 @@ class ElementConfig(object):
         return self.element['value'] if 'value' in self.element else None
 
     def get_color(self):
-        return self.element['color'] if 'color' in self.element else '#000000'
+        if 'color' in self.element:
+            return self.element['color']
+        else:
+            return self.element['color']
 
 
 # 字体大小，影响字体的清晰度
