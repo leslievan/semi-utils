@@ -28,7 +28,7 @@ layout:
     right_top:
       is_bold: true
       name: Param
-  type: normal_with_right_logo
+  type: watermark_left_logo
   white_margin:
     enable: true
     width: 3
