@@ -32,7 +32,7 @@ class ElementConfig(object):
         if 'color' in self.element:
             return self.element['color']
         else:
-            return self.element['color']
+            return '#212121'
 
 
 # 字体大小，影响字体的清晰度
@@ -74,6 +74,9 @@ class Config(object):
 
     def get(self) -> dict:
         return self._data
+
+    def get_background_color(self) -> str:
+        return self._data['layout']['background_color'] if 'background_color' in self._data['layout'] else '#ffffff'
 
     def get_layout_type(self) -> str:
         return self._data['layout']['type']
