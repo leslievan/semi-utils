@@ -23,6 +23,7 @@ from enums.constant import TOTAL_PIXEL_VALUE
 from utils import calculate_pixel_count
 from utils import get_exif
 
+logger = logging.getLogger(__name__)
 
 class ExifId(Enum):
     CAMERA_MODEL = 'CameraModelName'
@@ -64,12 +65,13 @@ class ImageContainer(object):
         self.lens_make: str = self.exif[ExifId.LENS_MAKE.value] if ExifId.LENS_MAKE.value in self.exif else '无'
         # 拍摄日期
         try:
-            self.date: datetime = parser.parse(self.exif[ExifId.DATETIME.value]) \
-                if ExifId.DATETIME.value in self.exif \
-                else datetime.now()
+            self.date: datetime = parser.parse(self.exif[ExifId.DATETIME.value])
+        except KeyError as e:
+            self.date: datetime = datetime.now()
+            logger.info(f'KeyError: {self.path}: {str(e)}')
         except ValueError as e:
             self.date: datetime = datetime.now()
-            logging.info(f'Error: {self.path}: {self.exif[ExifId.DATETIME.value]}\n{str(e)}')
+            logger.info(f'Error: {self.path}: [{self.exif[ExifId.DATETIME.value]}]: {str(e)}')
         # 焦距
         try:
             focal_length = PATTERN.search(self.exif[ExifId.FOCAL_LENGTH.value])
@@ -77,10 +79,10 @@ class ImageContainer(object):
         except KeyError as e:
             # 如果转换错误，使用 0
             self.focal_length: str = '0'
-            logging.info(f'Error: {self.path}: {str(e)}')
+            logger.info(f'KeyError: {self.path}: {str(e)}')
         except ValueError as e:
             self.focal_length: str = '0'
-            logging.info(f'Error: {self.path}: {self.exif[ExifId.FOCAL_LENGTH.value]}\n{str(e)}')
+            logger.info(f'ValueError: {self.path}: [{self.exif[ExifId.FOCAL_LENGTH.value]}]: {str(e)}')
         # 等效焦距
         try:
             focal_length_in_35mm_film = PATTERN.search(self.exif[ExifId.FOCAL_LENGTH_IN_35MM_FILM.value])
@@ -89,10 +91,10 @@ class ImageContainer(object):
         except KeyError as e:
             # 如果转换错误，使用焦距
             self.focal_length_in_35mm_film: str = self.focal_length
-            logging.info(f'Error: {self.path}: {str(e)}')
+            logger.info(f'KeyError: {self.path}: {str(e)}')
         except ValueError as e:
             self.focal_length: str = '0'
-            logging.info(f'Error: {self.path}: {self.exif[ExifId.FOCAL_LENGTH.value]}\n{str(e)}')
+            logger.info(f'ValueError: {self.path}: [{self.exif[ExifId.FOCAL_LENGTH_IN_35MM_FILM.value]}]: {str(e)}')
 
         # 是否使用等效焦距
         self.use_equivalent_focal_length: bool = False

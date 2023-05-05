@@ -17,6 +17,8 @@ else:
     EXIFTOOL_PATH = './exiftool/exiftool'
     ENCODING = 'utf-8'
 
+logger = logging.getLogger(__name__)
+
 
 def get_file_list(path):
     """
@@ -66,7 +68,7 @@ def get_exif(path) -> dict:
                 for attr, value in info.items():
                     decoded_attr = TAGS.get(attr, attr)
                     exif_dict[decoded_attr] = value
-        logging.exception(f'Error: {path}: {str(e)}')
+        logger.info(f'UnicodeDecodeError: {path}: Cannot get exif: {str(e)}')
     finally:
         pass
 
@@ -83,7 +85,7 @@ def insert_exif(source_path, target_path) -> None:
         # 将 exif 信息转换为字节串
         subprocess.check_output([EXIFTOOL_PATH, '-tagsfromfile', source_path, '-overwrite_original', target_path])
     except ValueError as e:
-        logging.exception(f'Error: {source_path}: {str(e)}')
+        logger.exception(f'ValueError: {source_path}: cannot insert exif {str(e)}')
 
 
 TINY_HEIGHT = 800
