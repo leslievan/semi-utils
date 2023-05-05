@@ -19,6 +19,7 @@ from utils import get_file_list
 
 DEBUG = False
 
+
 def processing():
     """
     状态100：处理图片
@@ -69,8 +70,11 @@ def processing():
         container.save(target_path, quality=config.get_quality())
         container.close()
     print('处理完成，文件已输出至 output 文件夹中，请点击任意键退出或直接关闭'.format(len(file_list)))
-    input()
-    state = -1
+    if DEBUG:
+        sys.exit(0)
+    else:
+        input()
+        state = -1
 
 
 state = 0
@@ -117,7 +121,6 @@ if __name__ == '__main__':
                     logging.exception(f'Error: {str(e)}')
                     if DEBUG:
                         raise e
-                finally:
                     state = -2
             elif state == -1:
                 # 退出程序
