@@ -93,7 +93,7 @@ layout_menu.set_value_getter(config, lambda x: x['layout']['type'])
 layout_menu.set_compare_method(lambda x, y: x == y)
 root_menu.add(layout_menu)
 
-layout_items = [
+LAYOUT_ITEMS = [
     LayoutItem.from_processor(WATERMARK_LEFT_LOGO_PROCESSOR),
     LayoutItem.from_processor(WATERMARK_RIGHT_LOGO_PROCESSOR),
     LayoutItem.from_processor(SQUARE_PROCESSOR),
@@ -101,9 +101,9 @@ layout_items = [
     LayoutItem.from_processor(BACKGROUND_BLUR_PROCESSOR),
     LayoutItem.from_processor(BACKGROUND_BLUR_WITH_WHITE_BORDER_PROCESSOR),
 ]
-layout_items_dict = {item.value: item for item in layout_items}
+layout_items_dict = {item.value: item for item in LAYOUT_ITEMS}
 
-for item in layout_items:
+for item in LAYOUT_ITEMS:
     item_menu = MenuItem(item.name)
     item_menu._value = item.value
     item_menu.set_procedure(config.set_layout, layout=item.value)
