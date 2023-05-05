@@ -224,6 +224,8 @@ class ImageContainer(object):
         return self.watermark_img
 
     def update_watermark_img(self, watermark_img) -> None:
+        if self.watermark_img == watermark_img:
+            return
         original_watermark_img = self.watermark_img
         self.watermark_img = watermark_img
         if original_watermark_img is not None:
