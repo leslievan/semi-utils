@@ -28,6 +28,12 @@ class ElementConfig(object):
     def get_value(self):
         return self.element['value'] if 'value' in self.element else None
 
+    def get_color(self):
+        if 'color' in self.element:
+            return self.element['color']
+        else:
+            return '#212121'
+
 
 # 字体大小，影响字体的清晰度
 FONT_SIZE = 240
@@ -49,6 +55,9 @@ class Config(object):
         self._right_top = ElementConfig(self._data['layout']['elements'][LOCATION_RIGHT_TOP])
         self._right_bottom = ElementConfig(self._data['layout']['elements'][LOCATION_RIGHT_BOTTOM])
         self._makes = self._data['logo']['makes']
+        self.bg_color = self._data['layout']['background_color'] \
+            if 'background_color' in self._data['layout'] \
+            else '#ffffff'
 
     def load_logo(self, make) -> Image.Image:
         """
@@ -68,6 +77,9 @@ class Config(object):
 
     def get(self) -> dict:
         return self._data
+
+    def get_background_color(self) -> str:
+        return self._data['layout']['background_color'] if 'background_color' in self._data['layout'] else '#ffffff'
 
     def get_layout_type(self) -> str:
         return self._data['layout']['type']

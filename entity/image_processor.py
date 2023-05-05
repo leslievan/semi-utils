@@ -6,6 +6,7 @@ from PIL import ImageOps
 
 from entity.config import Config
 from entity.image_container import ImageContainer
+from enums.constant import TRANSPARENT
 from utils import append_image_by_side
 from utils import concatenate_image
 from utils import merge_images
@@ -108,6 +109,21 @@ class WatermarkProcessor(ProcessorComponent):
 
     def __init__(self, config: Config):
         self.config = config
+        # 默认值
+        self.logo_position = 'left'
+        self.bg_color = '#ffffff'
+        self.line_color = GRAY
+        self.font_color_lt = '#212121'
+        self.bold_font_lt = True
+        self.font_color_lb = '#424242'
+        self.bold_font_lb = False
+        self.font_color_rt = '#212121'
+        self.bold_font_rt = True
+        self.font_color_rb = '#424242'
+        self.bold_font_rb = False
+
+    def is_logo_left(self):
+        return self.logo_position == 'left'
 
     def process(self, container: ImageContainer) -> None:
         """
@@ -116,42 +132,50 @@ class WatermarkProcessor(ProcessorComponent):
         :return: 添加水印后的图片对象
         """
         config = self.config
+        config.bg_color = self.bg_color
 
+        # 下方水印的占比
         ratio = (.04 if container.get_ratio() >= 1 else .09) + 0.02 * config.get_font_padding_level()
+        # 水印中上下边缘空白部分的占比
         padding_ratio = (.52 if container.get_ratio() >= 1 else .7) - 0.04 * config.get_font_padding_level()
 
         # 创建一个空白的水印图片
-        watermark = Image.new('RGB', (int(NORMAL_HEIGHT / ratio), NORMAL_HEIGHT), color='white')
+        watermark = Image.new('RGBA', (int(NORMAL_HEIGHT / ratio), NORMAL_HEIGHT), color=self.bg_color)
 
-        with Image.new('RGB', (10, 100), color='white') as empty_padding:
+        with Image.new('RGBA', (10, 100), color=self.bg_color) as empty_padding:
             # 填充左边的文字内容
             left_top = text_to_image(container.get_attribute_str(config.get_left_top()),
                                      config.get_font(),
                                      config.get_bold_font(),
-                                     is_bold=config.get_left_top().is_bold())
+                                     is_bold=self.bold_font_lt,
+                                     fill=self.font_color_lt)
             left_bottom = text_to_image(container.get_attribute_str(config.get_left_bottom()),
                                         config.get_font(),
                                         config.get_bold_font(),
-                                        is_bold=config.get_left_bottom().is_bold(), fill=GRAY)
+                                        is_bold=self.bold_font_lb,
+                                        fill=self.font_color_lb)
             left = concatenate_image([left_top, empty_padding, left_bottom])
             # 填充右边的文字内容
             right_top = text_to_image(container.get_attribute_str(config.get_right_top()),
                                       config.get_font(),
                                       config.get_bold_font(),
-                                      is_bold=config.get_right_top().is_bold())
+                                      is_bold=self.bold_font_rt,
+                                      fill=self.font_color_rt)
             right_bottom = text_to_image(container.get_attribute_str(config.get_right_bottom()),
                                          config.get_font(),
                                          config.get_bold_font(),
-                                         is_bold=config.get_right_bottom().is_bold(), fill=GRAY)
+                                         is_bold=self.bold_font_rb,
+                                         fill=self.font_color_rb)
             right = concatenate_image([right_top, empty_padding, right_bottom])
 
+        # 将左右两边的文字内容等比例缩放到相同的高度
         max_height = max(left.height, right.height)
         left = padding_image(left, int(max_height * padding_ratio), 'tb')
         right = padding_image(right, int(max_height * padding_ratio), 't')
         right = padding_image(right, left.height - right.height, 'b')
 
         logo = container.get_logo()
-        if config.is_logo_left():
+        if self.is_logo_left():
             # 如果 logo 在左边
             append_image_by_side(watermark, [logo, left], is_start=logo is None)
             append_image_by_side(watermark, [right], side='right')
@@ -161,7 +185,7 @@ class WatermarkProcessor(ProcessorComponent):
                 # 如果 logo 不为空，等比例缩小 logo
                 logo = padding_image(logo, int(padding_ratio * logo.height))
             # 插入一根线条用于分割 logo 和文字
-            line = Image.new('RGB', (20, 1000), color=GRAY)
+            line = Image.new('RGBA', (20, 1000), color=GRAY)
             line = padding_image(line, int(padding_ratio * line.height * .8))
             append_image_by_side(watermark, [left], is_start=True)
             append_image_by_side(watermark, [logo, line, right], side='right')
@@ -169,37 +193,91 @@ class WatermarkProcessor(ProcessorComponent):
         left.close()
         right.close()
 
+        # 缩放水印的大小
         watermark = resize_image_with_width(watermark, container.get_width())
-        image = Image.new('RGB', (container.get_width(), container.get_height() + watermark.height), color='white')
-        image.paste(container.get_watermark_img())
-        image.paste(watermark, (0, container.get_height()))
-        container.update_watermark_img(image)
+        # 将水印图片放置在原始图片的下方
+        bg = ImageOps.expand(container.get_watermark_img().convert('RGBA'),
+                             border=(0, 0, 0, watermark.height),
+                             fill=self.bg_color)
+        fg = ImageOps.expand(watermark, border=(0, container.get_height(), 0, 0), fill=TRANSPARENT)
+        result = Image.alpha_composite(bg, fg)
+        watermark.close()
+        # 更新图片对象
+        result = ImageOps.exif_transpose(result).convert('RGB')
+        container.update_watermark_img(result)
 
 
-class WatermarkRightLogoProcessor(ProcessorComponent):
+class WatermarkRightLogoProcessor(WatermarkProcessor):
     LAYOUT_ID = 'watermark_right_logo'
     LAYOUT_NAME = 'normal(Logo 居右)'
 
     def __init__(self, config: Config):
-        self.config = config
-        self.watermark_processor = WatermarkProcessor(config)
-
-    def process(self, container: ImageContainer) -> None:
-        self.config.set_logo_right()
-        self.watermark_processor.process(container)
+        super().__init__(config)
+        self.logo_position = 'right'
 
 
-class WatermarkLeftLogoProcessor(ProcessorComponent):
+class WatermarkLeftLogoProcessor(WatermarkProcessor):
     LAYOUT_ID = 'watermark_left_logo'
     LAYOUT_NAME = 'normal'
 
     def __init__(self, config: Config):
-        self.config = config
-        self.watermark_processor = WatermarkProcessor(config)
+        super().__init__(config)
+        self.logo_position = 'left'
 
-    def process(self, container: ImageContainer) -> None:
-        self.config.set_logo_left()
-        self.watermark_processor.process(container)
+
+class DarkWatermarkRightLogoProcessor(WatermarkRightLogoProcessor):
+    LAYOUT_ID = 'dark_watermark_right_logo'
+    LAYOUT_NAME = 'normal(暗黑模式，Logo 居右)'
+
+    def __init__(self, config: Config):
+        super().__init__(config)
+        self.bg_color = '#212121'
+        self.line_color = GRAY
+        self.font_color_lt = '#D32F2F'
+        self.bold_font_lt = True
+        self.font_color_lb = '#d4d1cc'
+        self.bold_font_lb = False
+        self.font_color_rt = '#D32F2F'
+        self.bold_font_rt = True
+        self.font_color_rb = '#d4d1cc'
+        self.bold_font_rb = False
+
+
+class DarkWatermarkLeftLogoProcessor(WatermarkLeftLogoProcessor):
+    LAYOUT_ID = 'dark_watermark_left_logo'
+    LAYOUT_NAME = 'normal(暗黑模式)'
+
+    def __init__(self, config: Config):
+        super().__init__(config)
+        self.bg_color = '#212121'
+        self.line_color = GRAY
+        self.font_color_lt = '#D32F2F'
+        self.bold_font_lt = True
+        self.font_color_lb = '#d4d1cc'
+        self.bold_font_lb = False
+        self.font_color_rt = '#D32F2F'
+        self.bold_font_rt = True
+        self.font_color_rb = '#d4d1cc'
+        self.bold_font_rb = False
+
+
+class CustomWatermarkProcessor(WatermarkProcessor):
+    LAYOUT_ID = 'custom_watermark'
+    LAYOUT_NAME = 'normal(自定义配置)'
+
+    def __init__(self, config: Config):
+        super().__init__(config)
+        # 读取配置文件
+        self.logo_position = self.config.is_logo_left()
+        self.bg_color = self.config.get_background_color()
+        self.font_color_lt = self.config.get_left_top().get_color()
+        self.bold_font_lt = self.config.get_left_top().is_bold()
+        self.font_color_lb = self.config.get_left_bottom().get_color()
+        self.bold_font_lb = self.config.get_left_bottom().is_bold()
+        self.font_color_rt = self.config.get_right_top().get_color()
+        self.bold_font_rt = self.config.get_right_top().is_bold()
+        self.font_color_rb = self.config.get_right_bottom().get_color()
+        self.bold_font_rb = self.config.get_right_bottom().is_bold()
 
 
 class MarginProcessor(ProcessorComponent):
@@ -211,7 +289,7 @@ class MarginProcessor(ProcessorComponent):
     def process(self, container: ImageContainer) -> None:
         config = self.config
         padding_size = int(config.get_white_margin_width() * min(container.get_width(), container.get_height()) / 100)
-        padding_img = padding_image(container.get_watermark_img(), padding_size, 'tlr')
+        padding_img = padding_image(container.get_watermark_img(), padding_size, 'tlr', color=config.bg_color)
         container.update_watermark_img(padding_img)
 
 
@@ -247,7 +325,7 @@ class SimpleProcessor(ProcessorComponent):
                                     self.config.get_alternative_font(),
                                     self.config.get_alternative_bold_font(),
                                     is_bold=False,
-                                    fill='#BDBDBD')
+                                    fill='#9E9E9E')
         image = merge_images([first_line, MIDDLE_VERTICAL_GAP, second_line], 1, 0)
         height = container.get_height() * ratio * padding_ratio
         image = resize_image_with_height(image, int(height))
@@ -280,6 +358,9 @@ class PaddingToOriginalRatioProcessor(ProcessorComponent):
         container.update_watermark_img(padding_img)
 
 
+PADDING_PERCENT_IN_BACKGROUND = 0.18
+GAUSSIAN_KERNEL_RADIUS = 35
+
 class BackgroundBlurProcessor(ProcessorComponent):
     LAYOUT_ID = 'background_blur'
     LAYOUT_NAME = '背景模糊'
@@ -289,10 +370,12 @@ class BackgroundBlurProcessor(ProcessorComponent):
 
     def process(self, container: ImageContainer) -> None:
         background = container.get_watermark_img()
-        background = background.filter(ImageFilter.GaussianBlur(radius=35))
-        background = background.resize((int(container.get_width() * 1.1), int(container.get_height() * 1.1)))
+        background = background.filter(ImageFilter.GaussianBlur(radius=GAUSSIAN_KERNEL_RADIUS))
+        background = background.resize((int(container.get_width() * (1 + PADDING_PERCENT_IN_BACKGROUND)),
+                                        int(container.get_height() * (1 + PADDING_PERCENT_IN_BACKGROUND))))
         background.paste(container.get_watermark_img(),
-                         (int(container.get_width() * 0.05), int(container.get_height() * 0.05)))
+                         (int(container.get_width() * PADDING_PERCENT_IN_BACKGROUND / 2),
+                          int(container.get_height() * PADDING_PERCENT_IN_BACKGROUND / 2)))
         container.update_watermark_img(background)
 
 
@@ -310,6 +393,8 @@ class BackgroundBlurWithWhiteBorderProcessor(ProcessorComponent):
 
         background = container.get_img()
         background = background.filter(ImageFilter.GaussianBlur(radius=35))
-        background = background.resize((int(padding_img.width * 1.1), int(padding_img.height * 1.1)))
-        background.paste(padding_img, (int(padding_img.width * 0.05), int(padding_img.height * 0.05)))
+        background = background.resize((int(padding_img.width * (1 + PADDING_PERCENT_IN_BACKGROUND)),
+                                        int(padding_img.height * (1 + PADDING_PERCENT_IN_BACKGROUND))))
+        background.paste(padding_img, (int(padding_img.width * PADDING_PERCENT_IN_BACKGROUND / 2),
+                                       int(padding_img.height * PADDING_PERCENT_IN_BACKGROUND / 2)))
         container.update_watermark_img(background)

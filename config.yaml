@@ -14,21 +14,26 @@ global:
   shadow:
     enable: false
 layout:
+  background_color: '#ffffff'
   elements:
     left_bottom:
+      color: '#757575'
       is_bold: false
       name: Model
     left_top:
+      color: '#212121'
       is_bold: true
       name: LensModel
     right_bottom:
+      color: '#757575'
       is_bold: false
       name: Datetime
       value: Photo by NONE
     right_top:
+      color: '#212121'
       is_bold: true
       name: Param
-  type: normal_with_right_logo
+  type: watermark_right_logo
   white_margin:
     enable: true
     width: 3

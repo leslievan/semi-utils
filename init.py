@@ -4,6 +4,9 @@ from pathlib import Path
 from entity.config import Config
 from entity.image_processor import BackgroundBlurProcessor
 from entity.image_processor import BackgroundBlurWithWhiteBorderProcessor
+from entity.image_processor import CustomWatermarkProcessor
+from entity.image_processor import DarkWatermarkLeftLogoProcessor
+from entity.image_processor import DarkWatermarkRightLogoProcessor
 from entity.image_processor import EmptyProcessor
 from entity.image_processor import MarginProcessor
 from entity.image_processor import PaddingToOriginalRatioProcessor
@@ -44,7 +47,11 @@ import logging
 
 # 如果 logs 不存在，创建 logs
 Path('./logs').mkdir(parents=True, exist_ok=True)
-logging.basicConfig(filename='./logs/error.log', level=logging.ERROR)
+logging.basicConfig(
+    filename='./logs/error.log',
+    level=logging.ERROR,
+    filemode='w',  # 指定打开文件的方式为写入
+)
 
 SEPARATE_LINE = '+' + '-' * 15 + '+' + '-' * 15 + '+'
 
@@ -93,17 +100,20 @@ layout_menu.set_value_getter(config, lambda x: x['layout']['type'])
 layout_menu.set_compare_method(lambda x, y: x == y)
 root_menu.add(layout_menu)
 
-layout_items = [
+LAYOUT_ITEMS = [
     LayoutItem.from_processor(WATERMARK_LEFT_LOGO_PROCESSOR),
     LayoutItem.from_processor(WATERMARK_RIGHT_LOGO_PROCESSOR),
+    LayoutItem.from_processor(DarkWatermarkLeftLogoProcessor(config)),
+    LayoutItem.from_processor(DarkWatermarkRightLogoProcessor(config)),
+    LayoutItem.from_processor(CustomWatermarkProcessor(config)),
     LayoutItem.from_processor(SQUARE_PROCESSOR),
     LayoutItem.from_processor(SIMPLE_PROCESSOR),
     LayoutItem.from_processor(BACKGROUND_BLUR_PROCESSOR),
     LayoutItem.from_processor(BACKGROUND_BLUR_WITH_WHITE_BORDER_PROCESSOR),
 ]
-layout_items_dict = {item.value: item for item in layout_items}
+layout_items_dict = {item.value: item for item in LAYOUT_ITEMS}
 
-for item in layout_items:
+for item in LAYOUT_ITEMS:
     item_menu = MenuItem(item.name)
     item_menu._value = item.value
     item_menu.set_procedure(config.set_layout, layout=item.value)

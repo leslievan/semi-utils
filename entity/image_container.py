@@ -4,7 +4,6 @@ from datetime import datetime
 from enum import Enum
 from pathlib import Path
 
-import piexif
 from PIL import Image
 from PIL.Image import Transpose
 from dateutil import parser
@@ -78,7 +77,7 @@ class ImageContainer(object):
         except (KeyError, ValueError) as e:
             # 如果转换错误，使用 0
             self.focal_length: str = '0'
-            logging.exception(f'Error: {self.path}: {self.exif[ExifId.FOCAL_LENGTH]}: {str(e)}')
+            logging.exception(f'Error: {self.path}: {str(e)}')
         # 等效焦距
         try:
             focal_length_in_35mm_film = PATTERN.search(self.exif[ExifId.FOCAL_LENGTH_IN_35MM_FILM.value])
@@ -87,7 +86,7 @@ class ImageContainer(object):
         except (KeyError, ValueError) as e:
             # 如果转换错误，使用焦距
             self.focal_length_in_35mm_film: str = self.focal_length
-            logging.exception(f'Error: {self.path}: {self.exif[ExifId.FOCAL_LENGTH]}: {str(e)}')
+            logging.exception(f'Error: {self.path}: {str(e)}')
 
         # 是否使用等效焦距
         self.use_equivalent_focal_length: bool = False
@@ -240,4 +239,6 @@ class ImageContainer(object):
         else:
             pass
 
+        if self.watermark_img.mode != 'RGB':
+            self.watermark_img = self.watermark_img.convert('RGB')
         self.watermark_img.save(target_path, quality=quality, encoding='utf-8', exif=self.img.info['exif'])

@@ -8,6 +8,7 @@ from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageOps
 from PIL.ExifTags import TAGS
+from enums.constant import TRANSPARENT
 
 if platform.system() == 'Windows':
     EXIFTOOL_PATH = './exiftool/exiftool.exe'
@@ -132,7 +133,7 @@ def concatenate_image(images, align='left'):
     sum_height = sum(heights)
     max_width = max(widths)
 
-    new_img = Image.new('RGB', (max_width, sum_height), color='white')
+    new_img = Image.new('RGBA', (max_width, sum_height), color=TRANSPARENT)
 
     x_offset = 0
     y_offset = 0
@@ -153,7 +154,7 @@ def concatenate_image(images, align='left'):
     return new_img
 
 
-def padding_image(image, padding_size, padding_location='tb') -> Image.Image:
+def padding_image(image, padding_size, padding_location='tb', color=TRANSPARENT) -> Image.Image:
     """
     在图片四周填充白色像素
     :param image: 图片对象
@@ -177,7 +178,7 @@ def padding_image(image, padding_size, padding_location='tb') -> Image.Image:
     if 'r' in padding_location:
         total_width += padding_size
 
-    padding_img = Image.new('RGB', (total_width, total_height), color='white')
+    padding_img = Image.new('RGBA', (total_width, total_height), color=color)
     padding_img.paste(image, (x_offset, y_offset))
     return padding_img
 
@@ -303,7 +304,7 @@ def text_to_image(content, font, bold_font, is_bold=False, fill='black') -> Imag
     if content == '':
         content = '   '
     text_width, text_height = font.getsize(content)
-    image = Image.new('RGB', (text_width, text_height), color='white')
+    image = Image.new('RGBA', (text_width, text_height), color=TRANSPARENT)
     draw = ImageDraw.Draw(image)
     draw.text((0, 0), content, fill=fill, font=font)
     return image
@@ -329,7 +330,7 @@ def merge_images(images, axis=0, align=0):
         max_height = sum(heights)
 
     # 创建输出图像
-    output_image = Image.new('RGB', (total_width, max_height), color=(255, 255, 255, 0))
+    output_image = Image.new('RGB', (total_width, max_height), color=TRANSPARENT)
 
     # 拼接图像
     x_offset, y_offset = 0, 0
