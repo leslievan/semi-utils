@@ -11,10 +11,10 @@ from PIL.ExifTags import TAGS
 from enums.constant import TRANSPARENT
 
 if platform.system() == 'Windows':
-    EXIFTOOL_PATH = './exiftool/exiftool.exe'
+    EXIFTOOL_PATH = Path('./exiftool/exiftool.exe')
     ENCODING = 'gbk'
 else:
-    EXIFTOOL_PATH = './exiftool/exiftool'
+    EXIFTOOL_PATH = Path('./exiftool/exiftool')
     ENCODING = 'utf-8'
 
 logger = logging.getLogger(__name__)
