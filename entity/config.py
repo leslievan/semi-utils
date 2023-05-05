@@ -55,6 +55,9 @@ class Config(object):
         self._right_top = ElementConfig(self._data['layout']['elements'][LOCATION_RIGHT_TOP])
         self._right_bottom = ElementConfig(self._data['layout']['elements'][LOCATION_RIGHT_BOTTOM])
         self._makes = self._data['logo']['makes']
+        self.bg_color = self._data['layout']['background_color'] \
+            if 'background_color' in self._data['layout'] \
+            else '#ffffff'
 
     def load_logo(self, make) -> Image.Image:
         """
