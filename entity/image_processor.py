@@ -104,13 +104,12 @@ class SquareProcessor(ProcessorComponent):
         container.update_watermark_img(square_image(image, auto_close=False))
 
 
-
-
 class WatermarkProcessor(ProcessorComponent):
     LAYOUT_ID = 'watermark'
 
     def __init__(self, config: Config):
         self.config = config
+        # 默认值
         self.logo_position = 'left'
         self.bg_color = '#ffffff'
         self.line_color = GRAY
@@ -133,6 +132,7 @@ class WatermarkProcessor(ProcessorComponent):
         :return: 添加水印后的图片对象
         """
         config = self.config
+        config.bg_color = self.bg_color
 
         # 下方水印的占比
         ratio = (.04 if container.get_ratio() >= 1 else .09) + 0.02 * config.get_font_padding_level()
@@ -207,12 +207,67 @@ class WatermarkProcessor(ProcessorComponent):
         container.update_watermark_img(result)
 
 
+class WatermarkRightLogoProcessor(WatermarkProcessor):
+    LAYOUT_ID = 'watermark_right_logo'
+    LAYOUT_NAME = 'normal(Logo 居右)'
+
+    def __init__(self, config: Config):
+        super().__init__(config)
+        self.logo_position = 'right'
+
+
+class WatermarkLeftLogoProcessor(WatermarkProcessor):
+    LAYOUT_ID = 'watermark_left_logo'
+    LAYOUT_NAME = 'normal'
+
+    def __init__(self, config: Config):
+        super().__init__(config)
+        self.logo_position = 'left'
+
+
+class DarkWatermarkRightLogoProcessor(WatermarkRightLogoProcessor):
+    LAYOUT_ID = 'dark_watermark_right_logo'
+    LAYOUT_NAME = 'normal(暗黑模式，Logo 居右)'
+
+    def __init__(self, config: Config):
+        super().__init__(config)
+        self.bg_color = '#212121'
+        self.line_color = GRAY
+        self.font_color_lt = '#D32F2F'
+        self.bold_font_lt = True
+        self.font_color_lb = '#d4d1cc'
+        self.bold_font_lb = False
+        self.font_color_rt = '#D32F2F'
+        self.bold_font_rt = True
+        self.font_color_rb = '#d4d1cc'
+        self.bold_font_rb = False
+
+
+class DarkWatermarkLeftLogoProcessor(WatermarkLeftLogoProcessor):
+    LAYOUT_ID = 'dark_watermark_left_logo'
+    LAYOUT_NAME = 'normal(暗黑模式)'
+
+    def __init__(self, config: Config):
+        super().__init__(config)
+        self.bg_color = '#212121'
+        self.line_color = GRAY
+        self.font_color_lt = '#D32F2F'
+        self.bold_font_lt = True
+        self.font_color_lb = '#d4d1cc'
+        self.bold_font_lb = False
+        self.font_color_rt = '#D32F2F'
+        self.bold_font_rt = True
+        self.font_color_rb = '#d4d1cc'
+        self.bold_font_rb = False
+
+
 class CustomWatermarkProcessor(WatermarkProcessor):
     LAYOUT_ID = 'custom_watermark'
     LAYOUT_NAME = 'normal(自定义配置)'
 
     def __init__(self, config: Config):
         super().__init__(config)
+        # 读取配置文件
         self.logo_position = self.config.is_logo_left()
         self.bg_color = self.config.get_background_color()
         self.font_color_lt = self.config.get_left_top().get_color()
@@ -225,57 +280,16 @@ class CustomWatermarkProcessor(WatermarkProcessor):
         self.bold_font_rb = self.config.get_right_bottom().is_bold()
 
 
-    def process(self, container: ImageContainer) -> None:
-        super().process(container)
-
-
-class WatermarkRightLogoProcessor(WatermarkProcessor):
-    LAYOUT_ID = 'watermark_right_logo'
-    LAYOUT_NAME = 'normal(Logo 居右)'
-
-    def __init__(self, config: Config):
-        super().__init__(config)
-        self.logo_position = 'right'
-
-    def process(self, container: ImageContainer) -> None:
-        super().process(container)
-
-class DarkWatermarkRightLogoProcessor(WatermarkRightLogoProcessor):
-    LAYOUT_ID = 'dark_watermark_right_logo'
-    LAYOUT_NAME = 'normal(暗黑模式，Logo 居右)'
-
-    def __init__(self, config: Config):
-        super().__init__(config)
-        self.bg_color = self.config.get_background_color2()
-        self.font_color_lt = self.config.get_left_top().get_color2()
-        self.font_color_lb = self.config.get_left_bottom().get_color2()
-        self.font_color_rt = self.config.get_right_top().get_color2()
-        self.font_color_rb = self.config.get_right_bottom().get_color2()
-
-
-class WatermarkLeftLogoProcessor(WatermarkProcessor):
-    LAYOUT_ID = 'watermark_left_logo'
-    LAYOUT_NAME = 'normal'
-
-    def __init__(self, config: Config):
-        super().__init__(config)
-        self.logo_position = 'left'
-
-    def process(self, container: ImageContainer) -> None:
-        super().process(container)
-
-
 class MarginProcessor(ProcessorComponent):
     LAYOUT_ID = 'margin'
 
     def __init__(self, config: Config):
         self.config = config
-        self.bg_color = config.bg_color
 
     def process(self, container: ImageContainer) -> None:
         config = self.config
         padding_size = int(config.get_white_margin_width() * min(container.get_width(), container.get_height()) / 100)
-        padding_img = padding_image(container.get_watermark_img(), padding_size, 'tlr', color=self.bg_color)
+        padding_img = padding_image(container.get_watermark_img(), padding_size, 'tlr', color=config.bg_color)
         container.update_watermark_img(padding_img)
 
 
