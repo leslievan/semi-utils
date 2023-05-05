@@ -20,12 +20,12 @@ printable = set(string.printable)
 
 GRAY = '#CBCBC9'
 NORMAL_HEIGHT = 1000
-SMALL_HORIZONTAL_GAP = Image.new('RGB', (50, 20), color='white')
-MIDDLE_HORIZONTAL_GAP = Image.new('RGB', (100, 20), color='white')
-LARGE_HORIZONTAL_GAP = Image.new('RGB', (200, 20), color='white')
-SMALL_VERTICAL_GAP = Image.new('RGB', (20, 50), color='white')
-MIDDLE_VERTICAL_GAP = Image.new('RGB', (20, 100), color='white')
-LARGE_VERTICAL_GAP = Image.new('RGB', (20, 200), color='white')
+SMALL_HORIZONTAL_GAP = Image.new('RGBA', (50, 20), color=TRANSPARENT)
+MIDDLE_HORIZONTAL_GAP = Image.new('RGBA', (100, 20), color=TRANSPARENT)
+LARGE_HORIZONTAL_GAP = Image.new('RGBA', (200, 20), color=TRANSPARENT)
+SMALL_VERTICAL_GAP = Image.new('RGBA', (20, 50), color=TRANSPARENT)
+MIDDLE_VERTICAL_GAP = Image.new('RGBA', (20, 100), color=TRANSPARENT)
+LARGE_VERTICAL_GAP = Image.new('RGBA', (20, 200), color=TRANSPARENT)
 
 
 class ProcessorComponent:
@@ -332,9 +332,11 @@ class SimpleProcessor(ProcessorComponent):
         horizontal_padding = int((container.get_width() - image.width) / 2)
         vertical_padding = int((container.get_height() * ratio - image.height) / 2)
 
-        watermark = ImageOps.expand(image, (horizontal_padding, vertical_padding), fill='white')
+        watermark = ImageOps.expand(image, (horizontal_padding, vertical_padding), fill=TRANSPARENT)
+        bg = Image.new('RGBA', watermark.size, color='white')
+        bg = Image.alpha_composite(bg, watermark)
 
-        watermark_img = merge_images([container.get_watermark_img(), watermark], 1, 1)
+        watermark_img = merge_images([container.get_watermark_img(), bg], 1, 1)
         container.update_watermark_img(watermark_img)
 
 

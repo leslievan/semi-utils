@@ -330,7 +330,7 @@ def merge_images(images, axis=0, align=0):
         max_height = sum(heights)
 
     # 创建输出图像
-    output_image = Image.new('RGB', (total_width, max_height), color=TRANSPARENT)
+    output_image = Image.new('RGBA', (total_width, max_height), color=TRANSPARENT)
 
     # 拼接图像
     x_offset, y_offset = 0, 0
