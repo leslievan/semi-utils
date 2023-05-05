@@ -4,6 +4,9 @@ from pathlib import Path
 from entity.config import Config
 from entity.image_processor import BackgroundBlurProcessor
 from entity.image_processor import BackgroundBlurWithWhiteBorderProcessor
+from entity.image_processor import CustomWatermarkProcessor
+from entity.image_processor import DarkWatermarkLeftLogoProcessor
+from entity.image_processor import DarkWatermarkRightLogoProcessor
 from entity.image_processor import EmptyProcessor
 from entity.image_processor import MarginProcessor
 from entity.image_processor import PaddingToOriginalRatioProcessor
@@ -96,6 +99,9 @@ root_menu.add(layout_menu)
 LAYOUT_ITEMS = [
     LayoutItem.from_processor(WATERMARK_LEFT_LOGO_PROCESSOR),
     LayoutItem.from_processor(WATERMARK_RIGHT_LOGO_PROCESSOR),
+    LayoutItem.from_processor(DarkWatermarkLeftLogoProcessor(config)),
+    LayoutItem.from_processor(DarkWatermarkRightLogoProcessor(config)),
+    LayoutItem.from_processor(CustomWatermarkProcessor(config)),
     LayoutItem.from_processor(SQUARE_PROCESSOR),
     LayoutItem.from_processor(SIMPLE_PROCESSOR),
     LayoutItem.from_processor(BACKGROUND_BLUR_PROCESSOR),
