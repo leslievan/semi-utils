@@ -17,6 +17,7 @@ from init import root_menu
 from utils import ENCODING
 from utils import get_file_list
 
+DEBUG = False
 
 def processing():
     """
@@ -110,11 +111,24 @@ if __name__ == '__main__':
             elif state == 100:
                 # 处理数据的代码
                 print(SEPARATE_LINE)
-                processing()
+                try:
+                    processing()
+                except Exception as e:
+                    logging.exception(f'Error: {str(e)}')
+                    if DEBUG:
+                        raise e
+                finally:
+                    state = -2
             elif state == -1:
                 # 退出程序
                 sys.exit(0)
+            elif state == -2:
+                sys.exit(1)
             # 保存配置
             config.save()
         except Exception as e:
             logging.exception(f'Error: {str(e)}')
+            if DEBUG:
+                raise e
+        finally:
+            state = -2
