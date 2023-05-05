@@ -227,7 +227,7 @@ class WatermarkLeftLogoProcessor(WatermarkProcessor):
 
 class DarkWatermarkRightLogoProcessor(WatermarkRightLogoProcessor):
     LAYOUT_ID = 'dark_watermark_right_logo'
-    LAYOUT_NAME = 'normal(暗黑模式，Logo 居右)'
+    LAYOUT_NAME = 'normal(黑红配色，Logo 居右)'
 
     def __init__(self, config: Config):
         super().__init__(config)
@@ -245,7 +245,7 @@ class DarkWatermarkRightLogoProcessor(WatermarkRightLogoProcessor):
 
 class DarkWatermarkLeftLogoProcessor(WatermarkLeftLogoProcessor):
     LAYOUT_ID = 'dark_watermark_left_logo'
-    LAYOUT_NAME = 'normal(暗黑模式)'
+    LAYOUT_NAME = 'normal(黑红配色)'
 
     def __init__(self, config: Config):
         super().__init__(config)
@@ -361,7 +361,8 @@ class PaddingToOriginalRatioProcessor(ProcessorComponent):
 
 
 PADDING_PERCENT_IN_BACKGROUND = 0.18
-GAUSSIAN_KERNEL_RADIUS = 35
+GAUSSIAN_KERNEL_RADIUS = 25
+
 
 class BackgroundBlurProcessor(ProcessorComponent):
     LAYOUT_ID = 'background_blur'
@@ -373,6 +374,8 @@ class BackgroundBlurProcessor(ProcessorComponent):
     def process(self, container: ImageContainer) -> None:
         background = container.get_watermark_img()
         background = background.filter(ImageFilter.GaussianBlur(radius=GAUSSIAN_KERNEL_RADIUS))
+        fg = Image.new('RGB', background.size, color=(255, 255, 255))
+        background = Image.blend(background, fg, 0.1)
         background = background.resize((int(container.get_width() * (1 + PADDING_PERCENT_IN_BACKGROUND)),
                                         int(container.get_height() * (1 + PADDING_PERCENT_IN_BACKGROUND))))
         background.paste(container.get_watermark_img(),
@@ -391,12 +394,14 @@ class BackgroundBlurWithWhiteBorderProcessor(ProcessorComponent):
     def process(self, container: ImageContainer) -> None:
         padding_size = int(
             self.config.get_white_margin_width() * min(container.get_width(), container.get_height()) / 256)
-        padding_img = padding_image(container.get_watermark_img(), padding_size, 'tblr')
+        padding_img = padding_image(container.get_watermark_img(), padding_size, 'tblr', color='white')
 
         background = container.get_img()
         background = background.filter(ImageFilter.GaussianBlur(radius=35))
         background = background.resize((int(padding_img.width * (1 + PADDING_PERCENT_IN_BACKGROUND)),
                                         int(padding_img.height * (1 + PADDING_PERCENT_IN_BACKGROUND))))
+        fg = Image.new('RGB', background.size, color=(255, 255, 255))
+        background = Image.blend(background, fg, 0.1)
         background.paste(padding_img, (int(padding_img.width * PADDING_PERCENT_IN_BACKGROUND / 2),
                                        int(padding_img.height * PADDING_PERCENT_IN_BACKGROUND / 2)))
         container.update_watermark_img(background)
