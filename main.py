@@ -130,5 +130,3 @@ if __name__ == '__main__':
             logging.exception(f'Error: {str(e)}')
             if DEBUG:
                 raise e
-        finally:
-            state = -2
