@@ -25,6 +25,7 @@ from utils import get_exif
 
 logger = logging.getLogger(__name__)
 
+
 class ExifId(Enum):
     CAMERA_MODEL = 'CameraModelName'
     CAMERA_MAKE = 'Make'
@@ -74,27 +75,22 @@ class ImageContainer(object):
             logger.info(f'Error: {self.path}: [{self.exif[ExifId.DATETIME.value]}]: {str(e)}')
         # 焦距
         try:
-            focal_length = PATTERN.search(self.exif[ExifId.FOCAL_LENGTH.value])
-            self.focal_length: str = focal_length.group(1) if focal_length else '0'
+            focal_length = PATTERN.findall(self.exif[ExifId.FOCAL_LENGTH.value])
+            try:
+                self.focal_length: str = focal_length[0] if focal_length else '0'
+            except IndexError as e:
+                self.focal_length: str = '0'
+                logger.info(f'ValueError: {ExifId.FOCAL_LENGTH.value}: {self.path}: [{self.exif[ExifId.FOCAL_LENGTH.value]}]: {str(e)}')
+            try:
+                self.focal_length_in_35mm_film: str = focal_length[1] if focal_length else '0'
+            except IndexError as e:
+                self.focal_length_in_35mm_film: str = '0'
+                logger.info(f'ValueError: {ExifId.FOCAL_LENGTH_IN_35MM_FILM.value}: {self.path}: [{self.exif[ExifId.FOCAL_LENGTH.value]}]: {str(e)}')
         except KeyError as e:
             # 如果转换错误，使用 0
             self.focal_length: str = '0'
+            self.focal_length_in_35mm_film: str = '0'
             logger.info(f'KeyError: {self.path}: {str(e)}')
-        except ValueError as e:
-            self.focal_length: str = '0'
-            logger.info(f'ValueError: {self.path}: [{self.exif[ExifId.FOCAL_LENGTH.value]}]: {str(e)}')
-        # 等效焦距
-        try:
-            focal_length_in_35mm_film = PATTERN.search(self.exif[ExifId.FOCAL_LENGTH_IN_35MM_FILM.value])
-            self.focal_length_in_35mm_film: str = focal_length_in_35mm_film.group(
-                1) if focal_length_in_35mm_film else '0'
-        except KeyError as e:
-            # 如果转换错误，使用焦距
-            self.focal_length_in_35mm_film: str = self.focal_length
-            logger.info(f'KeyError: {self.path}: {str(e)}')
-        except ValueError as e:
-            self.focal_length: str = '0'
-            logger.info(f'ValueError: {self.path}: [{self.exif[ExifId.FOCAL_LENGTH_IN_35MM_FILM.value]}]: {str(e)}')
 
         # 是否使用等效焦距
         self.use_equivalent_focal_length: bool = False
