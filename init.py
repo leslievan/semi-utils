@@ -52,6 +52,11 @@ logging.basicConfig(
     level=logging.ERROR,
     filemode='w',  # 指定打开文件的方式为写入
 )
+logging.basicConfig(
+    filename='./logs/info.log',
+    level=logging.INFO,
+    filemode='w',  # 指定打开文件的方式为写入
+)
 
 SEPARATE_LINE = '+' + '-' * 15 + '+' + '-' * 15 + '+'
 
