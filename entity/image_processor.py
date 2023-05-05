@@ -247,7 +247,7 @@ class SimpleProcessor(ProcessorComponent):
                                     self.config.get_alternative_font(),
                                     self.config.get_alternative_bold_font(),
                                     is_bold=False,
-                                    fill='#BDBDBD')
+                                    fill='#9E9E9E')
         image = merge_images([first_line, MIDDLE_VERTICAL_GAP, second_line], 1, 0)
         height = container.get_height() * ratio * padding_ratio
         image = resize_image_with_height(image, int(height))
@@ -280,6 +280,9 @@ class PaddingToOriginalRatioProcessor(ProcessorComponent):
         container.update_watermark_img(padding_img)
 
 
+PADDING_PERCENT_IN_BACKGROUND = 0.18
+GAUSSIAN_KERNEL_RADIUS = 35
+
 class BackgroundBlurProcessor(ProcessorComponent):
     LAYOUT_ID = 'background_blur'
     LAYOUT_NAME = '背景模糊'
@@ -289,10 +292,12 @@ class BackgroundBlurProcessor(ProcessorComponent):
 
     def process(self, container: ImageContainer) -> None:
         background = container.get_watermark_img()
-        background = background.filter(ImageFilter.GaussianBlur(radius=35))
-        background = background.resize((int(container.get_width() * 1.1), int(container.get_height() * 1.1)))
+        background = background.filter(ImageFilter.GaussianBlur(radius=GAUSSIAN_KERNEL_RADIUS))
+        background = background.resize((int(container.get_width() * (1 + PADDING_PERCENT_IN_BACKGROUND)),
+                                        int(container.get_height() * (1 + PADDING_PERCENT_IN_BACKGROUND))))
         background.paste(container.get_watermark_img(),
-                         (int(container.get_width() * 0.05), int(container.get_height() * 0.05)))
+                         (int(container.get_width() * PADDING_PERCENT_IN_BACKGROUND / 2),
+                          int(container.get_height() * PADDING_PERCENT_IN_BACKGROUND / 2)))
         container.update_watermark_img(background)
 
 
@@ -310,6 +315,8 @@ class BackgroundBlurWithWhiteBorderProcessor(ProcessorComponent):
 
         background = container.get_img()
         background = background.filter(ImageFilter.GaussianBlur(radius=35))
-        background = background.resize((int(padding_img.width * 1.1), int(padding_img.height * 1.1)))
-        background.paste(padding_img, (int(padding_img.width * 0.05), int(padding_img.height * 0.05)))
+        background = background.resize((int(padding_img.width * (1 + PADDING_PERCENT_IN_BACKGROUND)),
+                                        int(padding_img.height * (1 + PADDING_PERCENT_IN_BACKGROUND))))
+        background.paste(padding_img, (int(padding_img.width * PADDING_PERCENT_IN_BACKGROUND / 2),
+                                       int(padding_img.height * PADDING_PERCENT_IN_BACKGROUND / 2)))
         container.update_watermark_img(background)

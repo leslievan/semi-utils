@@ -16,23 +16,23 @@ global:
 layout:
   elements:
     left_bottom:
-      color: '#7a7579'
+      color: '#757575'
       is_bold: false
       name: Model
     left_top:
-      color: '#000000'
+      color: '#212121'
       is_bold: true
       name: LensModel
     right_bottom:
-      color: '#7a7579'
+      color: '#757575'
       is_bold: false
       name: Datetime
       value: Photo by NONE
     right_top:
-      color: '#000000'
+      color: '#212121'
       is_bold: true
       name: Param
-  type: watermark_left_logo
+  type: watermark_right_logo
   white_margin:
     enable: true
     width: 3
@@ -72,7 +72,7 @@ logo:
     sony:
       id: SONY
       path: ./logos/sony.png
-  position: left
+  position: right
 param:
   focal_length:
     use_equivalent_focal_length: false
