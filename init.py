@@ -47,7 +47,11 @@ import logging
 
 # 如果 logs 不存在，创建 logs
 Path('./logs').mkdir(parents=True, exist_ok=True)
-logging.basicConfig(filename='./logs/error.log', level=logging.ERROR)
+logging.basicConfig(
+    filename='./logs/error.log',
+    level=logging.ERROR,
+    filemode='w',  # 指定打开文件的方式为写入
+)
 
 SEPARATE_LINE = '+' + '-' * 15 + '+' + '-' * 15 + '+'
 
