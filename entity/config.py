@@ -123,15 +123,15 @@ class Config(object):
         self._data['logo']['position'] = 'right'
 
     def has_white_margin_enabled(self):
-        return self._data['layout']['white_margin']['enable']
+        return self._data['global']['white_margin']['enable']
 
     def get_white_margin_width(self) -> int:
-        white_margin_width = self._data['layout']['white_margin']['width']
+        white_margin_width = self._data['global']['white_margin']['width']
         if white_margin_width > 30:
             white_margin_width = 30
         if white_margin_width < 0:
             white_margin_width = 0
-        self._data['layout']['white_margin']['width'] = white_margin_width
+        self._data['global']['white_margin']['width'] = white_margin_width
         return white_margin_width
 
     def get_input_dir(self):
@@ -175,10 +175,10 @@ class Config(object):
         self._data['logo']['enable'] = False
 
     def enable_white_margin(self):
-        self._data['layout']['white_margin']['enable'] = True
+        self._data['global']['white_margin']['enable'] = True
 
     def disable_white_margin(self):
-        self._data['layout']['white_margin']['enable'] = False
+        self._data['global']['white_margin']['enable'] = False
 
     def enable_equivalent_focal_length(self):
         self._data['param']['focal_length']['use_equivalent_focal_length'] = True

@@ -8,11 +8,18 @@ base:
   input_dir: ./input
   output_dir: ./output
   quality: 100
+
 global:
   padding_with_original_ratio:
     enable: false
   shadow:
     enable: false
+  white_margin:
+    enable: true
+    width: 3
+    focal_length:
+    use_equivalent_focal_length: false
+
 layout:
   background_color: '#ffffff'
   elements:
