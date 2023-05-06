@@ -108,7 +108,7 @@ BACKGROUND_BLUR_WITH_WHITE_BORDER_PROCESSOR = BackgroundBlurWithWhiteBorderProce
 以下是菜单的组织
 """
 # 创建主菜单
-root_menu = Menu('    当前设置')
+root_menu = Menu('【Semi-Utils】\n    当前设置')
 
 # 创建子菜单：布局
 layout_menu = SubMenu('布局')
