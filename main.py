@@ -6,6 +6,7 @@ from tqdm import tqdm
 
 from entity.image_container import ImageContainer
 from entity.image_processor import ProcessorChain
+from enums.constant import DEBUG
 from init import MARGIN_PROCESSOR
 from init import PADDING_TO_ORIGINAL_RATIO_PROCESSOR
 from init import SEPARATE_LINE
@@ -16,8 +17,6 @@ from init import layout_items_dict
 from init import root_menu
 from utils import ENCODING
 from utils import get_file_list
-
-DEBUG = False
 
 
 def processing():
@@ -53,11 +52,7 @@ def processing():
     for source_path in tqdm(file_list):
         # 打开图片
         container = ImageContainer(source_path)
-        # 添加logo
-        if config.has_logo_enabled():
-            container.set_logo(config.load_logo(container.make))
-        else:
-            container.set_logo(None)
+
         # 使用等效焦距
         container.is_use_equivalent_focal_length(config.use_equivalent_focal_length())
 

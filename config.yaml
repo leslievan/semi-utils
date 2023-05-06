@@ -8,8 +8,9 @@ base:
   input_dir: ./input
   output_dir: ./output
   quality: 100
-
 global:
+  focal_length:
+    use_equivalent_focal_length: false
   padding_with_original_ratio:
     enable: false
   shadow:
@@ -17,9 +18,6 @@ global:
   white_margin:
     enable: true
     width: 3
-    focal_length:
-    use_equivalent_focal_length: false
-
 layout:
   background_color: '#ffffff'
   elements:
@@ -40,12 +38,10 @@ layout:
       color: '#212121'
       is_bold: true
       name: Param
+  logo_enable: false
+  logo_position: left
   type: watermark_right_logo
-  white_margin:
-    enable: true
-    width: 3
 logo:
-  enable: true
   makes:
     canon:
       id: Canon
@@ -80,7 +76,3 @@ logo:
     sony:
       id: SONY
       path: ./logos/sony.png
-  position: right
-param:
-  focal_length:
-    use_equivalent_focal_length: false

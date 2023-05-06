@@ -6,6 +6,7 @@ from PIL import ImageOps
 
 from entity.config import Config
 from entity.image_container import ImageContainer
+from enums.constant import GRAY
 from enums.constant import TRANSPARENT
 from utils import append_image_by_side
 from utils import concatenate_image
@@ -18,7 +19,6 @@ from utils import text_to_image
 
 printable = set(string.printable)
 
-GRAY = '#CBCBC9'
 NORMAL_HEIGHT = 1000
 SMALL_HORIZONTAL_GAP = Image.new('RGBA', (50, 20), color=TRANSPARENT)
 MIDDLE_HORIZONTAL_GAP = Image.new('RGBA', (100, 20), color=TRANSPARENT)
@@ -26,6 +26,8 @@ LARGE_HORIZONTAL_GAP = Image.new('RGBA', (200, 20), color=TRANSPARENT)
 SMALL_VERTICAL_GAP = Image.new('RGBA', (20, 50), color=TRANSPARENT)
 MIDDLE_VERTICAL_GAP = Image.new('RGBA', (20, 100), color=TRANSPARENT)
 LARGE_VERTICAL_GAP = Image.new('RGBA', (20, 200), color=TRANSPARENT)
+LINE_GRAY = Image.new('RGBA', (20, 1000), color=GRAY)
+LINE_TRANSPARENT = Image.new('RGBA', (20, 1000), color=TRANSPARENT)
 
 
 class ProcessorComponent:
@@ -111,6 +113,7 @@ class WatermarkProcessor(ProcessorComponent):
         self.config = config
         # 默认值
         self.logo_position = 'left'
+        self.logo_enable = True
         self.bg_color = '#ffffff'
         self.line_color = GRAY
         self.font_color_lt = '#212121'
@@ -174,22 +177,27 @@ class WatermarkProcessor(ProcessorComponent):
         right = padding_image(right, int(max_height * padding_ratio), 't')
         right = padding_image(right, left.height - right.height, 'b')
 
-        logo = container.get_logo()
-        if self.is_logo_left():
-            # 如果 logo 在左边
-            append_image_by_side(watermark, [logo, left], is_start=logo is None)
-            append_image_by_side(watermark, [right], side='right')
+        logo = config.load_logo(container.make)
+        if self.logo_enable:
+            if self.is_logo_left():
+                # 如果 logo 在左边
+                append_image_by_side(watermark, [logo, left], is_start=logo is None)
+                append_image_by_side(watermark, [right], side='right')
+            else:
+                # 如果 logo 在右边
+                if logo is not None:
+                    # 如果 logo 不为空，等比例缩小 logo
+                    logo = padding_image(logo, int(padding_ratio * logo.height))
+                    # 插入一根线条用于分割 logo 和文字
+                    line = padding_image(LINE_GRAY, int(padding_ratio * LINE_GRAY.height * .8))
+                else:
+                    line = LINE_TRANSPARENT.copy()
+                append_image_by_side(watermark, [left], is_start=True)
+                append_image_by_side(watermark, [logo, line, right], side='right')
+                line.close()
         else:
-            # 如果 logo 在右边
-            if logo is not None:
-                # 如果 logo 不为空，等比例缩小 logo
-                logo = padding_image(logo, int(padding_ratio * logo.height))
-            # 插入一根线条用于分割 logo 和文字
-            line = Image.new('RGBA', (20, 1000), color=GRAY)
-            line = padding_image(line, int(padding_ratio * line.height * .8))
             append_image_by_side(watermark, [left], is_start=True)
-            append_image_by_side(watermark, [logo, line, right], side='right')
-            line.close()
+            append_image_by_side(watermark, [right], side='right')
         left.close()
         right.close()
 
@@ -361,7 +369,7 @@ class PaddingToOriginalRatioProcessor(ProcessorComponent):
 
 
 PADDING_PERCENT_IN_BACKGROUND = 0.18
-GAUSSIAN_KERNEL_RADIUS = 25
+GAUSSIAN_KERNEL_RADIUS = 35
 
 
 class BackgroundBlurProcessor(ProcessorComponent):
@@ -397,7 +405,7 @@ class BackgroundBlurWithWhiteBorderProcessor(ProcessorComponent):
         padding_img = padding_image(container.get_watermark_img(), padding_size, 'tblr', color='white')
 
         background = container.get_img()
-        background = background.filter(ImageFilter.GaussianBlur(radius=35))
+        background = background.filter(ImageFilter.GaussianBlur(radius=GAUSSIAN_KERNEL_RADIUS))
         background = background.resize((int(padding_img.width * (1 + PADDING_PERCENT_IN_BACKGROUND)),
                                         int(padding_img.height * (1 + PADDING_PERCENT_IN_BACKGROUND))))
         fg = Image.new('RGB', background.size, color=(255, 255, 255))

@@ -137,7 +137,7 @@ for item in LAYOUT_ITEMS:
 
 # 创建子菜单：logo
 logo_menu = SubMenu('logo')
-logo_menu.set_value_getter(config, lambda x: x['logo']['enable'])
+logo_menu.set_value_getter(config, lambda x: x['layout']['logo_enable'])
 logo_menu.set_compare_method(lambda x, y: x == y)
 root_menu.add(logo_menu)
 
@@ -215,7 +215,7 @@ root_menu.add(more_setting_menu)
 
 # 创建子菜单：白色边框
 white_margin_menu = SubMenu('白色边框')
-white_margin_menu.set_value_getter(config, lambda x: x['layout']['white_margin']['enable'])
+white_margin_menu.set_value_getter(config, lambda x: x['global']['white_margin']['enable'])
 white_margin_menu.set_compare_method(lambda x, y: x == y)
 more_setting_menu.add(white_margin_menu)
 
@@ -234,7 +234,7 @@ white_margin_menu.add(white_margin_disable_menu)
 # 创建子菜单：等效焦距
 use_equivalent_focal_length_menu = SubMenu('等效焦距')
 use_equivalent_focal_length_menu.set_value_getter(config,
-                                                  lambda x: x['param']['focal_length']['use_equivalent_focal_length'])
+                                                  lambda x: x['global']['focal_length']['use_equivalent_focal_length'])
 use_equivalent_focal_length_menu.set_compare_method(lambda x, y: x == y)
 more_setting_menu.add(use_equivalent_focal_length_menu)
 
