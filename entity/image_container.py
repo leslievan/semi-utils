@@ -23,6 +23,8 @@ from enums.constant import TOTAL_PIXEL_VALUE
 from utils import calculate_pixel_count
 from utils import get_exif
 
+logger = logging.getLogger(__name__)
+
 
 class ExifId(Enum):
     CAMERA_MODEL = 'CameraModelName'
@@ -64,29 +66,31 @@ class ImageContainer(object):
         self.lens_make: str = self.exif[ExifId.LENS_MAKE.value] if ExifId.LENS_MAKE.value in self.exif else '无'
         # 拍摄日期
         try:
-            self.date: datetime = parser.parse(self.exif[ExifId.DATETIME.value]) \
-                if ExifId.DATETIME.value in self.exif \
-                else datetime.now()
+            self.date: datetime = parser.parse(self.exif[ExifId.DATETIME.value])
+        except KeyError as e:
+            self.date: datetime = datetime.now()
+            logger.info(f'KeyError: {self.path}: {str(e)}')
         except ValueError as e:
             self.date: datetime = datetime.now()
-            logging.exception(f'Error: {self.path}: {str(e)}')
+            logger.info(f'Error: {self.path}: [{self.exif[ExifId.DATETIME.value]}]: {str(e)}')
         # 焦距
         try:
-            focal_length = PATTERN.search(self.exif[ExifId.FOCAL_LENGTH.value])
-            self.focal_length: str = focal_length.group(1) if focal_length else '0'
-        except (KeyError, ValueError) as e:
+            focal_length = PATTERN.findall(self.exif[ExifId.FOCAL_LENGTH.value])
+            try:
+                self.focal_length: str = focal_length[0] if focal_length else '0'
+            except IndexError as e:
+                self.focal_length: str = '0'
+                logger.info(f'ValueError: {ExifId.FOCAL_LENGTH.value}: {self.path}: [{self.exif[ExifId.FOCAL_LENGTH.value]}]: {str(e)}')
+            try:
+                self.focal_length_in_35mm_film: str = focal_length[1] if focal_length else '0'
+            except IndexError as e:
+                self.focal_length_in_35mm_film: str = '0'
+                logger.info(f'ValueError: {ExifId.FOCAL_LENGTH_IN_35MM_FILM.value}: {self.path}: [{self.exif[ExifId.FOCAL_LENGTH.value]}]: {str(e)}')
+        except KeyError as e:
             # 如果转换错误，使用 0
             self.focal_length: str = '0'
-            logging.exception(f'Error: {self.path}: {str(e)}')
-        # 等效焦距
-        try:
-            focal_length_in_35mm_film = PATTERN.search(self.exif[ExifId.FOCAL_LENGTH_IN_35MM_FILM.value])
-            self.focal_length_in_35mm_film: str = focal_length_in_35mm_film.group(
-                1) if focal_length_in_35mm_film else '0'
-        except (KeyError, ValueError) as e:
-            # 如果转换错误，使用焦距
-            self.focal_length_in_35mm_film: str = self.focal_length
-            logging.exception(f'Error: {self.path}: {str(e)}')
+            self.focal_length_in_35mm_film: str = '0'
+            logger.info(f'KeyError: {self.path}: {str(e)}')
 
         # 是否使用等效焦距
         self.use_equivalent_focal_length: bool = False
@@ -218,6 +222,8 @@ class ImageContainer(object):
         return self.watermark_img
 
     def update_watermark_img(self, watermark_img) -> None:
+        if self.watermark_img == watermark_img:
+            return
         original_watermark_img = self.watermark_img
         self.watermark_img = watermark_img
         if original_watermark_img is not None:

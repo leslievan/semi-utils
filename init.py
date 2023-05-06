@@ -47,11 +47,27 @@ import logging
 
 # 如果 logs 不存在，创建 logs
 Path('./logs').mkdir(parents=True, exist_ok=True)
-logging.basicConfig(
-    filename='./logs/error.log',
-    level=logging.ERROR,
-    filemode='w',  # 指定打开文件的方式为写入
-)
+
+# 格式化日志输出
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+# 添加一个 FileHandler 处理器，将 INFO 级别日志写入 ./logs/info.log 文件中
+info_handler = logging.FileHandler('./logs/info.log', mode='w')
+info_handler.setLevel(logging.INFO)
+info_handler.setFormatter(formatter)
+
+# 添加一个 FileHandler 处理器，将 ERROR 级别日志写入 ./logs/error.log 文件中
+error_handler = logging.FileHandler('./logs/error.log', mode='w')
+error_handler.setLevel(logging.ERROR)
+error_handler.setFormatter(formatter)
+
+# 添加一个 FileHandler 处理器，将 DEBUG 级别日志写入 ./logs/all.log 文件中
+debug_handler = logging.FileHandler('./logs/all.log', mode='w')
+debug_handler.setLevel(logging.DEBUG)
+debug_handler.setFormatter(formatter)
+
+# 设置日志输出的格式和级别，并将日志输出到指定文件中
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', handlers=[debug_handler, info_handler, error_handler])
 
 SEPARATE_LINE = '+' + '-' * 15 + '+' + '-' * 15 + '+'
 
@@ -92,7 +108,7 @@ BACKGROUND_BLUR_WITH_WHITE_BORDER_PROCESSOR = BackgroundBlurWithWhiteBorderProce
 以下是菜单的组织
 """
 # 创建主菜单
-root_menu = Menu('    当前设置')
+root_menu = Menu('【Semi-Utils】\n    当前设置')
 
 # 创建子菜单：布局
 layout_menu = SubMenu('布局')
