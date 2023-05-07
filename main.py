@@ -83,6 +83,7 @@ if __name__ == '__main__':
 GitHub: @leslievan
 Bilibili: @吨吨吨的半夏
 项目介绍：https://www.bilibili.com/video/BV11A411U7Kn
+项目地址：https://github.com/leslievan/semi-utils
 项目介绍（博客）：https://lsvm.xyz/2023/02/semi-utils-intro/
 项目发布页：https://docs.qq.com/sheet/DTXF5c2lHeUZYREtw
 ''')
