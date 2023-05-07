@@ -2,6 +2,9 @@ name: Build
 
 on:
   pull_request:
+  push:
+    tags:
+      - 'build*' # Push events to matching build* tags
 
 jobs:
   build:
