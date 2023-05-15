@@ -5,7 +5,7 @@
 > [![download](https://img.shields.io/github/v/release/leslievan/semi-utils)](https://github.com/leslievan/semi-utils/releases)
 > ![language](https://img.shields.io/github/languages/top/leslievan/semi-utils?color=orange)
 >
-> **这是一个用于给照片批量添加水印的工具。**
+> **这是一个用于给照片批量添加水印、处理照片像素比、图像色彩和质量的工具。**
 
 ## 开发文档
 
