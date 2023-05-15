@@ -43,6 +43,9 @@ layout:
   type: watermark_right_logo
 logo:
   makes:
+    apple:
+      id: APPLE
+      path: ./logos/apple.png
     canon:
       id: Canon
       path: ./logos/canon.png

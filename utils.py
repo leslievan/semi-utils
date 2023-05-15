@@ -366,3 +366,4 @@ def calculate_pixel_count(width: int, height: int) -> str:
     megapixel_count = pixel_count / 1000000.0
     # 返回结果字符串
     return f"{megapixel_count:.2f} MP"
+
