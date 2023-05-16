@@ -86,7 +86,7 @@ class ImageContainer(object):
             except IndexError as e:
                 self.focal_length_in_35mm_film: str = '0'
                 logger.info(f'ValueError: {ExifId.FOCAL_LENGTH_IN_35MM_FILM.value}: {self.path}: [{self.exif[ExifId.FOCAL_LENGTH.value]}]: {str(e)}')
-        except KeyError as e:
+        except Exception as e:
             # 如果转换错误，使用 0
             self.focal_length: str = '0'
             self.focal_length_in_35mm_film: str = '0'
@@ -195,7 +195,7 @@ class ImageContainer(object):
         :return: 拍摄参数字符串
         """
         focal_length = self.focal_length_in_35mm_film if self.use_equivalent_focal_length else self.focal_length
-        return ' '.join([str(focal_length) + 'mm', 'f/' + self.f_number, self.exposure_time,
+        return '  '.join([str(focal_length) + 'mm', 'f/' + self.f_number, self.exposure_time,
                          'ISO' + str(self.iso)])
 
     def get_original_height(self):
