@@ -8,6 +8,7 @@ from pathlib import Path
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageOps
+
 from enums.constant import TRANSPARENT
 
 if platform.system() == 'Windows':
@@ -365,3 +366,18 @@ def calculate_pixel_count(width: int, height: int) -> str:
     megapixel_count = pixel_count / 1000000.0
     # 返回结果字符串
     return f"{megapixel_count:.2f} MP"
+
+
+def extract_attribute(data_dict: dict, *keys, default_value: str = '') -> str:
+    """
+    从字典中提取对应键的属性值
+
+    :param data_dict: 包含属性值的字典
+    :param keys: 一个或多个键
+    :param default_value: 默认值，默认为空字符串
+    :return: 对应的属性值或空字符串
+    """
+    for key in keys:
+        if key in data_dict:
+            return data_dict[key]
+    return default_value
