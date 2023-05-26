@@ -21,6 +21,7 @@ from enums.constant import MODEL_VALUE
 from enums.constant import PARAM_VALUE
 from enums.constant import TOTAL_PIXEL_VALUE
 from utils import calculate_pixel_count
+from utils import extract_attribute
 from utils import get_exif
 
 logger = logging.getLogger(__name__)
@@ -29,7 +30,7 @@ logger = logging.getLogger(__name__)
 class ExifId(Enum):
     CAMERA_MODEL = 'CameraModelName'
     CAMERA_MAKE = 'Make'
-    LENS_MODEL = 'LensModel'
+    LENS_MODEL = ['LensModel', 'Lens']
     LENS_MAKE = 'LensMake'
     DATETIME = 'DateTimeOriginal'
     FOCAL_LENGTH = 'FocalLength'
@@ -44,6 +45,37 @@ class ExifId(Enum):
 PATTERN = re.compile(r"(\d+)\.")  # 匹配小数
 
 
+def get_datetime(exif) -> datetime:
+    dt = datetime.now()
+    try:
+        dt = parser.parse(extract_attribute(exif, ExifId.DATETIME.value,
+                                            default_value=str(datetime.now())))
+    except ValueError as e:
+        logger.info(f'Error: 时间格式错误：{extract_attribute(exif, ExifId.DATETIME.value)}')
+    return dt
+
+
+def get_focal_length(exif):
+    focal_length = '0'
+    focal_length_in_35mm_film = '0'
+
+    try:
+        focal_lengths = PATTERN.findall(extract_attribute(exif, ExifId.FOCAL_LENGTH.value))
+        try:
+            focal_length = focal_lengths[0] if focal_length else '0'
+        except IndexError as e:
+            logger.info(
+                f'ValueError: 不存在焦距：{focal_lengths} : {e}')
+        try:
+            focal_length_in_35mm_film: str = focal_lengths[1] if focal_length else '0'
+        except IndexError as e:
+            logger.info(f'ValueError: 不存在 35mm 焦距：{focal_lengths} : {e}')
+    except Exception as e:
+        logger.info(f'KeyError: 焦距转换错误：{extract_attribute(exif, ExifId.FOCAL_LENGTH.value)} : {e}')
+
+    return focal_length, focal_length_in_35mm_film
+
+
 class ImageContainer(object):
     def __init__(self, path: Path):
         self.path: Path = path
@@ -56,51 +88,19 @@ class ImageContainer(object):
 
         self._param_dict = dict()
 
-        # 相机机型
-        self.model: str = self.exif[ExifId.CAMERA_MODEL.value] if ExifId.CAMERA_MODEL.value in self.exif else '无'
-        # 相机制造商
-        self.make: str = self.exif[ExifId.CAMERA_MAKE.value] if ExifId.CAMERA_MAKE.value in self.exif else '无'
-        # 镜头型号
-        self.lens_model: str = self.exif[ExifId.LENS_MODEL.value] if ExifId.LENS_MODEL.value in self.exif else '无'
-        # 镜头制造商
-        self.lens_make: str = self.exif[ExifId.LENS_MAKE.value] if ExifId.LENS_MAKE.value in self.exif else '无'
-        # 拍摄日期
-        try:
-            self.date: datetime = parser.parse(self.exif[ExifId.DATETIME.value])
-        except KeyError as e:
-            self.date: datetime = datetime.now()
-            logger.info(f'KeyError: {self.path}: {str(e)}')
-        except ValueError as e:
-            self.date: datetime = datetime.now()
-            logger.info(f'Error: {self.path}: [{self.exif[ExifId.DATETIME.value]}]: {str(e)}')
-        # 焦距
-        try:
-            focal_length = PATTERN.findall(self.exif[ExifId.FOCAL_LENGTH.value])
-            try:
-                self.focal_length: str = focal_length[0] if focal_length else '0'
-            except IndexError as e:
-                self.focal_length: str = '0'
-                logger.info(f'ValueError: {ExifId.FOCAL_LENGTH.value}: {self.path}: [{self.exif[ExifId.FOCAL_LENGTH.value]}]: {str(e)}')
-            try:
-                self.focal_length_in_35mm_film: str = focal_length[1] if focal_length else '0'
-            except IndexError as e:
-                self.focal_length_in_35mm_film: str = '0'
-                logger.info(f'ValueError: {ExifId.FOCAL_LENGTH_IN_35MM_FILM.value}: {self.path}: [{self.exif[ExifId.FOCAL_LENGTH.value]}]: {str(e)}')
-        except Exception as e:
-            # 如果转换错误，使用 0
-            self.focal_length: str = '0'
-            self.focal_length_in_35mm_film: str = '0'
-            logger.info(f'KeyError: {self.path}: {str(e)}')
+        self.model: str = extract_attribute(self.exif, ExifId.CAMERA_MODEL.value)
+        self.make: str = extract_attribute(self.exif, ExifId.CAMERA_MAKE.value)
+        self.lens_model: str = extract_attribute(self.exif, *ExifId.LENS_MODEL.value)
+        self.lens_make: str = extract_attribute(self.exif, ExifId.LENS_MAKE.value)
+        self.date: datetime = get_datetime(self.exif)
+        self.focal_length, self.focal_length_in_35mm_film = get_focal_length(self.exif)
+        self.f_number: str = extract_attribute(self.exif, ExifId.F_NUMBER.value, default_value='0.0')
+        self.exposure_time: str = extract_attribute(self.exif, ExifId.EXPOSURE_TIME.value, default_value='0') + 's'
+        self.iso: str = extract_attribute(self.exif, ExifId.ISO.value, default_value='0.0')
 
         # 是否使用等效焦距
         self.use_equivalent_focal_length: bool = False
-        # 光圈大小
-        self.f_number: str = self.exif[ExifId.F_NUMBER.value] if ExifId.F_NUMBER.value in self.exif else '0.0'
-        # 曝光时间
-        self.exposure_time: str = str(self.exif[ExifId.EXPOSURE_TIME.value]) + 's' \
-            if ExifId.EXPOSURE_TIME.value in self.exif else '0s'
-        # 感光度
-        self.iso: str = self.exif[ExifId.ISO.value] if ExifId.ISO.value in self.exif else '0'
+
         # 修正图像方向
         self.orientation = self.exif[ExifId.ORIENTATION.value] if ExifId.ORIENTATION.value in self.exif else 1
         if self.orientation == "Rotate 0":
@@ -196,7 +196,7 @@ class ImageContainer(object):
         """
         focal_length = self.focal_length_in_35mm_film if self.use_equivalent_focal_length else self.focal_length
         return '  '.join([str(focal_length) + 'mm', 'f/' + self.f_number, self.exposure_time,
-                         'ISO' + str(self.iso)])
+                          'ISO' + str(self.iso)])
 
     def get_original_height(self):
         return self.original_height
