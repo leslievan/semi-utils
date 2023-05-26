@@ -57,7 +57,12 @@ def processing():
         container.is_use_equivalent_focal_length(config.use_equivalent_focal_length())
 
         # 处理图片
-        processor_chain.process(container)
+        try:
+            processor_chain.process(container)
+        except Exception as e:
+            logging.exception(f'Error: {str(e)}')
+            if DEBUG:
+                raise e
 
         # 保存图片
         target_path = Path(config.get_output_dir(), encoding=ENCODING).joinpath(source_path.name)
@@ -120,13 +125,7 @@ Bilibili: @吨吨吨的半夏
             elif state == 100:
                 # 处理数据的代码
                 print(SEPARATE_LINE)
-                try:
-                    processing()
-                except Exception as e:
-                    logging.exception(f'Error: {str(e)}')
-                    if DEBUG:
-                        raise e
-                    state = -2
+                processing()
             elif state == -1:
                 # 退出程序
                 sys.exit(0)
