@@ -28,5 +28,5 @@ LOCATION_LEFT_BOTTOM = 'left_bottom'
 LOCATION_RIGHT_TOP = 'right_top'
 LOCATION_RIGHT_BOTTOM = 'right_bottom'
 TRANSPARENT = (0, 0, 0, 0)
-DEBUG = True
+DEBUG = False
 GRAY = '#CBCBC9'
