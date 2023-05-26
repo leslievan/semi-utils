@@ -11,6 +11,7 @@ from entity.image_processor import EmptyProcessor
 from entity.image_processor import MarginProcessor
 from entity.image_processor import PaddingToOriginalRatioProcessor
 from entity.image_processor import ProcessorComponent
+from entity.image_processor import PureWhiteMarginProcessor
 from entity.image_processor import ShadowProcessor
 from entity.image_processor import SimpleProcessor
 from entity.image_processor import SquareProcessor
@@ -103,6 +104,7 @@ SIMPLE_PROCESSOR = SimpleProcessor(config)
 PADDING_TO_ORIGINAL_RATIO_PROCESSOR = PaddingToOriginalRatioProcessor(config)
 BACKGROUND_BLUR_PROCESSOR = BackgroundBlurProcessor(config)
 BACKGROUND_BLUR_WITH_WHITE_BORDER_PROCESSOR = BackgroundBlurWithWhiteBorderProcessor(config)
+PURE_WHITE_MARGIN_PROCESSOR = PureWhiteMarginProcessor(config)
 
 """
 以下是菜单的组织
@@ -126,6 +128,7 @@ LAYOUT_ITEMS = [
     LayoutItem.from_processor(SIMPLE_PROCESSOR),
     LayoutItem.from_processor(BACKGROUND_BLUR_PROCESSOR),
     LayoutItem.from_processor(BACKGROUND_BLUR_WITH_WHITE_BORDER_PROCESSOR),
+    LayoutItem.from_processor(PURE_WHITE_MARGIN_PROCESSOR),
 ]
 layout_items_dict = {item.value: item for item in LAYOUT_ITEMS}
 
