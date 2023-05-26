@@ -37,6 +37,9 @@ class ProcessorComponent:
     LAYOUT_ID = None
     LAYOUT_NAME = None
 
+    def __init__(self, config: Config):
+        self.config = config
+
     def process(self, container: ImageContainer) -> None:
         """
         处理图片容器中的 watermark_img，将处理后的图片放回容器中
@@ -49,6 +52,7 @@ class ProcessorComponent:
 
 class ProcessorChain(ProcessorComponent):
     def __init__(self):
+        super().__init__(None)
         self.components = []
 
     def add(self, component) -> None:
@@ -62,18 +66,12 @@ class ProcessorChain(ProcessorComponent):
 class EmptyProcessor(ProcessorComponent):
     LAYOUT_ID = 'empty'
 
-    def __init__(self, config: Config):
-        self.config = config
-
     def process(self, container: ImageContainer) -> None:
         pass
 
 
 class ShadowProcessor(ProcessorComponent):
     LAYOUT_ID = 'shadow'
-
-    def __init__(self, config: Config):
-        self.config = config
 
     def process(self, container: ImageContainer) -> None:
         # 加载图像
@@ -98,9 +96,6 @@ class SquareProcessor(ProcessorComponent):
     LAYOUT_ID = 'square'
     LAYOUT_NAME = '1:1填充'
 
-    def __init__(self, config: Config):
-        self.config = config
-
     def process(self, container: ImageContainer) -> None:
         image = container.get_watermark_img()
         container.update_watermark_img(square_image(image, auto_close=False))
@@ -110,7 +105,7 @@ class WatermarkProcessor(ProcessorComponent):
     LAYOUT_ID = 'watermark'
 
     def __init__(self, config: Config):
-        self.config = config
+        super().__init__(config)
         # 默认值
         self.logo_position = 'left'
         self.logo_enable = True
@@ -291,9 +286,6 @@ class CustomWatermarkProcessor(WatermarkProcessor):
 class MarginProcessor(ProcessorComponent):
     LAYOUT_ID = 'margin'
 
-    def __init__(self, config: Config):
-        self.config = config
-
     def process(self, container: ImageContainer) -> None:
         config = self.config
         padding_size = int(config.get_white_margin_width() * min(container.get_width(), container.get_height()) / 100)
@@ -304,9 +296,6 @@ class MarginProcessor(ProcessorComponent):
 class SimpleProcessor(ProcessorComponent):
     LAYOUT_ID = 'simple'
     LAYOUT_NAME = '简洁'
-
-    def __init__(self, config: Config):
-        self.config = config
 
     def process(self, container: ImageContainer) -> None:
         ratio = .16 if container.get_ratio() >= 1 else .1
@@ -351,9 +340,6 @@ class SimpleProcessor(ProcessorComponent):
 class PaddingToOriginalRatioProcessor(ProcessorComponent):
     LAYOUT_ID = 'padding_to_original_ratio'
 
-    def __init__(self, config: Config):
-        self.config = config
-
     def process(self, container: ImageContainer) -> None:
         original_ratio = container.get_original_ratio()
         ratio = container.get_ratio()
@@ -376,9 +362,6 @@ class BackgroundBlurProcessor(ProcessorComponent):
     LAYOUT_ID = 'background_blur'
     LAYOUT_NAME = '背景模糊'
 
-    def __init__(self, config: Config):
-        self.config = config
-
     def process(self, container: ImageContainer) -> None:
         background = container.get_watermark_img()
         background = background.filter(ImageFilter.GaussianBlur(radius=GAUSSIAN_KERNEL_RADIUS))
@@ -395,9 +378,6 @@ class BackgroundBlurProcessor(ProcessorComponent):
 class BackgroundBlurWithWhiteBorderProcessor(ProcessorComponent):
     LAYOUT_ID = 'background_blur_with_white_border'
     LAYOUT_NAME = '背景模糊+白框'
-
-    def __init__(self, config: Config):
-        self.config = config
 
     def process(self, container: ImageContainer) -> None:
         padding_size = int(
