@@ -393,3 +393,14 @@ class BackgroundBlurWithWhiteBorderProcessor(ProcessorComponent):
         background.paste(padding_img, (int(padding_img.width * PADDING_PERCENT_IN_BACKGROUND / 2),
                                        int(padding_img.height * PADDING_PERCENT_IN_BACKGROUND / 2)))
         container.update_watermark_img(background)
+
+
+class PureWhiteMarginProcessor(ProcessorComponent):
+    LAYOUT_ID = 'pure_white_margin'
+    LAYOUT_NAME = '白色边框'
+
+    def process(self, container: ImageContainer) -> None:
+        config = self.config
+        padding_size = int(config.get_white_margin_width() * min(container.get_width(), container.get_height()) / 100)
+        padding_img = padding_image(container.get_watermark_img(), padding_size, 'tlrb', color=config.bg_color)
+        container.update_watermark_img(padding_img)
