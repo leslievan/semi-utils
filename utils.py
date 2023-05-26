@@ -2,12 +2,12 @@ import logging
 import platform
 import re
 import subprocess
+import unicodedata
 from pathlib import Path
 
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageOps
-from PIL.ExifTags import TAGS
 from enums.constant import TRANSPARENT
 
 if platform.system() == 'Windows':
@@ -41,9 +41,9 @@ def get_exif(path) -> dict:
     try:
         # 如果 exif 中不存在镜头信息，用 exiftool 读取
         # if 'LensModel' not in _exif:
-        output = subprocess.check_output([EXIFTOOL_PATH, '-charset', 'UTF8', '-d', '%Y-%m-%d %H:%M:%S%3f%z', path])
+        output = subprocess.check_output([EXIFTOOL_PATH, '-charset', 'UTF8', '-d', '%Y-%m-%d %H:%M:%S%3f%z', path],
+                                         universal_newlines=True)
 
-        output = output.decode(ENCODING)
         lines = output.splitlines()
         utf8_lines = [line for line in lines]
 
@@ -59,18 +59,17 @@ def get_exif(path) -> dict:
             key = re.sub(r'/', '', key)
             # 将键值对添加到字典中
             exif_dict[key] = value
-    except UnicodeDecodeError as e:
-        # 如果 exiftool 无法读取，用 piexif 读取
-        # TODO 用 piexif 读取时处理 Orientation
-        with Image.open(path) as image:
-            info = image._getexif()
-            if info:
-                for attr, value in info.items():
-                    decoded_attr = TAGS.get(attr, attr)
-                    exif_dict[decoded_attr] = value
-        logger.info(f'UnicodeDecodeError: {path}: Cannot get exif: {str(e)}')
-    finally:
-        pass
+        for key, value in exif_dict.items():
+            # 将 value 转换成 Unicode 字符串
+            value_unicode = value.encode('utf-8').decode('unicode_escape')
+            # 将字符串进行标准化
+            value_normalized = unicodedata.normalize('NFKD', value_unicode)
+            # 过滤非 ASCII 字符
+            value_clean = ''.join(c for c in value_normalized if ord(c) < 128)
+            # 将处理后的值更新到 exif_dict 中
+            exif_dict[key] = value_clean
+    except:
+        logger.error(f'get_exif error: {path}')
 
     return exif_dict
 
@@ -366,4 +365,3 @@ def calculate_pixel_count(width: int, height: int) -> str:
     megapixel_count = pixel_count / 1000000.0
     # 返回结果字符串
     return f"{megapixel_count:.2f} MP"
-
