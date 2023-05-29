@@ -61,12 +61,8 @@ def get_exif(path) -> dict:
             # 将键值对添加到字典中
             exif_dict[key] = value
         for key, value in exif_dict.items():
-            # 将 value 转换成 Unicode 字符串
-            value_unicode = value.encode('utf-8').decode('unicode_escape')
-            # 将字符串进行标准化
-            value_normalized = unicodedata.normalize('NFKD', value_unicode)
             # 过滤非 ASCII 字符
-            value_clean = ''.join(c for c in value_normalized if ord(c) < 128)
+            value_clean = ''.join(c for c in value if ord(c) < 128)
             # 将处理后的值更新到 exif_dict 中
             exif_dict[key] = value_clean
     except Exception as e:
