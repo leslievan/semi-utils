@@ -69,8 +69,8 @@ def get_exif(path) -> dict:
             value_clean = ''.join(c for c in value_normalized if ord(c) < 128)
             # 将处理后的值更新到 exif_dict 中
             exif_dict[key] = value_clean
-    except:
-        logger.error(f'get_exif error: {path}')
+    except Exception as e:
+        logger.error(f'get_exif error: {path} : {e}')
 
     return exif_dict
 
