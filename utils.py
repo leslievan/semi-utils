@@ -40,10 +40,8 @@ def get_exif(path) -> dict:
     """
     exif_dict = {}
     try:
-        # 如果 exif 中不存在镜头信息，用 exiftool 读取
-        # if 'LensModel' not in _exif:
-        output = subprocess.check_output([EXIFTOOL_PATH, '-charset', 'UTF8', '-d', '%Y-%m-%d %H:%M:%S%3f%z', path],
-                                         universal_newlines=True)
+        output_bytes = subprocess.check_output([EXIFTOOL_PATH, '-d', '%Y-%m-%d %H:%M:%S%3f%z', path])
+        output = output_bytes.decode('utf-8', errors='ignore')
 
         lines = output.splitlines()
         utf8_lines = [line for line in lines]
@@ -61,16 +59,12 @@ def get_exif(path) -> dict:
             # 将键值对添加到字典中
             exif_dict[key] = value
         for key, value in exif_dict.items():
-            # 将 value 转换成 Unicode 字符串
-            value_unicode = value.encode('utf-8').decode('unicode_escape')
-            # 将字符串进行标准化
-            value_normalized = unicodedata.normalize('NFKD', value_unicode)
             # 过滤非 ASCII 字符
-            value_clean = ''.join(c for c in value_normalized if ord(c) < 128)
+            value_clean = ''.join(c for c in value if ord(c) < 128)
             # 将处理后的值更新到 exif_dict 中
             exif_dict[key] = value_clean
-    except:
-        logger.error(f'get_exif error: {path}')
+    except Exception as e:
+        logger.error(f'get_exif error: {path} : {e}')
 
     return exif_dict
 
