@@ -72,6 +72,9 @@
 
 #### 手动下载
 
+<details>
+<summary>点击展开</summary>
+
 - 下载[源码](http://file.lsvm.xyz/semi-utils-latest-source.zip)后解压，比如解压到 `~/semi-utils`，路径需要自行替换。
 
    > 你可以右键单击解压后的文件夹，按住 Opt 键-选择将xxx拷贝为路径名称 ，用剪贴板中的实际路径替换下面命令中的 `~/semi-utils`.
@@ -103,9 +106,15 @@
 
 - 处理好的图片存放在 `~/semi-utils/output` 中
 
+
+</details>
+
 ## 配置项
 
 通过 `config.yaml` 配置。
+
+<details>
+<summary>点击展开</summary>
 
 ```yaml
 base:
@@ -242,6 +251,7 @@ logo:
 |background_blur|背景模糊|![8](images/8.jpeg)|
 |background_blur_with_white_border|背景模糊+白框|![9](images/9.jpeg)|
 
+</details>
 
 ## 常见问题
 
@@ -286,6 +296,12 @@ python3 --version
 ```
 
 此命令将返回已安装的 Python3 版本号。
+
+## 赞赏
+
+> 如果您觉得程序对您有所帮助的话，可以请作者喝杯咖啡，谢谢！
+
+![](https://cdn.lsvm.xyz/wechat.jpg)
 
 ## 关于
 
