@@ -14,6 +14,7 @@ from enums.constant import CAMERA_MODEL_LENS_MODEL_VALUE
 from enums.constant import CUSTOM_VALUE
 from enums.constant import DATETIME_VALUE
 from enums.constant import DATE_VALUE
+from enums.constant import FILENAME_VALUE
 from enums.constant import LENS_MAKE_LENS_MODEL_VALUE
 from enums.constant import LENS_VALUE
 from enums.constant import MAKE_VALUE
@@ -123,6 +124,7 @@ class ImageContainer(object):
 
         self._param_dict[TOTAL_PIXEL_VALUE] = calculate_pixel_count(self.original_width, self.original_height)
         self._param_dict[CAMERA_MAKE_CAMERA_MODEL_VALUE] = ' '.join([self.make, self.model])
+        self._param_dict[FILENAME_VALUE] = self.path.name
 
     def get_height(self):
         return self.get_watermark_img().height

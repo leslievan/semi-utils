@@ -22,6 +22,8 @@ TOTAL_PIXEL_NAME = '总像素(MP)'
 TOTAL_PIXEL_VALUE = 'TotalPixel'
 CAMERA_MAKE_CAMERA_MODEL_NAME = '相机厂商 + 相机型号(eg. DJI FC123)'
 CAMERA_MAKE_CAMERA_MODEL_VALUE = 'CameraMake_CameraModel'
+FILENAME_NAME = '文件名'
+FILENAME_VALUE = 'Filename'
 
 LOCATION_LEFT_TOP = 'left_top'
 LOCATION_LEFT_BOTTOM = 'left_bottom'
