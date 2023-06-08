@@ -29,6 +29,8 @@ from enums.constant import DATETIME_NAME
 from enums.constant import DATETIME_VALUE
 from enums.constant import DATE_NAME
 from enums.constant import DATE_VALUE
+from enums.constant import FILENAME_NAME
+from enums.constant import FILENAME_VALUE
 from enums.constant import LENS_MAKE_LENS_MODEL_NAME
 from enums.constant import LENS_MAKE_LENS_MODEL_VALUE
 from enums.constant import LENS_NAME
@@ -194,6 +196,7 @@ ITEM_LIST = [
     ElementItem(CAMERA_MODEL_LENS_MODEL_NAME, CAMERA_MODEL_LENS_MODEL_VALUE),
     ElementItem(TOTAL_PIXEL_NAME, TOTAL_PIXEL_VALUE),
     ElementItem(CAMERA_MAKE_CAMERA_MODEL_NAME, CAMERA_MAKE_CAMERA_MODEL_VALUE),
+    ElementItem(FILENAME_NAME, FILENAME_VALUE),
 ]
 
 # 菜单位置与菜单项的映射
