@@ -301,7 +301,7 @@ python3 --version
 
 > 如果您觉得程序对您有所帮助的话，可以请作者喝杯咖啡，谢谢！
 
-![](https://cdn.lsvm.xyz/wechat.jpg)
+![](images/wechat.jpg)
 
 ## 关于
 
