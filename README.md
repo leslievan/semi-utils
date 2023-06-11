@@ -305,10 +305,14 @@ python3 --version
 
 ![JetBrains](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png)
 
-鸣谢：[JetBrains](https://jb.gg/OpenSourceSupport) 为本项目提供的开源许可
+感谢 [JetBrains](https://jb.gg/OpenSourceSupport) 为本项目提供的开源许可。
 
 ## 许可证
 
 本项目的发布基于 [Apache License 2.0](LICENSE).
 
 本项目引用了 [exiftool](https://exiftool.org/)，其发布基于 [GPL v1 + Artistic License 2.0](https://exiftool.org/#license)。
+
+## 关于
+
+[![Stargazers over time](https://starchart.cc/leslievan/semi-utils.svg)](https://starchart.cc/leslievan/semi-utils)
