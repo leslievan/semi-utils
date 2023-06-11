@@ -1,8 +1,9 @@
 # semi-utils
 
 > [![hugo-papermod](https://img.shields.io/badge/Semi--Utils-@LeslieVan-red)](https://github.com/leslievan/semi-utils)
-> [![GitHub](https://img.shields.io/github/license/leslievan/semi-utils)](https://github.com/leslievan/semi-utils/blob/master/LICENSE)
-> [![download](https://img.shields.io/github/v/release/leslievan/semi-utils)](https://github.com/leslievan/semi-utils/releases)
+> [![download](https://img.shields.io/github/downloads/leslievan/semi-utils/total.svg)](https://github.com/leslievan/semit-utils/releases)
+> [![release](https://img.shields.io/github/v/release/leslievan/semi-utils)](https://github.com/leslievan/semi-utils/releases)
+> [![license](https://img.shields.io/github/license/leslievan/semi-utils)](https://github.com/leslievan/semi-utils/blob/master/LICENSE)
 > ![language](https://img.shields.io/github/languages/top/leslievan/semi-utils?color=orange)
 >
 > **这是一个用于给照片批量添加水印、处理照片像素比、图像色彩和质量的工具。**
@@ -300,7 +301,9 @@ python3 --version
 
 此命令将返回已安装的 Python3 版本号。
 
-## 关于
+## 特别感谢
+
+![JetBrains](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png)
 
 鸣谢：[JetBrains](https://jb.gg/OpenSourceSupport) 为本项目提供的开源许可
 
