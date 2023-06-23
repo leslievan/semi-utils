@@ -1,4 +1,8 @@
 import os
+from typing import Any
+from typing import Type
+from typing import TypeVar
+from typing import cast
 
 import yaml
 from PIL import Image
@@ -9,6 +13,23 @@ from enums.constant import LOCATION_LEFT_BOTTOM
 from enums.constant import LOCATION_LEFT_TOP
 from enums.constant import LOCATION_RIGHT_BOTTOM
 from enums.constant import LOCATION_RIGHT_TOP
+
+T = TypeVar("T")
+
+
+def from_str(x: Any) -> str:
+    assert isinstance(x, str)
+    return x
+
+
+def from_int(x: Any) -> int:
+    assert isinstance(x, int) and not isinstance(x, bool)
+    return x
+
+
+def to_class(c: Type[T], x: Any) -> dict:
+    assert isinstance(x, c)
+    return cast(Any, x).to_dict()
 
 
 class ElementConfig(object):
@@ -35,6 +56,41 @@ class ElementConfig(object):
             return '#212121'
 
 
+class VideoConfig(object):
+    resolution: str
+    framerate: str
+    rate: int
+    background_color: str
+    background_music: str
+
+    def __init__(self, resolution: str, framerate: str, rate: int, background_color: str,
+                 background_music: str) -> None:
+        self.resolution = resolution
+        self.framerate = framerate
+        self.rate = rate
+        self.background_color = background_color
+        self.background_music = background_music
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'VideoConfig':
+        assert isinstance(obj, dict)
+        resolution = from_str(obj.get("resolution"))
+        framerate = from_str(obj.get("framerate"))
+        rate = from_int(obj.get("rate"))
+        background_color = from_str(obj.get("background_color"))
+        background_music = from_str(obj.get("background_music"))
+        return VideoConfig(resolution, framerate, rate, background_color, background_music)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        result["resolution"] = from_str(self.resolution)
+        result["framerate"] = from_str(self.framerate)
+        result["rate"] = from_int(self.rate)
+        result["background_color"] = from_str(self.background_color)
+        result["background_music"] = from_str(self.background_music)
+        return result
+
+
 # 字体大小，影响字体的清晰度
 FONT_SIZE = 240
 BOLD_FONT_SIZE = 260
@@ -58,6 +114,7 @@ class Config(object):
         self.bg_color = self._data['layout']['background_color'] \
             if 'background_color' in self._data['layout'] \
             else '#ffffff'
+        self._video = VideoConfig.from_dict(self._data['video'])
 
     def load_logo(self, make) -> Image.Image:
         """
