@@ -362,7 +362,7 @@ def calculate_pixel_count(width: int, height: int) -> str:
     return f"{megapixel_count:.2f} MP"
 
 
-def extract_attribute(data_dict: dict, *keys, default_value: str = '') -> str:
+def extract_attribute(data_dict: dict, *keys, default_value: str = '', prefix='', suffix='') -> str:
     """
     从字典中提取对应键的属性值
 
@@ -373,5 +373,5 @@ def extract_attribute(data_dict: dict, *keys, default_value: str = '') -> str:
     """
     for key in keys:
         if key in data_dict:
-            return data_dict[key]
+            return data_dict[key] + suffix
     return default_value
