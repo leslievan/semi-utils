@@ -14,6 +14,7 @@ from enums.constant import CAMERA_MODEL_LENS_MODEL_VALUE
 from enums.constant import CUSTOM_VALUE
 from enums.constant import DATETIME_VALUE
 from enums.constant import DATE_VALUE
+from enums.constant import DEFAULT_VALUE
 from enums.constant import FILENAME_VALUE
 from enums.constant import LENS_MAKE_LENS_MODEL_VALUE
 from enums.constant import LENS_VALUE
@@ -57,18 +58,18 @@ def get_datetime(exif) -> datetime:
 
 
 def get_focal_length(exif):
-    focal_length = '0'
-    focal_length_in_35mm_film = '0'
+    focal_length = DEFAULT_VALUE
+    focal_length_in_35mm_film = DEFAULT_VALUE
 
     try:
         focal_lengths = PATTERN.findall(extract_attribute(exif, ExifId.FOCAL_LENGTH.value))
         try:
-            focal_length = focal_lengths[0] if focal_length else '0'
+            focal_length = focal_lengths[0] if focal_length else DEFAULT_VALUE
         except IndexError as e:
             logger.info(
                 f'ValueError: 不存在焦距：{focal_lengths} : {e}')
         try:
-            focal_length_in_35mm_film: str = focal_lengths[1] if focal_length else '0'
+            focal_length_in_35mm_film: str = focal_lengths[1] if focal_length else DEFAULT_VALUE
         except IndexError as e:
             logger.info(f'ValueError: 不存在 35mm 焦距：{focal_lengths} : {e}')
     except Exception as e:
@@ -95,9 +96,10 @@ class ImageContainer(object):
         self.lens_make: str = extract_attribute(self.exif, ExifId.LENS_MAKE.value)
         self.date: datetime = get_datetime(self.exif)
         self.focal_length, self.focal_length_in_35mm_film = get_focal_length(self.exif)
-        self.f_number: str = extract_attribute(self.exif, ExifId.F_NUMBER.value, default_value='0.0')
-        self.exposure_time: str = extract_attribute(self.exif, ExifId.EXPOSURE_TIME.value, default_value='0') + 's'
-        self.iso: str = extract_attribute(self.exif, ExifId.ISO.value, default_value='0.0')
+        self.f_number: str = extract_attribute(self.exif, ExifId.F_NUMBER.value, default_value=DEFAULT_VALUE)
+        self.exposure_time: str = extract_attribute(self.exif, ExifId.EXPOSURE_TIME.value, default_value=DEFAULT_VALUE,
+                                                    suffix='s')
+        self.iso: str = extract_attribute(self.exif, ExifId.ISO.value, default_value=DEFAULT_VALUE)
 
         # 是否使用等效焦距
         self.use_equivalent_focal_length: bool = False
