@@ -3,7 +3,7 @@
 release
 input
 output
-__pycache_
+__pycache__
 logos/logo_psds
 exiftool
 build
