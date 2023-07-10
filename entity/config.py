@@ -45,10 +45,13 @@ class Config(object):
     配置对象
     """
 
-    def __init__(self, path):
+    def __init__(self, path, config=None):
         self._path = path
-        with open(self._path, 'r', encoding='utf-8') as f:
-            self._data = yaml.safe_load(f)
+        if config:
+            self._data = yaml.safe_load(config)
+        else:
+            with open(self._path, 'r', encoding='utf-8') as f:
+                self._data = yaml.safe_load(f)
         self._logos = {}
         self._left_top = ElementConfig(self._data['layout']['elements'][LOCATION_LEFT_TOP])
         self._left_bottom = ElementConfig(self._data['layout']['elements'][LOCATION_LEFT_BOTTOM])

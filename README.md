@@ -257,6 +257,16 @@ logo:
 
 </details>
 
+## gradio可视化界面
+
+下载gradio依赖
+```shell
+pip install gradio
+```
+运行gradio界面
+```shell
+python gradio_interface.py
+```
 ## 常见问题
 
 ### 运行 `pip install` 时提示 `command not found`

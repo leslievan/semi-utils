@@ -3,6 +3,7 @@ import re
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
+import numpy as np
 
 from PIL import Image
 from PIL.Image import Transpose
@@ -252,3 +253,21 @@ class ImageContainer(object):
         if self.watermark_img.mode != 'RGB':
             self.watermark_img = self.watermark_img.convert('RGB')
         self.watermark_img.save(target_path, quality=quality, encoding='utf-8', exif=self.img.info['exif'])
+
+    def export(self, quality=100):
+        if self.orientation == "Rotate 0":
+            pass
+        elif self.orientation == "Rotate 90 CW":
+            self.watermark_img = self.watermark_img.transpose(Transpose.ROTATE_90)
+        elif self.orientation == "Rotate 180":
+            self.watermark_img = self.watermark_img.transpose(Transpose.ROTATE_180)
+        elif self.orientation == "Rotate 270 CW":
+            self.watermark_img = self.watermark_img.transpose(Transpose.ROTATE_270)
+        else:
+            pass
+
+        if self.watermark_img.mode != 'RGB':
+            self.watermark_img = self.watermark_img.convert('RGB')
+        watermark_img = np.array(self.watermark_img)
+
+        return watermark_img
