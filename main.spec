@@ -8,7 +8,7 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[('config.yaml', '.'), ('./input', './input'), ('./output', './output'), ('./fonts', './fonts'), ('./logos', './logos'), ('./exiftool', './exiftool'), ('./bin', './bin'],
+    datas=[('config.yaml', '.'), ('./input', './input'), ('./output', './output'), ('./fonts', './fonts'), ('./logos', './logos'), ('./exiftool', './exiftool'), ('./bin', './bin')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
