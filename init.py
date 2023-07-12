@@ -76,7 +76,8 @@ debug_handler.setLevel(logging.DEBUG)
 debug_handler.setFormatter(formatter)
 
 # 设置日志输出的格式和级别，并将日志输出到指定文件中
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', handlers=[debug_handler, info_handler, error_handler])
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    handlers=[debug_handler, info_handler, error_handler])
 
 SEPARATE_LINE = '+' + '-' * 15 + '+' + '-' * 15 + '+'
 
