@@ -249,7 +249,7 @@ def generate_video():
 
 
 # 创建菜单项：生成视频
-generate_video_menu = MenuItem('生成视频')
+generate_video_menu = MenuItem('【Beta】一键生成视频')
 generate_video_menu.set_procedure(generate_video)
 generate_video_menu._value = False
 root_menu.add(generate_video_menu)
