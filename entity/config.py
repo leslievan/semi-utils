@@ -62,14 +62,16 @@ class VideoConfig(object):
     rate: int
     background_color: str
     background_music: str
+    size: str
 
     def __init__(self, resolution: str, framerate: str, rate: int, background_color: str,
-                 background_music: str) -> None:
+                 background_music: str, size: str) -> None:
         self.resolution = resolution
         self.framerate = framerate
         self.rate = rate
         self.background_color = background_color
         self.background_music = background_music
+        self.size = size
 
     @staticmethod
     def from_dict(obj: Any) -> 'VideoConfig':
@@ -79,7 +81,8 @@ class VideoConfig(object):
         rate = from_int(obj.get("rate"))
         background_color = from_str(obj.get("background_color"))
         background_music = from_str(obj.get("background_music"))
-        return VideoConfig(resolution, framerate, rate, background_color, background_music)
+        size = from_str(obj.get("size"))
+        return VideoConfig(resolution, framerate, rate, background_color, background_music, size)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -88,6 +91,7 @@ class VideoConfig(object):
         result["rate"] = from_int(self.rate)
         result["background_color"] = from_str(self.background_color)
         result["background_music"] = from_str(self.background_music)
+        result["size"] = from_str(self.size)
         return result
 
 

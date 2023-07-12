@@ -79,9 +79,10 @@ logo:
     sony:
       id: SONY
       path: ./logos/sony.png
-ffmpeg_gen:
+video:
   resolution: '4K'
   framerate: '1/2'
+  size: 'large'
   rate: 24
   background_color: 'white'
   background_music: 'bgm.mp3'
