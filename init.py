@@ -1,3 +1,8 @@
+import logging
+import platform
+import shutil
+import sys
+import time
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -29,6 +34,7 @@ from enums.constant import DATETIME_NAME
 from enums.constant import DATETIME_VALUE
 from enums.constant import DATE_NAME
 from enums.constant import DATE_VALUE
+from enums.constant import DEBUG
 from enums.constant import FILENAME_NAME
 from enums.constant import FILENAME_VALUE
 from enums.constant import LENS_MAKE_LENS_MODEL_NAME
@@ -45,8 +51,8 @@ from enums.constant import PARAM_NAME
 from enums.constant import PARAM_VALUE
 from enums.constant import TOTAL_PIXEL_NAME
 from enums.constant import TOTAL_PIXEL_VALUE
-
-import logging
+from gen_video import gen_video
+from utils import spinner_decorator
 
 # 如果 logs 不存在，创建 logs
 Path('./logs').mkdir(parents=True, exist_ok=True)
@@ -212,6 +218,40 @@ for location, menu in LOCATION_MENU_MAP.items():
         menu_item.set_procedure(config.set_element_name, location=location, name=item.value)
         menu_item._value = item.value
         menu.add(menu_item)
+
+
+def generate_video():
+    timestamp = str(int(time.time()))  # 获取当前时间戳并转化为字符串形式
+    video_path = './output/video_' + timestamp + '.mp4'  # 将视频路径设置为带有时间戳的新路径
+
+    if shutil.which('ffmpeg') is not None:
+        ffmpeg_path = 'ffmpeg'
+    else:
+        if platform.system() == 'Windows':
+            ffmpeg_path = './bin/ffmpeg.exe'
+        else:
+            ffmpeg_path = './bin/ffmpeg'
+
+    @spinner_decorator
+    def process():
+        gen_video(images_path='./output', video_path=video_path, framerate=config._video.framerate,
+                  background_color=config._video.background_color, background_music=config._video.background_music,
+                  size=config._video.size, ffmpeg_path=ffmpeg_path)  # 生成视频
+
+    process()
+    print('处理完成，文件已输出至 output 文件夹中，请点击任意键退出或直接关闭')
+    if DEBUG:
+        sys.exit(0)
+    else:
+        input()
+        sys.exit(0)
+
+
+# 创建菜单项：生成视频
+generate_video_menu = MenuItem('生成视频')
+generate_video_menu.set_procedure(generate_video)
+generate_video_menu._value = False
+root_menu.add(generate_video_menu)
 
 # 更多设置
 more_setting_menu = SubMenu('更多设置')
