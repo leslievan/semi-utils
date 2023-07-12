@@ -29,6 +29,8 @@ jobs:
       run: |
         New-Item -Path "./exiftool" -ItemType "directory" -Force | Out-Null
         Invoke-WebRequest -Uri "https://github.com/leslievan/semi-utils/raw/exiftool/exiftool/exiftool.exe" -OutFile "./exiftool/exiftool.exe"
+        New-Item -Path "./bin" -ItemType "directory" -Force | Out-Null
+        Invoke-WebRequest -Uri "https://github.com/leslievan/semi-utils/raw/exiftool/bin/ffmpeg.exe" -OutFile "./bin/ffmpeg.exe"
 
     - name: Build Executable
       run: |
