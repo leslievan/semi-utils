@@ -2,7 +2,10 @@ import logging
 import platform
 import re
 import subprocess
-import unicodedata
+import sys
+import threading
+import time
+from functools import wraps
 from pathlib import Path
 
 from PIL import Image
@@ -375,3 +378,32 @@ def extract_attribute(data_dict: dict, *keys, default_value: str = '', prefix=''
         if key in data_dict:
             return data_dict[key] + suffix
     return default_value
+
+
+def spinner_decorator(func):
+    spin_states = ['-', '\\', '|', '/']
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        def spinner():
+            while not task_done:
+                state = spin_states[i[0] % len(spin_states)]
+                sys.stdout.write('\r' + state)
+                sys.stdout.flush()
+                i[0] += 1
+                time.sleep(0.3)
+
+        task_done = False
+        i = [0]  # 使用列表使得 i 在闭包中可以被修改
+        spin_thread = threading.Thread(target=spinner)
+        spin_thread.start()
+
+        try:
+            result = func(*args, **kwargs)
+        finally:
+            task_done = True
+            spin_thread.join()
+            sys.stdout.write('\r任务完成\n')
+        return result
+
+    return wrapper
