@@ -58,13 +58,13 @@ class ElementConfig(object):
 
 class VideoConfig(object):
     resolution: str
-    duration: str
+    duration: int
     rate: int
     background_color: str
     background_music: str
     size: str
 
-    def __init__(self, resolution: str, duration: str, rate: int, background_color: str,
+    def __init__(self, resolution: str, duration: int, rate: int, background_color: str,
                  background_music: str, size: str) -> None:
         self.resolution = resolution
         self.duration = duration
@@ -77,7 +77,7 @@ class VideoConfig(object):
     def from_dict(obj: Any) -> 'VideoConfig':
         assert isinstance(obj, dict)
         resolution = from_str(obj.get("resolution"))
-        duration = from_str(obj.get("duration"))
+        duration = from_int(obj.get("duration"))
         rate = from_int(obj.get("rate"))
         background_color = from_str(obj.get("background_color"))
         background_music = from_str(obj.get("background_music"))
