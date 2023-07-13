@@ -87,7 +87,7 @@ class VideoConfig(object):
     def to_dict(self) -> dict:
         result: dict = {}
         result["resolution"] = from_str(self.resolution)
-        result["duration"] = from_str(self.duration)
+        result["duration"] = from_int(self.duration)
         result["rate"] = from_int(self.rate)
         result["background_color"] = from_str(self.background_color)
         result["background_music"] = from_str(self.background_music)

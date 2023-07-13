@@ -1,4 +1,5 @@
 import glob
+import logging
 import os
 import shutil
 import subprocess
@@ -32,6 +33,7 @@ def gen_video(images_path, video_path, duration, background_color, background_mu
         if ffmpeg_path == 'ffmpeg' or os.path.exists(ffmpeg_path):
             if shutil.which(ffmpeg_path) is not None:
                 with open('./logs/all.log', 'w') as f:
+                    logging.info(command_gen_video)
                     subprocess.call(command_gen_video, shell=True, stdout=f, stderr=subprocess.STDOUT)
             else:
                 print(f"{ffmpeg_path} is not installed or not found.")
@@ -48,6 +50,7 @@ def gen_video(images_path, video_path, duration, background_color, background_mu
         # 如果 background_music 存在，则添加 bgm，然后将临时文件 temp.mp4 重命名为 video_path，否则提示用户 background_music 不存在，返回
         if os.path.exists(background_music):
             with open('./logs/all.log', 'w') as f:
+                logging.info(command_attach_music)
                 subprocess.call(command_attach_music, shell=True, stdout=f, stderr=subprocess.STDOUT)
                 if os.path.exists('temp.mp4'):
                     shutil.move('temp.mp4', video_path)
