@@ -235,7 +235,7 @@ def generate_video():
 
     @spinner_decorator
     def process():
-        gen_video(images_path='./output', video_path=video_path, framerate=config._video.duration,
+        gen_video(images_path='./output', video_path=video_path, duration=config._video.duration,
                   background_color=config._video.background_color, background_music=config._video.background_music,
                   size=config._video.size, ffmpeg_path=ffmpeg_path)  # 生成视频
 
