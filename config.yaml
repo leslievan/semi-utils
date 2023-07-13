@@ -81,8 +81,8 @@ logo:
       path: ./logos/sony.png
 video:
   resolution: '4K'
-  duration: '1/2'
+  duration: '2'
   size: 'large'
-  rate: 24
+  rate: '24'
   background_color: 'white'
   background_music: 'bgm.mp3'
