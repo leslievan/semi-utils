@@ -1,9 +1,10 @@
+import glob
 import os
 import shutil
 import subprocess
 
 
-def gen_video(images_path, video_path, framerate, background_color, background_music, size, ffmpeg_path='ffmpeg'):
+def gen_video(images_path, video_path, duration, background_color, background_music, size, ffmpeg_path='ffmpeg'):
     try:
         # 读取 config 中的参数
         if size == 'middle':
@@ -13,9 +14,18 @@ def gen_video(images_path, video_path, framerate, background_color, background_m
         else:
             scale = '3840:1920'
 
+        # 列出所有的jpg文件
+        image_files = glob.glob(f'{images_path}/*.jpg')
+
+        # 创建一个文本文件，其中包含所有.jpg文件的路径
+        with open(f'output_images.txt', 'w') as f:
+            for image_file in sorted(image_files):
+                f.write(f"file '{os.path.abspath(image_file)}'\n")
+                f.write(f"duration {duration}\n")
+
         # 如果 ffmpeg_path 存在，则执行 command_gen_video，否则提示用户 ffmpeg_path 不存在，返回
         command_gen_video = f'''
-            {ffmpeg_path} -framerate {framerate} -pattern_type glob -i '{images_path}/*.jpg' -vf "scale={scale}:force_original_aspect_ratio=decrease,pad=3840:2160:(ow-iw)/2:(oh-ih)/2:color={background_color}" -c:v libx264 -r 24 -pix_fmt yuv420p -y {video_path}
+            {ffmpeg_path} -f concat -safe 0 -i output_images.txt -vf "scale={scale}:force_original_aspect_ratio=decrease,pad=3840:2160:(ow-iw)/2:(oh-ih)/2:color={background_color}" -c:v libx264 -r 24 -pix_fmt yuv420p -y {video_path}
             '''
 
         # 如果 ffmpeg_path 是默认值'ffmpeg'或者是一个存在的文件路径，则执行 command_gen_video，否则提示用户 ffmpeg_path 不存在，返回
@@ -54,5 +64,5 @@ def gen_video(images_path, video_path, framerate, background_color, background_m
 
 
 if __name__ == '__main__':
-    gen_video(images_path='output', video_path='output.mp4', ffmpeg_path='ffmpeg', framerate='1/2',
+    gen_video(images_path='output', video_path='output.mp4', ffmpeg_path='ffmpeg', duration='2',
               background_color='white', background_music='./output/bgm.mp3', size='middle')
