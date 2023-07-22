@@ -32,3 +32,5 @@ LOCATION_RIGHT_BOTTOM = 'right_bottom'
 TRANSPARENT = (0, 0, 0, 0)
 DEBUG = False
 GRAY = '#CBCBC9'
+
+DEFAULT_VALUE = '--'
