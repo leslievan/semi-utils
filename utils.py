@@ -1,8 +1,8 @@
 import logging
 import platform
 import re
+import shutil
 import subprocess
-import unicodedata
 from pathlib import Path
 
 from PIL import Image
@@ -14,6 +14,9 @@ from enums.constant import TRANSPARENT
 if platform.system() == 'Windows':
     EXIFTOOL_PATH = Path('./exiftool/exiftool.exe')
     ENCODING = 'gbk'
+elif shutil.which('exiftool') is not None:
+    EXIFTOOL_PATH = shutil.which('exiftool')
+    ENCODING = 'utf-8'
 else:
     EXIFTOOL_PATH = Path('./exiftool/exiftool')
     ENCODING = 'utf-8'
