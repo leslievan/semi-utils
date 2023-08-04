@@ -241,4 +241,9 @@ class ImageContainer(object):
 
         if self.watermark_img.mode != 'RGB':
             self.watermark_img = self.watermark_img.convert('RGB')
-        self.watermark_img.save(target_path, quality=quality, encoding='utf-8', exif=self.img.info['exif'])
+
+        if 'exif' in self.img.info:
+            self.watermark_img.save(target_path, quality=quality, encoding='utf-8',
+                                    exif=self.img.info['exif'] if 'exif' in self.img.info else '')
+        else:
+            self.watermark_img.save(target_path, quality=quality, encoding='utf-8')
