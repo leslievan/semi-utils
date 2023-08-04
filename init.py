@@ -19,32 +19,7 @@ from entity.image_processor import WatermarkLeftLogoProcessor
 from entity.image_processor import WatermarkProcessor
 from entity.image_processor import WatermarkRightLogoProcessor
 from entity.menu import *
-from enums.constant import CAMERA_MAKE_CAMERA_MODEL_NAME
-from enums.constant import CAMERA_MAKE_CAMERA_MODEL_VALUE
-from enums.constant import CAMERA_MODEL_LENS_MODEL_NAME
-from enums.constant import CAMERA_MODEL_LENS_MODEL_VALUE
-from enums.constant import CUSTOM_NAME
-from enums.constant import CUSTOM_VALUE
-from enums.constant import DATETIME_NAME
-from enums.constant import DATETIME_VALUE
-from enums.constant import DATE_NAME
-from enums.constant import DATE_VALUE
-from enums.constant import FILENAME_NAME
-from enums.constant import FILENAME_VALUE
-from enums.constant import LENS_MAKE_LENS_MODEL_NAME
-from enums.constant import LENS_MAKE_LENS_MODEL_VALUE
-from enums.constant import LENS_NAME
-from enums.constant import LENS_VALUE
-from enums.constant import MAKE_NAME
-from enums.constant import MAKE_VALUE
-from enums.constant import MODEL_NAME
-from enums.constant import MODEL_VALUE
-from enums.constant import NONE_NAME
-from enums.constant import NONE_VALUE
-from enums.constant import PARAM_NAME
-from enums.constant import PARAM_VALUE
-from enums.constant import TOTAL_PIXEL_NAME
-from enums.constant import TOTAL_PIXEL_VALUE
+from enums.constant import *
 
 import logging
 
@@ -197,6 +172,8 @@ ITEM_LIST = [
     ElementItem(TOTAL_PIXEL_NAME, TOTAL_PIXEL_VALUE),
     ElementItem(CAMERA_MAKE_CAMERA_MODEL_NAME, CAMERA_MAKE_CAMERA_MODEL_VALUE),
     ElementItem(FILENAME_NAME, FILENAME_VALUE),
+    ElementItem(DATE_FILENAME_NAME, DATE_FILENAME_VALUE),
+    ElementItem(DATETIME_FILENAME_NAME, DATETIME_FILENAME_VALUE),
 ]
 
 # 菜单位置与菜单项的映射
