@@ -59,6 +59,21 @@ class Config(object):
             if 'background_color' in self._data['layout'] \
             else '#ffffff'
 
+    def get(self, key):
+        if key in self._data:
+            return self._data[key]
+        else:
+            return None
+
+    def get_or_default(self, key, default):
+        if key in self._data:
+            return self._data[key]
+        else:
+            return default
+
+    def set(self, key, value):
+        self._data[key] = value
+
     def load_logo(self, make) -> Image.Image:
         """
         根据厂商获取 logo
@@ -75,7 +90,7 @@ class Config(object):
                 self._logos[make] = logo
                 return logo
 
-    def get(self) -> dict:
+    def get_data(self) -> dict:
         return self._data
 
     def get_input_dir(self):

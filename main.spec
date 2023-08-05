@@ -46,5 +46,5 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='semi-utils-build1518',
+    name='semi-utils-build1519',
 )
