@@ -37,7 +37,7 @@ def processing():
 
     # 根据布局添加不同的水印处理器
     if config.get_layout_type() in layout_items_dict:
-        processor_chain.add(layout_items_dict.get_data(config.get_layout_type()).processor)
+        processor_chain.add(layout_items_dict.get(config.get_layout_type()).processor)
     else:
         processor_chain.add(SIMPLE_PROCESSOR)
 
@@ -69,12 +69,15 @@ def processing():
 
         container.save(target_path, quality=config.get_quality())
         container.close()
-    print('处理完成，文件已输出至 output 文件夹中，请点击任意键退出或直接关闭')
+    option = input('处理完成，文件已输出至 output 文件夹中，输入【r】返回主菜单，输入【x】退出程序\n')
     if DEBUG:
         sys.exit(0)
     else:
-        input()
-        state = -1
+        if option == 'x' or option == 'X':
+            state = -1
+            # r 返回上一层
+        elif option == 'r' or option == 'R':
+            state = 0
 
 
 state = 0

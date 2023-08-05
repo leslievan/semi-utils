@@ -195,27 +195,27 @@ for location, menu in LOCATION_MENU_MAP.items():
 
 def help_gen_video():
     # 如果 help.txt 文件存在，说明已经运行过了，直接运行 generate_video
-    if os.path.exists('help.txt'):
-        generate_video(config.get_output_dir(), config.get_or_default("video_gap_time", 2))
-        return
+    if not os.path.exists('help.txt'):
+        # 生成 help.txt 文件，下次运行时不再提示
+        with open('help.txt', 'w') as f:
+            f.write('')
+        print('以下提示仅在第一次运行时出现，如果需要重新设置，请删除 help.txt 文件后再次运行')
+        print('- 该功能用于将 output 中的图片制作成视频，需要ffmpeg支持，默认在 bin 文件夹中附带')
+        print('- 如果需要添加背景音乐，请将音乐文件放在 output 文件夹中，命名为 bgm.mp3')
+        # 如果输入的不是数字，提示重新输入
+        gap_time = input('- 请输入一个数字，指定两张图片切换之间的间隔时间，建议 2s：')
+        while not gap_time.isdigit():
+            gap_time = input('提示：你输入的不是数字，请重新输入：')
+        config.set("video_gap_time", gap_time)
+        config.save()
 
-    print('以下提示仅在第一次运行时出现，如果需要重新设置，请删除 help.txt 文件后再次运行')
-    print('- 该功能用于将 output 中的图片制作成视频，需要ffmpeg支持，默认在 bin 文件夹中附带')
-    print('- 如果需要添加背景音乐，请将音乐文件放在 output 文件夹中，命名为 bgm.mp3')
-    # 如果输入的不是数字，提示重新输入
-    gap_time = input('- 请输入一个数字，指定两张图片切换之间的间隔时间（单位：秒）：')
-    while not gap_time.isdigit():
-        gap_time = input('提示：你输入的不是数字，请重新输入：')
-    config.set("video_gap_time", gap_time)
-    generate_video(config.get_output_dir(), gap_time)
-
-    # 生成 help.txt 文件，下次运行时不再提示
-    with open('help.txt', 'w') as f:
-        f.write('')
+    generate_video(config.get_output_dir(), config.get_or_default("video_gap_time", 2))
+    # 输入回车继续
+    input("按回车键返回主菜单...")
 
 
 # 创建菜单项：制作视频
-make_video_menu = MenuItem('【新】制作视频')
+make_video_menu = MenuItem('【新功能】制作视频')
 make_video_menu.set_procedure(help_gen_video)
 root_menu.add(make_video_menu)
 
