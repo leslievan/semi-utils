@@ -117,7 +117,7 @@ class SubMenu(MenuComponent):
         :param getter:
         :return:
         """
-        self.source = config.get()
+        self.source = config.get_data()
         self.getter = getter
 
     def get_value(self):

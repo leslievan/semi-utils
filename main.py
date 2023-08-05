@@ -37,7 +37,7 @@ def processing():
 
     # 根据布局添加不同的水印处理器
     if config.get_layout_type() in layout_items_dict:
-        processor_chain.add(layout_items_dict.get(config.get_layout_type()).processor)
+        processor_chain.add(layout_items_dict.get_data(config.get_layout_type()).processor)
     else:
         processor_chain.add(SIMPLE_PROCESSOR)
 
