@@ -3,6 +3,8 @@ import platform
 import subprocess
 from datetime import datetime
 
+import requests as requests
+
 
 def get_ffmpeg_path():
     if platform.system() == "Windows":
@@ -22,11 +24,24 @@ def get_ffmpeg_path():
         return None
 
 
+def download_ffmpeg(target_path):
+    url = "https://github.com/leslievan/semi-utils/raw/exiftool/bin/ffmpeg.exe"
+    response = requests.get(url, stream=True)
+    with open(target_path, 'wb') as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            f.write(chunk)
+    # 提示下载完成，同时输出 ffmpeg 路径
+    print("下载完成，ffmpeg 路径为：", target_path)
+
+
 def generate_video(path, gap_time=2):
     ffmpeg_path = get_ffmpeg_path()
     if not ffmpeg_path:
-        print("请先安装ffmpeg!")
-        return
+        print("找不到ffmpeg。正在下载...")
+        bin_dir = 'bin'
+        if not os.path.exists(bin_dir):
+            os.makedirs(bin_dir)
+        download_ffmpeg(os.path.join(bin_dir, 'ffmpeg.exe'))
 
     current_time = datetime.now().strftime("%Y%m%d%H%M%S")
     output_file = os.path.join(path, f"{current_time}.mp4")
