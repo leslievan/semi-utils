@@ -76,7 +76,7 @@ def processing():
         if option == 'x' or option == 'X':
             state = -1
             # r 返回上一层
-        elif option == 'r' or option == 'R':
+        else:
             state = 0
 
 

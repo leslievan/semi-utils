@@ -206,12 +206,12 @@ def help_gen_video():
         gap_time = input('- 请输入一个数字，指定两张图片切换之间的间隔时间，建议 2s：')
         while not gap_time.isdigit():
             gap_time = input('提示：你输入的不是数字，请重新输入：')
-        config.set("video_gap_time", gap_time)
+        config.set("video_gap_time", int(gap_time))
         config.save()
 
     generate_video(config.get_output_dir(), config.get_or_default("video_gap_time", 2))
     # 输入回车继续
-    input("按回车键返回主菜单...")
+    input("按任意键返回主菜单...")
 
 
 # 创建菜单项：制作视频
