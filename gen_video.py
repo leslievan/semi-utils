@@ -70,6 +70,7 @@ def generate_video(path, gap_time=2):
         if not os.path.exists(bin_dir):
             os.makedirs(bin_dir)
         download_ffmpeg(os.path.join(bin_dir, 'ffmpeg.exe'))
+        ffmpeg_path = os.path.join(bin_dir, 'ffmpeg.exe')
 
     current_time = datetime.now().strftime("%Y%m%d%H%M%S")
     output_file = os.path.join(path, f"{current_time}.mp4")
