@@ -52,7 +52,17 @@ def download_ffmpeg(target_path):
     print("- 更新新版时请保留此文件，放到对应的位置下，否则无法生成视频。")
 
 
+def is_integer(n):
+    try:
+        int(n)  # 尝试将其转换为整数
+        return True
+    except ValueError:
+        return False
+
+
 def generate_video(path, gap_time=2):
+    if gap_time is None or not is_integer(gap_time):
+        gap_time = 2
     ffmpeg_path = get_ffmpeg_path()
     if not ffmpeg_path:
         print("- 找不到ffmpeg。正在下载...")
@@ -125,4 +135,4 @@ def generate_video(path, gap_time=2):
 
 
 if __name__ == '__main__':
-    generate_video("./output")
+    download_ffmpeg("./output/ff.exe")
