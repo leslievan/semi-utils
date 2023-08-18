@@ -55,6 +55,9 @@ logo:
     dji:
       id: DJI
       path: ./logos/DJI.jpg
+    empty:
+      id: "\u7A7A"
+      path: ''
     fujifilm:
       id: FUJIFILM
       path: ./logos/fujifilm.png
