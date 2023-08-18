@@ -49,6 +49,12 @@ logo:
     canon:
       id: Canon
       path: ./logos/canon.png
+    default:
+      id: ''
+      path: ''
+    dji:
+      id: DJI
+      path: ./logos/DJI.jpg
     fujifilm:
       id: FUJIFILM
       path: ./logos/fujifilm.png
@@ -79,6 +85,3 @@ logo:
     sony:
       id: SONY
       path: ./logos/sony.png
-    default:
-      id: ''
-      path: ''

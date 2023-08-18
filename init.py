@@ -219,6 +219,18 @@ make_video_menu = MenuItem('【新功能】制作视频')
 make_video_menu.set_procedure(help_gen_video)
 root_menu.add(make_video_menu)
 
+default_logo_menu = SubMenu('【新选项】设置默认 logo，机身无法匹配时将使用默认 logo（比如大疆）')
+default_logo_menu.set_value_getter(config, lambda x: x.get("logo")["makes"]["default"]["path"])
+default_logo_menu.set_compare_method(lambda x, y: x == y)
+root_menu.add(default_logo_menu)
+
+for m in config._makes.values():
+    item_menu = MenuItem(m['id'])
+    item_menu.set_procedure(config.set_default_logo_path, logo_path=m['path'])
+    item_menu._value = m['path']
+    default_logo_menu.add(item_menu)
+
+
 # 更多设置
 more_setting_menu = SubMenu('更多设置')
 more_setting_menu.set_value_getter(config, lambda x: None)
