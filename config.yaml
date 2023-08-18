@@ -79,3 +79,6 @@ logo:
     sony:
       id: SONY
       path: ./logos/sony.png
+    default:
+      id: ''
+      path: ''
