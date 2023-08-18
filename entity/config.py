@@ -249,3 +249,7 @@ class Config(object):
             self.set_custom(location)
         else:
             self._data['layout']['elements'][location]['name'] = name
+
+    def set_default_logo_path(self, logo_path):
+        self._data["logo"]['makes']['default']['path'] = logo_path
+        self.save()
