@@ -85,10 +85,16 @@ class Config(object):
             return self._logos[make]
         # 未读取到内存中的 logo
         for m in self._makes.values():
+            if m['id'] == '':
+                pass
             if m['id'].lower() in make.lower():
                 logo = Image.open(m['path'])
                 self._logos[make] = logo
                 return logo
+        logo_path = self._data['logo']['default']['path']
+        logo = Image.open(logo_path)
+        self._logos[make] = logo
+        return logo
 
     def get_data(self) -> dict:
         return self._data
@@ -249,3 +255,7 @@ class Config(object):
             self.set_custom(location)
         else:
             self._data['layout']['elements'][location]['name'] = name
+
+    def set_default_logo_path(self, logo_path):
+        self._data["logo"]['default']['path'] = logo_path
+        self.save()
