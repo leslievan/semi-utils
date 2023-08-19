@@ -220,7 +220,7 @@ make_video_menu.set_procedure(help_gen_video)
 root_menu.add(make_video_menu)
 
 default_logo_menu = SubMenu('【新选项】设置默认 logo，机身无法匹配时将使用默认 logo（比如大疆）')
-default_logo_menu.set_value_getter(config, lambda x: x.get("logo")["makes"]["default"]["path"])
+default_logo_menu.set_value_getter(config, lambda x: x['logo']['default']['path'])
 default_logo_menu.set_compare_method(lambda x, y: x == y)
 root_menu.add(default_logo_menu)
 

@@ -42,6 +42,9 @@ layout:
   logo_position: left
   type: watermark_right_logo
 logo:
+  default:
+    id: ''
+    path: ./logos/empty.png
   makes:
     apple:
       id: APPLE
@@ -49,15 +52,12 @@ logo:
     canon:
       id: Canon
       path: ./logos/canon.png
-    default:
-      id: ''
-      path: ''
     dji:
       id: DJI
       path: ./logos/DJI.jpg
     empty:
       id: "\u7A7A"
-      path: ''
+      path: ./logos/empty.png
     fujifilm:
       id: FUJIFILM
       path: ./logos/fujifilm.png
