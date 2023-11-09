@@ -33,7 +33,6 @@ layout:
       color: '#757575'
       is_bold: false
       name: Datetime
-      value: Photo by NONE
     right_top:
       color: '#212121'
       is_bold: true
@@ -85,6 +84,9 @@ logo:
     ricoh:
       id: RICOH
       path: ./logos/ricoh.png
+    samsung:
+      id: SAMSUNG
+      path: ./logos/samsung.png
     sony:
       id: SONY
       path: ./logos/sony.png
