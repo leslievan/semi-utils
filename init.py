@@ -31,17 +31,17 @@ Path('./logs').mkdir(parents=True, exist_ok=True)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 # 添加一个 FileHandler 处理器，将 INFO 级别日志写入 ./logs/info.log 文件中
-info_handler = logging.FileHandler('./logs/info.log', mode='w')
+info_handler = logging.FileHandler('./logs/info.log', mode='w', encoding='utf-8')
 info_handler.setLevel(logging.INFO)
 info_handler.setFormatter(formatter)
 
 # 添加一个 FileHandler 处理器，将 ERROR 级别日志写入 ./logs/error.log 文件中
-error_handler = logging.FileHandler('./logs/error.log', mode='w')
+error_handler = logging.FileHandler('./logs/error.log', mode='w', encoding='utf-8')
 error_handler.setLevel(logging.ERROR)
 error_handler.setFormatter(formatter)
 
 # 添加一个 FileHandler 处理器，将 DEBUG 级别日志写入 ./logs/all.log 文件中
-debug_handler = logging.FileHandler('./logs/all.log', mode='w')
+debug_handler = logging.FileHandler('./logs/all.log', mode='w', encoding='utf-8')
 debug_handler.setLevel(logging.DEBUG)
 debug_handler.setFormatter(formatter)
 
@@ -229,7 +229,6 @@ for m in config._makes.values():
     item_menu.set_procedure(config.set_default_logo_path, logo_path=m['path'])
     item_menu._value = m['path']
     default_logo_menu.add(item_menu)
-
 
 # 更多设置
 more_setting_menu = SubMenu('更多设置')

@@ -32,7 +32,7 @@ def get_file_list(path):
     """
     path = Path(path, encoding=ENCODING)
     return [file_path for file_path in path.iterdir()
-            if file_path.is_file() and file_path.suffix in ['.jpg', '.jpeg', '.JPG', '.JPEG']]
+            if file_path.is_file() and file_path.suffix in ['.jpg', '.jpeg', '.JPG', '.JPEG', '.png', '.PNG']]
 
 
 def get_exif(path) -> dict:
