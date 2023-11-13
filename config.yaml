@@ -65,7 +65,7 @@ logo:
       path: ./logos/hasselblad.png
     huawei:
       id: HUAWEI
-      path: ./logos/xmage.jpg
+      path: ./logos/xmage.png
     leica:
       id: leica
       path: ./logos/leica_logo.png
