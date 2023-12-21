@@ -176,7 +176,9 @@ class WatermarkProcessor(ProcessorComponent):
         if self.logo_enable:
             if self.is_logo_left():
                 # 如果 logo 在左边
-                append_image_by_side(watermark, [logo, left], is_start=logo is None)
+                line = LINE_TRANSPARENT.copy()
+                logo = padding_image(logo, int(padding_ratio * logo.height))
+                append_image_by_side(watermark, [line, logo, left], is_start=logo is None)
                 append_image_by_side(watermark, [right], side='right')
             else:
                 # 如果 logo 在右边
