@@ -398,9 +398,3 @@ def extract_gps_lat_and_long(lat: str, long: str):
 def extract_gps_info(gps_info: str):
     lat, long = gps_info.split(", ")
     return extract_gps_lat_and_long(lat, long)
-
-
-gps_data = "30 deg 16' 34.63' N, 119 deg 59' 22.48' E"
-latitude, longitude = extract_gps_info(gps_data)
-
-print(f"Latitude: {latitude}, Longitude: {longitude}")
