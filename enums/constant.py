@@ -28,6 +28,8 @@ DATE_FILENAME_NAME = '日期 + 文件名(eg. 2023-01-01 DXO_0001)'
 DATE_FILENAME_VALUE = 'Date_Filename'
 DATETIME_FILENAME_NAME = '日期时间 + 文件名(eg. 2023-01-01 12:00 DXO_0001)'
 DATETIME_FILENAME_VALUE = 'Datetime_Filename'
+GEO_INFO = '地理信息'
+GEO_INFO_VALUE = 'GeoInfo'
 
 LOCATION_LEFT_TOP = 'left_top'
 LOCATION_LEFT_BOTTOM = 'left_bottom'
