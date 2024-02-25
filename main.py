@@ -63,6 +63,9 @@ def processing():
             logging.exception(f'Error: {str(e)}')
             if DEBUG:
                 raise e
+            else:
+                print(f'\nError: 文件：{source_path} 处理失败，请检查日志')
+                continue
 
         # 保存图片
         target_path = Path(config.get_output_dir(), encoding=ENCODING).joinpath(source_path.name)

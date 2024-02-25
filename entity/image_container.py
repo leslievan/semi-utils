@@ -1,4 +1,5 @@
 import logging
+import os
 import re
 from datetime import datetime
 from enum import Enum
@@ -12,6 +13,8 @@ from entity.config import ElementConfig
 from enums.constant import *
 from utils import calculate_pixel_count
 from utils import extract_attribute
+from utils import extract_gps_info
+from utils import extract_gps_lat_and_long
 from utils import get_exif
 
 logger = logging.getLogger(__name__)
@@ -118,8 +121,18 @@ class ImageContainer(object):
         self._param_dict[DATETIME_VALUE] = self._parse_datetime()
         self._param_dict[DATE_VALUE] = self._parse_date()
         self._param_dict[LENS_VALUE] = self.lens_model
-        self._param_dict[FILENAME_VALUE] = self.path.name
+        filename_without_ext = os.path.splitext(self.path.name)[0]
+        self._param_dict[FILENAME_VALUE] = filename_without_ext
         self._param_dict[TOTAL_PIXEL_VALUE] = calculate_pixel_count(self.original_width, self.original_height)
+
+        # GPS 信息
+        if 'GPSPosition' in self.exif:
+            self._param_dict[GEO_INFO_VALUE] = str.join(' ', extract_gps_info(self.exif.get('GPSPosition')))
+        elif 'GPSLatitude' in self.exif and 'GPSLongitude' in self.exif:
+            self._param_dict[GEO_INFO_VALUE] = str.join(' ', extract_gps_lat_and_long((self.exif.get('GPSLatitude'),
+                                                                                       self.exif.get('GPSLongitude'))))
+        else:
+            self._param_dict[GEO_INFO_VALUE] = '无'
 
         self._param_dict[CAMERA_MAKE_CAMERA_MODEL_VALUE] = ' '.join(
             [self._param_dict[MAKE_VALUE], self._param_dict[MODEL_VALUE]])

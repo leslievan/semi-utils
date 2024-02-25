@@ -378,3 +378,23 @@ def extract_attribute(data_dict: dict, *keys, default_value: str = '', prefix=''
         if key in data_dict:
             return data_dict[key] + suffix
     return default_value
+
+
+def extract_gps_lat_and_long(lat: str, long: str):
+    # 提取出纬度和经度主要部分
+    lat_deg, _, lat_min = re.findall(r"(\d+ deg \d+)", lat)[0].split()
+    long_deg, _, long_min = re.findall(r"(\d+ deg \d+)", long)[0].split()
+
+    # 提取出方向（北 / 南 / 东 / 西）
+    lat_dir = re.findall(r"([NS])", lat)[0]
+    long_dir = re.findall(r"([EW])", long)[0]
+
+    latitude = f"{lat_deg}°{lat_min}'{lat_dir}"
+    longitude = f"{long_deg}°{long_min}'{long_dir}"
+
+    return latitude, longitude
+
+
+def extract_gps_info(gps_info: str):
+    lat, long = gps_info.split(", ")
+    return extract_gps_lat_and_long(lat, long)
