@@ -1,14 +1,13 @@
-# 下载文件
-Invoke-WebRequest -Uri https://exiftool.org/Image-ExifTool-12.60.tar.gz -OutFile Image-ExifTool-12.60.tar.gz
+# Download file
+Invoke-WebRequest -Uri "https://exiftool.org/exiftool-12.69.zip" -OutFile exiftool.zip
 
-# 创建目录
-mkdir exiftool
+# Create directory and extract the archive.
+$null = New-Item -Path . -Name "exiftool" -ItemType "directory"
+Expand-Archive -Path exiftool.zip -DestinationPath exiftool -Force
 
-# 解压文件
-Expand-Archive -Path Image-ExifTool-12.60.tar.gz -DestinationPath exiftool -Force
+# Delete the archive
+Remove-Item exiftool.zip
+Rename-Item -Path ".\exiftool\exiftool(-k).exe" -NewName "exiftool.exe"
 
-# 删除压缩包
-Remove-Item Image-ExifTool-12.60.tar.gz
-
-# 下载 python 依赖
-pip3 install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+# Install Python dependencies
+python3 -m pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple

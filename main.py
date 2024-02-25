@@ -51,10 +51,8 @@ def processing():
 
     for source_path in tqdm(file_list):
         # 打开图片
-        container = ImageContainer(source_path)
-
-        # 使用等效焦距
-        container.is_use_equivalent_focal_length(config.use_equivalent_focal_length())
+        # 等效焦距的处理在类初始化的时候进行，避免生成的图片显示参数焦距不一致
+        container = ImageContainer(source_path, config.use_equivalent_focal_length())
 
         # 处理图片
         try:
@@ -68,7 +66,7 @@ def processing():
                 continue
 
         # 保存图片
-        target_path = Path(config.get_output_dir(), encoding=ENCODING).joinpath(source_path.name)
+        target_path = Path(config.get_output_dir()).joinpath(source_path.name)
 
         container.save(target_path, quality=config.get_quality())
         container.close()
