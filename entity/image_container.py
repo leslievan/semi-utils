@@ -1,4 +1,5 @@
 import logging
+import os
 import re
 from datetime import datetime
 from enum import Enum
@@ -118,7 +119,8 @@ class ImageContainer(object):
         self._param_dict[DATETIME_VALUE] = self._parse_datetime()
         self._param_dict[DATE_VALUE] = self._parse_date()
         self._param_dict[LENS_VALUE] = self.lens_model
-        self._param_dict[FILENAME_VALUE] = self.path.name
+        filename_without_ext = os.path.splitext(self.path.name)[0]
+        self._param_dict[FILENAME_VALUE] = filename_without_ext
         self._param_dict[TOTAL_PIXEL_VALUE] = calculate_pixel_count(self.original_width, self.original_height)
 
         self._param_dict[CAMERA_MAKE_CAMERA_MODEL_VALUE] = ' '.join(
