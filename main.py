@@ -1,5 +1,6 @@
 import logging
 import sys
+from multiprocessing.pool import Pool
 from pathlib import Path
 
 from tqdm import tqdm
@@ -17,6 +18,30 @@ from init import layout_items_dict
 from init import root_menu
 from utils import ENCODING
 from utils import get_file_list
+
+
+def image_process_callback(processor_chain_, source_path_):
+    # 打开图片
+    container = ImageContainer(source_path_)
+
+    # 使用等效焦距
+    container.is_use_equivalent_focal_length(config.use_equivalent_focal_length())
+
+    # 处理图片
+    try:
+        processor_chain_.process(container)
+    except Exception as e:
+        logging.exception(f'Error: {str(e)}')
+        if DEBUG:
+            raise e
+        else:
+            print(f'\nError: 文件：{source_path_} 处理失败，请检查日志')
+
+    # 保存图片
+    target_path = Path(config.get_output_dir(), encoding=ENCODING).joinpath(source_path_.name)
+
+    container.save(target_path, quality=config.get_quality())
+    container.close()
 
 
 def processing():
@@ -49,29 +74,29 @@ def processing():
     if config.has_padding_with_original_ratio_enabled() and 'square' != config.get_layout_type():
         processor_chain.add(PADDING_TO_ORIGINAL_RATIO_PROCESSOR)
 
-    for source_path in tqdm(file_list):
-        # 打开图片
-        container = ImageContainer(source_path)
+    def update(*a):
+        # 这个函数将会在每个进程完成后被调用，用来更新进度条
+        pbar.update()
 
-        # 使用等效焦距
-        container.is_use_equivalent_focal_length(config.use_equivalent_focal_length())
+    # 初始化tqdm进度条
+    pbar = tqdm(total=len(file_list))
 
-        # 处理图片
-        try:
-            processor_chain.process(container)
-        except Exception as e:
-            logging.exception(f'Error: {str(e)}')
-            if DEBUG:
-                raise e
-            else:
-                print(f'\nError: 文件：{source_path} 处理失败，请检查日志')
-                continue
+    # 限制最大并发进程数
+    pool = Pool(5)
 
-        # 保存图片
-        target_path = Path(config.get_output_dir(), encoding=ENCODING).joinpath(source_path.name)
+    # 对于file_list中的每个source_path，异步地启动进程
+    for source_path in file_list:
+        pool.apply_async(image_process_callback, args=(processor_chain, source_path), callback=update)
 
-        container.save(target_path, quality=config.get_quality())
-        container.close()
+    # 关闭进程池，不再接受新的任务
+    pool.close()
+
+    # 等待所有进程完成
+    pool.join()
+
+    # 完成所有任务后，关闭tqdm进度条
+    pbar.close()
+
     option = input('处理完成，文件已输出至 output 文件夹中，输入【r】返回主菜单，输入【x】退出程序\n')
     if DEBUG:
         sys.exit(0)
