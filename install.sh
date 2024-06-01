@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 下载文件
-curl -O https://exiftool.org/Image-ExifTool-12.60.tar.gz
+curl -O https://exiftool.org/Image-ExifTool-12.85.tar.gz
 
 # 创建目录
 mkdir -p ./exiftool
