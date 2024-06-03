@@ -222,7 +222,7 @@ def resize_image_with_height(image, height, auto_close=True):
     new_width = round(width * scale)
 
     # 进行等比缩放
-    resized_image = image.resize((new_width, height), Image.ANTIALIAS)
+    resized_image = image.resize((new_width, height), Image.LANCZOS)
 
     # 关闭图片对象
     if auto_close:
@@ -247,7 +247,7 @@ def resize_image_with_width(image, width, auto_close=True):
     new_height = round(height * scale)
 
     # 进行等比缩放
-    resized_image = image.resize((width, new_height), Image.ANTIALIAS)
+    resized_image = image.resize((width, new_height), Image.LANCZOS)
 
     # 关闭图片对象
     if auto_close:
@@ -302,7 +302,7 @@ def text_to_image(content, font, bold_font, is_bold=False, fill='black') -> Imag
         font = bold_font
     if content == '':
         content = '   '
-    text_width, text_height = font.getsize(content)
+    _, _, text_width, text_height = font.getbbox(content)
     image = Image.new('RGBA', (text_width, text_height), color=TRANSPARENT)
     draw = ImageDraw.Draw(image)
     draw.text((0, 0), content, fill=fill, font=font)
