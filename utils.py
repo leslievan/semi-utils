@@ -302,7 +302,7 @@ def text_to_image(content, font, bold_font, is_bold=False, fill='black') -> Imag
         font = bold_font
     if content == '':
         content = '   '
-    _, _, text_width, text_height = font.getbbox(content)
+    text_width, text_height = font.getbbox(content)
     image = Image.new('RGBA', (text_width, text_height), color=TRANSPARENT)
     draw = ImageDraw.Draw(image)
     draw.text((0, 0), content, fill=fill, font=font)
