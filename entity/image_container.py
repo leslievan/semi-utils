@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 class ExifId(Enum):
     CAMERA_MODEL = 'CameraModelName'
     CAMERA_MAKE = 'Make'
-    LENS_MODEL = ['LensModel', 'Lens']
+    LENS_MODEL = ['LensModel', 'Lens', 'LensID']
     LENS_MAKE = 'LensMake'
     DATETIME = 'DateTimeOriginal'
     FOCAL_LENGTH = 'FocalLength'
