@@ -356,6 +356,21 @@ class PaddingToOriginalRatioProcessor(ProcessorComponent):
             padding_img = ImageOps.expand(container.get_watermark_img(), (padding_size, 0), fill='white')
         container.update_watermark_img(padding_img)
 
+class PaddingToCustomRatioProcessor(ProcessorComponent):
+    LAYOUT_ID = 'padding_to_custom_ratio'
+
+    def process(self, container: ImageContainer) -> None:
+        custom_ratio = self.config.get_custom_ratio()
+        ratio = container.get_ratio()
+        if custom_ratio < ratio:
+            # 如果指定比例小于当前比例，说明宽度大于高度，需要填充高度
+            padding_size = int((container.get_width() / custom_ratio - container.get_height()) / 2)
+            padding_img = ImageOps.expand(container.get_watermark_img(), (0, padding_size), fill='white')
+        else:
+            # 如果指定比例大于当前比例，说明高度大于宽度，需要填充宽度
+            padding_size = int((container.get_height() * custom_ratio - container.get_width()) / 2)
+            padding_img = ImageOps.expand(container.get_watermark_img(), (padding_size, 0), fill='white')
+        container.update_watermark_img(padding_img)
 
 PADDING_PERCENT_IN_BACKGROUND = 0.18
 GAUSSIAN_KERNEL_RADIUS = 35

@@ -199,6 +199,20 @@ class Config(object):
     def has_padding_with_original_ratio_enabled(self):
         return self._data['global']['padding_with_original_ratio']['enable']
 
+    def enable_padding_with_custom_ratio_and_set_ratio(self):
+        ratio = float(input("请输入自定义比例 (宽/高)，例如 16:9 的比例为 1.78：\n"))
+        self._data['global']['padding_with_custom_ratio']['ratio'] = ratio
+        self._data['global']['padding_with_custom_ratio']['enable'] = True
+
+    def disable_padding_with_custom_ratio(self):
+        self._data['global']['padding_with_custom_ratio']['enable'] = False
+
+    def has_padding_with_custom_ratio_enabled(self):
+        return self._data['global']['padding_with_custom_ratio']['enable']
+
+    def get_custom_ratio(self):
+        return self._data['global']['padding_with_custom_ratio']['ratio']
+
     def set_layout(self, layout):
         self._data['layout']['type'] = layout
 
