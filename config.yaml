@@ -11,6 +11,9 @@ base:
 global:
   focal_length:
     use_equivalent_focal_length: false
+  padding_with_custom_ratio:
+    enable: false
+    ratio: 1.78
   padding_with_original_ratio:
     enable: false
   shadow:
