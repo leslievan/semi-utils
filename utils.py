@@ -43,6 +43,10 @@ def get_exif(path) -> dict:
     """
     exif_dict = {}
     try:
+        # check the exiftool is exist
+        if not EXIFTOOL_PATH.exists():
+            logger.error(f'exiftool不存在，请重新install: {EXIFTOOL_PATH}')
+            return exif_dict
         output_bytes = subprocess.check_output([EXIFTOOL_PATH, '-d', '%Y-%m-%d %H:%M:%S%3f%z', path])
         output = output_bytes.decode('utf-8', errors='ignore')
 
