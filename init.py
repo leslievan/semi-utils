@@ -231,6 +231,17 @@ for m in config._makes.values():
     item_menu._value = m['path']
     default_logo_menu.add(item_menu)
 
+# 创建子菜单：修改文件路径
+set_input_path_menu = MenuItem(f'【新功能】修改input路径,当前路径：{config.get_data()['base']['input_dir']}')
+set_input_path_menu.set_procedure(config.update_input_dir, path_menu=set_input_path_menu)
+set_input_path_menu._value = config.get_data()['base']['input_dir']  # 貌似没用
+root_menu.add(set_input_path_menu)
+
+set_output_path_menu = MenuItem(f'【新功能】修改output路径,当前路径：{config.get_data()['base']['output_dir']}')
+set_output_path_menu.set_procedure(config.update_output_dir, path_menu=set_output_path_menu)
+set_output_path_menu._value = config.get_data()['base']['output_dir']  # 貌似没用
+root_menu.add(set_output_path_menu)
+
 # 更多设置
 more_setting_menu = SubMenu('更多设置')
 more_setting_menu.set_value_getter(config, lambda x: None)

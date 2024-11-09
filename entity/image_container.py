@@ -222,6 +222,7 @@ class ImageContainer(object):
 
     def is_use_equivalent_focal_length(self, flag: bool) -> None:
         self.use_equivalent_focal_length = flag
+        self._param_dict[PARAM_VALUE] = self.get_param_str()
 
     def get_watermark_img(self) -> Image.Image:
         if self.watermark_img is None:
