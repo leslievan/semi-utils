@@ -6,7 +6,7 @@ if [ -f 'inited' ]; then
 fi
 
 # 下载文件
-curl -O http://file.lsvm.xyz/Image-ExifTool-12.92.tar.gz
+curl -O https://sources.voidlinux.org/exiftool-12.92/Image-ExifTool-12.92.tar.gz
 
 
 # 创建目录
