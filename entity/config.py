@@ -1,4 +1,5 @@
 import os
+import re
 
 import yaml
 from PIL import Image
@@ -9,6 +10,10 @@ from enums.constant import LOCATION_LEFT_BOTTOM
 from enums.constant import LOCATION_LEFT_TOP
 from enums.constant import LOCATION_RIGHT_BOTTOM
 from enums.constant import LOCATION_RIGHT_TOP
+
+from pathlib import Path
+
+from entity.menu import MenuItem
 
 
 class ElementConfig(object):
@@ -104,7 +109,9 @@ class Config(object):
 
     def get_output_dir(self):
         output_dir = self._data['base']['output_dir']
-        if not os.path.exists(output_dir):
+        if output_dir == '':
+            return output_dir
+        elif not os.path.exists(output_dir):
             os.makedirs(output_dir)
         return output_dir
 
@@ -259,3 +266,48 @@ class Config(object):
     def set_default_logo_path(self, logo_path):
         self._data["logo"]['default']['path'] = logo_path
         self.save()
+
+    # 更新输入路径
+    def update_input_dir(self, path_menu: MenuItem):
+        dir_path = input('请输入新的待处理文件夹路径：')
+        if os.path.exists(dir_path):
+            self._data['base']['input_dir'] = dir_path
+            path_menu._name = f'【新功能】修改input路径,当前路径：{dir_path}'
+        else:
+            print('文件夹不存在，路径未改变')
+
+    # 更新输出路径
+    def update_output_dir(self, path_menu: MenuItem):
+        dir_path = input('请输入新的文件保存路径(直接回车则保存在input文件夹中)：')
+        if dir_path == '':
+            self._data['base']['output_dir'] = dir_path
+            path_menu._name = f'【新功能】修改output路径,当前路径：{dir_path}'
+        elif is_valid_path(dir_path):
+            self._data['base']['output_dir'] = dir_path
+            path_menu._name = f'【新功能】修改output路径,当前路径：{dir_path}'
+        else:
+            print(f"文件夹路径不规范或其他原因，设置失败。")
+
+
+def is_valid_path(path_str):
+    # 检查路径是否包含非法字符
+    invalid_chars = r'[<>:"/\\|?*]' if os.name == 'nt' else r'[:]'
+
+    if re.search(invalid_chars, path_str):
+        return False
+
+    # 检查路径长度是否超过系统限制
+    if len(path_str) > 260:
+        return False
+
+    # 检查路径是否指向一个已存在的文件
+    if os.path.exists(path_str) and not os.path.isdir(path_str):
+        return False
+
+    # 尝试创建路径（需要相应的权限）
+    try:
+        Path(path_str).mkdir(parents=True, exist_ok=True)
+        print(f"文件夹 {path_str} 已创建。")
+        return True
+    except OSError:
+        return False
