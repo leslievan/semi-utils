@@ -9,7 +9,7 @@ if [ -f "inited" ]; then
 fi
 
 # 下载文件
-curl -O $EXIFTOOL_FILE_DOWNLOAD_URL
+curl -O -L $EXIFTOOL_FILE_DOWNLOAD_URL
 
 # 测试 gzip 压缩的有效性
 if ! gzip -t "$EXIFTOOL_FILE_NAME"; then
