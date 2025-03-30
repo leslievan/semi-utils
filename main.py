@@ -4,7 +4,7 @@ from multiprocessing.pool import Pool
 from pathlib import Path
 
 from tqdm import tqdm
-
+import os
 from entity.image_container import ImageContainer
 from entity.image_processor import ProcessorChain
 from enums.constant import DEBUG
@@ -18,6 +18,22 @@ from init import layout_items_dict
 from init import root_menu
 from utils import ENCODING
 from utils import get_file_list
+
+
+def get_new_filename(original_path):
+    from datetime import datetime
+    # 检查文件路径是否存在
+    if os.path.exists(original_path):
+        # 拆分文件名和扩展名
+        file_dir, file_name = os.path.split(original_path)
+        file_root, file_ext = os.path.splitext(file_name)
+
+        # 生成新的文件名
+        new_file_name = f"{file_root}{datetime.now().strftime('%m%d-%H%M')}{file_ext}"
+        new_file_path = os.path.join(file_dir, new_file_name)
+        return new_file_path
+    else:
+        return original_path
 
 
 def image_process_callback(processor_chain_, source_path_):
@@ -38,7 +54,12 @@ def image_process_callback(processor_chain_, source_path_):
             print(f'\nError: 文件：{source_path_} 处理失败，请检查日志')
 
     # 保存图片
-    target_path = Path(config.get_output_dir(), encoding=ENCODING).joinpath(source_path_.name)
+    if config.get_output_dir():
+        # 使用output文件夹
+        target_path = Path(config.get_output_dir(), encoding=ENCODING).joinpath(source_path_.name)
+    else:
+        # 保存在原来的文件夹中
+        target_path = get_new_filename(Path(config.get_input_dir(), encoding=ENCODING).joinpath(source_path_.name))
 
     container.save(target_path, quality=config.get_quality())
     container.close()
@@ -97,7 +118,8 @@ def processing():
     # 完成所有任务后，关闭tqdm进度条
     pbar.close()
 
-    option = input('处理完成，文件已输出至 output 文件夹中，输入【r】返回主菜单，输入【x】退出程序\n')
+    path = config.get_output_dir()
+    option = input(f'处理完成，文件已输出至 {path if path else "input"} 文件夹中，输入【r】返回主菜单，输入【x】退出程序\n')
     if DEBUG:
         sys.exit(0)
     else:
@@ -140,10 +162,10 @@ Bilibili: @吨吨吨的半夏
                 if user_input == 'y' or user_input == '':
                     state = 100
                 # x 退出程序
-                elif user_input == 'x' or user_input == 'X':
+                elif user_input.upper() == 'X':
                     sys.exit(0)
                 # r 返回上一层
-                elif user_input == 'r' or user_input == 'R':
+                elif user_input.upper() == 'R':
                     current_menu = current_menu.get_parent()
                 # 数字合法则跳转到对应子菜单
                 elif user_input.isdigit() and 1 <= int(user_input) <= len(current_menu.components):
