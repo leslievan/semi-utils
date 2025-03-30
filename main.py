@@ -10,6 +10,7 @@ from entity.image_processor import ProcessorChain
 from enums.constant import DEBUG
 from init import MARGIN_PROCESSOR
 from init import PADDING_TO_ORIGINAL_RATIO_PROCESSOR
+from init import PADDING_TO_CUSTOM_RATIO_PROCESSOR
 from init import SEPARATE_LINE
 from init import SHADOW_PROCESSOR
 from init import SIMPLE_PROCESSOR
@@ -70,9 +71,12 @@ def processing():
     if config.has_white_margin_enabled() and 'watermark' in config.get_layout_type():
         processor_chain.add(MARGIN_PROCESSOR)
 
-    # 如果需要按原有比例填充，且不是正方形布局，则添加填充处理器
     if config.has_padding_with_original_ratio_enabled() and 'square' != config.get_layout_type():
+        # 如果需要按原有比例填充，且不是正方形布局，则添加填充处理器
         processor_chain.add(PADDING_TO_ORIGINAL_RATIO_PROCESSOR)
+    elif config.has_padding_with_custom_ratio_enabled() and 'square' != config.get_layout_type():
+        # 如果需要按指定比例填充，且不是正方形布局，则添加填充处理器
+        processor_chain.add(PADDING_TO_CUSTOM_RATIO_PROCESSOR)
 
     def update(*a):
         # 这个函数将会在每个进程完成后被调用，用来更新进度条
