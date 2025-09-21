@@ -22,10 +22,7 @@ from utils import get_file_list
 
 def image_process_callback(processor_chain_, source_path_):
     # 打开图片
-    container = ImageContainer(source_path_)
-
-    # 使用等效焦距
-    container.is_use_equivalent_focal_length(config.use_equivalent_focal_length())
+    container = ImageContainer(source_path_, config.use_equivalent_focal_length())
 
     # 处理图片
     try:
