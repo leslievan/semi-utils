@@ -70,7 +70,7 @@ def get_focal_length(exif):
 
 
 class ImageContainer(object):
-    def __init__(self, path: Path):
+    def __init__(self, path: Path, is_use_equivalent_focal_length: bool):
         self.path: Path = path
         self.target_path: Path | None = None
         self.img: Image.Image = Image.open(path)
@@ -93,7 +93,7 @@ class ImageContainer(object):
         self.iso: str = extract_attribute(self.exif, ExifId.ISO.value, default_value=DEFAULT_VALUE)
 
         # 是否使用等效焦距
-        self.use_equivalent_focal_length: bool = False
+        self.use_equivalent_focal_length: bool = is_use_equivalent_focal_length
 
         # 修正图像方向
         self.orientation = self.exif[ExifId.ORIENTATION.value] if ExifId.ORIENTATION.value in self.exif else 1
