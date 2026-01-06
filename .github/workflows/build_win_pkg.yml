@@ -34,12 +34,11 @@ jobs:
         Move-Item -Path "./input" -Destination "./dist"
         Move-Item -Path "./logos" -Destination "./dist"
         Move-Item -Path "./fonts" -Destination "./dist"
-        Move-Item -Path "./config.yaml" -Destination "./dist/config.yaml"
         New-Item -Path "./dist/exiftool" -ItemType "directory" -Force | Out-Null
         Invoke-WebRequest -Uri "https://github.com/leslievan/semi-utils/raw/exiftool/exiftool/exiftool.exe" -OutFile "./dist/exiftool/exiftool.exe"
 
     - name: Upload Artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: semi-utils-latest_win_amd64_pkg
         path: dist
