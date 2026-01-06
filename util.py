@@ -1,3 +1,19 @@
+import platform
+import re
+import shutil
+import subprocess
+from pathlib import Path
+
+if platform.system() == 'Windows':
+    EXIFTOOL_PATH = Path('./exiftool/exiftool.exe')
+    ENCODING = 'gbk'
+elif shutil.which('exiftool') is not None:
+    EXIFTOOL_PATH = shutil.which('exiftool')
+    ENCODING = 'utf-8'
+else:
+    EXIFTOOL_PATH = Path('./exiftool/exiftool')
+    ENCODING = 'utf-8'
+
 
 def get_exif(path) -> dict:
     """
@@ -31,7 +47,6 @@ def get_exif(path) -> dict:
             # 将处理后的值更新到 exif_dict 中
             exif_dict[key] = value_clean
     except Exception as e:
-        logger.error(f'get_exif error: {path} : {e}')
+        print(f'get_exif error: {path} : {e}')
 
     return exif_dict
-
