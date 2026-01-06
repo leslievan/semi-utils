@@ -31,7 +31,6 @@ jobs:
 
     - name: Add Release Resource to Package
       run: |
-        Move-Item -Path "./logos" -Destination "./dist"
         Move-Item -Path "./fonts" -Destination "./dist"
         New-Item -Path "./input" -Destination "./dist"
         New-Item -Path "./dist/exiftool" -ItemType "directory" -Force | Out-Null

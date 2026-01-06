@@ -58,7 +58,7 @@ if __name__ == "__main__":
                         {
                             "text": f"{folder_name} {time_str}",
                             "font_path": "fonts/AlibabaPuHuiTi-2-85-Bold.otf",
-                            "color": "(232,141,52,188)",
+                            "color": "(232,141,52)",
                         }
                     ],
 
