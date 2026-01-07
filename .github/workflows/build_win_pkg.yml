@@ -27,7 +27,7 @@ jobs:
 
     - name: Build Executable
       run: |
-        pyinstaller build_win_pkg.spec
+        pyinstaller ./static/build_win_pkg.spec
 
     - name: Add Release Resource to Package
       run: |

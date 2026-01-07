@@ -22,7 +22,7 @@ exe = EXE(
     a.datas,
     [],
     name='semi-utils',
-    icon='logo.ico',
+    icon='./static/logo.ico',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
