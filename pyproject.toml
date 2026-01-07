@@ -5,6 +5,9 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "flask>=3.1.2",
+    "jinja2>=3.1.6",
     "numpy>=2.4.0",
     "pillow>=12.1.0",
+    "pillow-heif>=1.1.1",
 ]
