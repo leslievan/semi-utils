@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Semi-Utils</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/amis@6.12.0/sdk/sdk.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/amis@6.12.0/sdk/helper.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/amis@6.12.0/sdk/iconfont.css"/>
+    <!-- 这是默认主题所需的，如果是其他主题则不需要 -->
+    <!-- 从 1.1.0 开始 sdk.css 将不支持 IE 11，如果要支持 IE11 请引用这个 css，并把前面那个删了 -->
+    <!-- <link rel="stylesheet" href="sdk-ie11.css" /> -->
+    <!-- 不过 amis 开发团队几乎没测试过 IE 11 下的效果，所以可能有细节功能用不了，如果发现请报 issue -->
+    <style>
+        html,
+        body,
+        .app-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .cxd-TreeControl {
+            max-height: 33vh;
+            height: 33vh;
+        }
+    </style>
+</head>
+<body>
+<div id="root" class="app-wrapper"></div>
+<script src="https://cdn.jsdelivr.net/npm/amis@6.12.0/sdk/sdk.js"></script>
+<script type="text/javascript">
+    (function () {
+        let amis = amisRequire('amis/embed');
+        // 通过替换下面这个配置来生成不同页面
+        let amisJSON = {
+            type: 'page',
+            title: 'Semi-Utils',
+            body: [
+                {
+                    type: 'grid',
+                    columns: [{
+                        type: 'wrapper',
+                        body: [{
+                            type: 'tpl',
+                            tpl: '<h3>配置管理</h3>'
+                        }, {
+                            type: 'form',
+                            id: 'render_config',
+                            preventEnterSubmit: true,
+                            initApi: {
+                                method: 'get',
+                                url: '/api/v1/config',
+                                adaptor: 'return {status: 0, msg: "", data: payload}'
+                            },
+                            api: {
+                                method: 'post',
+                                url: '/api/v1/config',
+                            },
+                            data: {
+                                isStatic: true
+                            },
+                            static: true,
+                            body: [{
+                                type: 'input-text',
+                                name: 'input_folder',
+                                label: '输入文件夹',
+                                placeholder: '请输入文件夹绝对路径',
+                            }, {
+                                type: 'input-text',
+                                name: 'output_folder',
+                                label: '输出文件夹',
+                                placeholder: '请输入文件夹绝对路径',
+                            }, {
+                                type: 'editor',
+                                name: 'template',
+                                label: '模板(使用jinja2语法)',
+                                language: 'json',
+                                disabledOn: '${isStatic}'
+                            }],
+                            actions: [{
+                                type: 'button',
+                                label: '编辑',
+                                visibleOn: '${isStatic}',
+                                level: 'primary',
+                                onEvent: {
+                                    click: {
+                                        actions: [
+                                            {
+                                                actionType: 'setValue',
+                                                componentId: 'render_config',
+                                                args: {
+                                                    value: {
+                                                        isStatic: '${!isStatic}'
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                actionType: 'nonstatic',
+                                                componentId: 'render_config',
+                                            },
+                                            {
+                                                actionType: 'setValue',
+                                                componentId: 'start_process',
+                                                dataMergeMode: 'override',
+                                                args: {
+                                                    value: {
+                                                        isStatic: '${!isStatic}'
+                                                    }
+                                                }
+                                            },
+                                        ]
+                                    }
+                                }
+                            }, {
+                                type: 'submit',
+                                label: '保存',
+                                level: 'primary',
+                                visibleOn: '${!isStatic}',
+                                reload: 'file_list',
+                                onEvent: {
+                                    click: {
+                                        actions: [
+                                            {
+                                                actionType: 'setValue',
+                                                componentId: 'render_config',
+                                                args: {
+                                                    value: {
+                                                        isStatic: '${!isStatic}'
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                actionType: 'static',
+                                                componentId: 'render_config',
+                                            },
+                                            {
+                                                actionType: 'setValue',
+                                                componentId: 'start_process',
+                                                dataMergeMode: 'override',
+                                                args: {
+                                                    value: {
+                                                        isStatic: '${!isStatic}'
+                                                    }
+                                                }
+                                            },
+                                        ]
+                                    }
+                                }
+                            }, {
+                                type: 'button',
+                                label: '重置',
+                                visibleOn: '${!isStatic}',
+                                actionType: 'reload',
+                                level: 'default',
+                                reload: 'file_list',
+                            }]
+                        }]
+                    }, {
+                        type: 'wrapper',
+                        body: [{
+                            type: 'tpl',
+                            tpl: '<h3>文件列表</h3>'
+                        }, {
+                            type: 'service',
+                            name: 'file_list',
+                            id: 'file_list',
+                            api: {
+                                method: 'get',
+                                url: '/api/v1/file/tree',
+                            },
+                            body: [{
+                                type: 'input-tree',
+                                name: 'input_files',
+                                label: '输入文件夹',
+                                multiple: true,
+                                onlyChildren: true,
+                                nodeBehavior: [],
+                                source: '${input_files}',
+                                style: {
+                                    maxHeight: '33vh',
+                                },
+                                onEvent: {
+                                    itemClick: {
+                                        actions: [{
+                                            actionType: 'setValue',
+                                            componentId: 'preview',
+                                            dataMergeMode: 'override',
+                                            data: {
+                                                imgPath: '${event.data.item.value}',
+                                                filename: '${event.data.item.label}'
+                                            },
+                                            args: {
+                                                value: {
+                                                    imgPath: '${event.data.item.value}',
+                                                    filename: '${event.data.item.label}',
+                                                    isFile: '${event.data.item.is_file}',
+                                                }
+
+                                            }
+                                        }]
+                                    },
+                                    change: {
+                                        actions: [{
+                                            actionType: 'setValue',
+                                            componentId: 'start_process',
+                                            args: {
+                                                value: {
+                                                    selectedItems: '${event.data.selectedItems}'
+                                                }
+                                            }
+                                        }]
+                                    }
+                                }
+                            }, {
+                                type: 'divider',
+                            }, {
+                                type: 'input-tree',
+                                name: 'output_files',
+                                label: '输出文件夹',
+                                nodeBehavior: [],
+                                source: '${output_files}',
+                                onEvent: {
+                                    itemClick: {
+                                        actions: [{
+                                            actionType: 'reload',
+                                            componentId: 'preview',
+                                            dataMergeMode: 'override',
+                                            data: {
+                                                imgPath: '${event.data.item.value}',
+                                                filename: '${event.data.item.label}',
+                                                isFile: '${event.data.item.is_file}',
+                                            }
+                                        }]
+                                    }
+                                }
+                            }]
+                        }]
+                    }, {
+                        type: 'wrapper',
+                        body: [{
+                            type: 'tpl',
+                            tpl: '<h3>图片预览</h3>'
+                        }, {
+                            type: 'service',
+                            id: 'preview',
+                            body: [{
+                                type: 'wrapper',
+                                visibleOn: '${!isFile || !imgPath}',
+                                body: {
+                                    type: 'tpl',
+                                    tpl: '<div class="text-center text-muted p-5">请在左侧选择一个文件以预览</div>'
+                                }
+                            }, {
+                                type: 'wrapper',
+                                visibleOn: '${isFile && imgPath}',
+                                body: {
+                                    type: 'image',
+                                    imageMode: 'original',
+                                    title: '预览: ${filename}',
+                                    src: '/api/v1/file?path=${imgPath}'
+                                }
+                            }]
+                        }]
+                    }]
+                }, {
+                    type: 'service',
+                    id: 'start_process',
+                    data: {
+                        isStatic: true,
+                        selectedItems: []
+                    },
+                    body: {
+                        type: 'action',
+                        actionType: 'ajax',
+                        api: '/api/v1/start_process',
+                        className: 'w-full',
+                        label: '开始执行',
+                        level: 'success',
+                        disabledTip: '请先保存配置并选中文件',
+                        disabledOn: '${!isStatic || !selectedItems || selectedItems.length == 0}',
+                        reload: 'file_list',
+                    }
+                }]
+        };
+        let amisScoped = amis.embed('#root', amisJSON);
+    })();
+</script>
+</body>
+</html>

@@ -59,7 +59,7 @@ class PipelineContext(MutableMapping):
     def save_buffer(self, processor_name: str, force_save: bool = False):
         if not (force_save or self.get("save_buffer", True)):
             return self
-        directory = self.get("output", "./output")
+        directory = self.get("output", "./tmp")
         if not os.path.isdir(directory):
             os.makedirs(directory)
         buffer_path = []
@@ -262,6 +262,6 @@ def start_process(data: List[dict], input_path:str=None, output_path: str=None):
         buffer = node.get_buffer()
     nodes[-1].save_buffer("final").success()
     if output_path is not None:
-        nodes[-1].get_buffer()[0].save(output_path)
+        nodes[-1].get_buffer()[0].convert("RGB").save(output_path)
         print(f"generate new image {output_path}")
     return nodes[-1].get_buffer()[0]

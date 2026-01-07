@@ -2,6 +2,8 @@ import platform
 import re
 import shutil
 import subprocess
+import time
+from functools import wraps
 from pathlib import Path
 
 if platform.system() == 'Windows':
@@ -50,3 +52,64 @@ def get_exif(path) -> dict:
         print(f'get_exif error: {path} : {e}')
 
     return exif_dict
+
+
+from pathlib import Path
+
+
+def list_files(path: str, suffixes: set[str]):
+    """
+    使用 pathlib 实现的版本
+    """
+    result = []
+    root = Path(path).resolve()
+
+    if not root.exists():
+        return result
+
+    try:
+        # 分离文件夹和文件，分别排序
+        items = list(root.iterdir())
+        dirs = sorted([i for i in items if i.is_dir()], key=lambda x: x.name.lower())
+        files = sorted([i for i in items if i.is_file()], key=lambda x: x.name.lower())
+
+        # 先处理文件夹
+        for item in dirs:
+            if item.name.startswith('.'):
+                continue
+            children = list_files(str(item), suffixes)
+            if children:
+                result.append({
+                    'label': item.name,
+                    'value': str(item),
+                    'children': children,
+                })
+
+        # 再处理文件
+        for item in files:
+            if item.name.startswith('.'):
+                continue
+            if item.suffix.lower() in suffixes:
+                result.append({
+                    'label': item.name,
+                    'value': str(item),
+                    'is_file': True
+                })
+
+    except PermissionError:
+        pass
+
+    return result
+
+
+def log_rt(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        start_time = time.time()  # 记录开始时间
+        result = func(*args, **kwargs)  # 调用被装饰的函数
+        end_time = time.time()  # 记录结束时间
+        elapsed_time = end_time - start_time  # 计算运行时间
+        print(f"Function {func.__name__} took {elapsed_time:.6f} seconds to execute.")
+        return result
+
+    return wrapper

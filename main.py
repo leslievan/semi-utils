@@ -1,79 +1,148 @@
+import configparser
+import json
 import os
+
+from flask import Flask, render_template, jsonify, request, send_file
+
 from processor.core import start_process
-from util import get_exif
+from util import list_files, log_rt
 
-date_key_set = ["DateCreated", "CreateDate", "DateTimeOriginal", "DateTimeCreated", "DigitalCreationDateTime"]
+date_key_set = ['DateCreated', 'CreateDate', 'DateTimeOriginal', 'DateTimeCreated', 'DigitalCreationDateTime']
 
-if __name__ == "__main__":
-    # 读取 input 文件夹下的所有子文件夹
-    input_base_path = "./input"
+CONFIG_PATH = 'config.ini'
 
-    # 确保输入路径存在
-    if not os.path.exists(input_base_path):
-        print(f"错误: 输入路径 {input_base_path} 不存在")
-        exit(1)
+# 解析配置
+config = configparser.ConfigParser()
+config.read(CONFIG_PATH)
 
-    # 遍历所有子文件夹
-    for folder_name in os.listdir(input_base_path):
-        folder_path = os.path.join(input_base_path, folder_name)
+# 创建 flask 服务器
+app = Flask(__name__)
 
-        # 跳过非文件夹项
-        if not os.path.isdir(folder_path):
+
+@app.route('/')
+def index():
+    return render_template('index.html', title='Semi-Utils')
+
+
+@app.route('/api/v1/config', methods=['GET'])
+def get_config():
+    template_path = config.get('render', 'template_path')
+
+    with open(template_path) as f:
+        template = f.read()
+
+    return jsonify({
+        'input_folder': config.get('DEFAULT', 'input_folder'),
+        'output_folder': config.get('DEFAULT', 'output_folder'),
+        'skip_existed': config.get('DEFAULT', 'skip_existed'),
+        'template': template,
+    })
+
+
+@app.route('/api/v1/config', methods=['POST'])
+def save_config():
+    try:
+        data = request.get_json()
+
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+
+        # 更新配置项
+        if 'input_folder' in data:
+            config.set('DEFAULT', 'input_folder', data['input_folder'])
+        if 'output_folder' in data:
+            config.set('DEFAULT', 'output_folder', data['output_folder'])
+        if 'skip_existed' in data:
+            config.set('DEFAULT', 'skip_existed', str(data['skip_existed']))
+
+        # 保存配置到配置文件
+        with open(CONFIG_PATH, 'w', encoding='utf-8') as f:
+            config.write(f)
+
+        # 保存模板文件
+        if 'template' in data:
+            template_path = config.get('render', 'template_path')
+            with open(template_path, 'w', encoding='utf-8') as f:
+                f.write(data['template'])
+
+        return jsonify({'message': 'Config saved successfully'}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/v1/file/tree', methods=['GET'])
+def list_input_files():
+    suffixes = set([ft for ft in config.get('DEFAULT', 'supported_file_suffixes').split(',')])
+    return jsonify({
+        'input_files': [{'children': list_files(config.get('DEFAULT', 'input_folder'), suffixes), 'label': 'Root'}],
+        'output_files': [{'children': list_files(config.get('DEFAULT', 'output_folder'), suffixes), 'label': 'Root'}],
+    })
+
+
+@app.route('/api/v1/file', methods=['GET'])
+def get_file():
+    """
+    获取文件内容
+    GET /api/v1/file?path=xxx
+    """
+    file_path = request.args.get('path')
+
+    # 参数验证
+    if not file_path:
+        return jsonify({'error': 'Missing path parameter'}), 400
+
+    # 转为绝对路径
+    abs_path = os.path.abspath(file_path)
+
+    # 安全检查：确保路径存在
+    if not os.path.exists(abs_path):
+        return jsonify({'error': 'File not found'}), 404
+
+    # 确保是文件而不是目录
+    if os.path.isdir(abs_path):
+        return jsonify({'error': 'Path is a directory, not a file'}), 400
+
+    try:
+        # 直接发送文件（适用于下载或二进制文件）
+        return send_file(abs_path, as_attachment=False)
+
+    except PermissionError:
+        return jsonify({'error': 'Permission denied'}), 403
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/v1/start_process', methods=['POST'])
+@log_rt
+def handle_process():
+    # 获取模板
+    with open(config.get('render', 'template_path')) as f:
+        template = f.read()
+
+    data = request.get_json()
+    input_files = [item['value'] for item in data['selectedItems']]
+    input_folder = config.get('DEFAULT', 'input_folder')
+    output_folder = config.get('DEFAULT', 'output_folder')
+    for input_path in input_files:
+        if not os.path.exists(input_path):
             continue
-
-        print(f"处理文件夹: {folder_name}")
-
-        # 遍历子文件夹下的所有 png/jpg 文件
-        for filename in os.listdir(folder_path):
-            # 检查文件扩展名
-            if not filename.lower().endswith(('.png', '.jpg', '.jpeg')):
-                continue
-
-            file_path = os.path.join(folder_path, filename)
-            print(f"  处理文件: {filename}")
-
-            # 获取EXIF信息
-            exif_dict = get_exif(file_path)
-
-            # 获取时间
-            time_str = None
-            for key in date_key_set:
-                if key in exif_dict:
-                    time_str = exif_dict[key][:16]
-                    break
-
-            # 如果没有找到时间信息，跳过该文件
-            if not time_str:
-                print(f"    警告: 文件 {filename} 没有找到时间信息，跳过")
-                continue
-
-            # 拼接text
-            text = f"{folder_name} {time_str}"
-
-            # 运行处理
-            data = [
-                {
-
-                    "text_segments": [
-                        {
-                            "text": f"{folder_name} {time_str}",
-                            "font_path": "fonts/AlibabaPuHuiTi-2-85-Bold.otf",
-                            "color": "(232,141,52)",
-                        }
-                    ],
-
-                    "processor_name": "watermark_with_timestamp",
-                    "save_buffer": False
-                }
-            ]
-
-            # 调用处理函数
-            start_process(
-                data,
-                input_path=file_path,
-                output_path=f"./output/{folder_name}_{filename}"
-            )
-
-            print(f"    完成: {folder_name}_{filename}")
+        # 获取 input_path 相对 input_folder 的位置
+        relative_path = os.path.relpath(input_path, input_folder)
+        # 基于 output_folder 组装出输出路径 output_path
+        output_path = os.path.join(output_folder, relative_path)
+        # 如果路径不存在, 那么递归创建文件夹
+        output_dir = os.path.dirname(output_path)
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        # 如果 output_path 对应的文件存在, 直接跳过
+        if os.path.exists(output_path):
+            continue
+        # 开始处理
+        print(f'input_path: {input_path}, output_path: {output_path}')
+        start_process(json.loads(template), input_path, output_path=output_path)
+    return jsonify({'message': 'Process started successfully'}), 200
 
 
+if __name__ == '__main__':
+    app.run(debug=True)
