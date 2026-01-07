@@ -2,11 +2,13 @@ import configparser
 import json
 import os
 import threading
+import webbrowser
 
 from flask import Flask, render_template, jsonify, request, send_file
+from jinja2 import Template
 
 from processor.core import start_process
-from util import list_files, log_rt
+from util import list_files, log_rt, get_exif
 
 date_key_set = ['DateCreated', 'CreateDate', 'DateTimeOriginal', 'DateTimeCreated', 'DigitalCreationDateTime']
 
@@ -119,7 +121,8 @@ def get_file():
 def handle_process():
     # 获取模板
     with open(config.get('render', 'template_path')) as f:
-        template = f.read()
+        template_str = f.read()
+    template = Template(template_str)
 
     data = request.get_json()
     input_files = [item['value'] for item in data['selectedItems']]
@@ -145,7 +148,7 @@ def handle_process():
 
         # 开始处理
         print(f'input_path: {input_path}, output_path: {output_path}')
-        start_process(json.loads(template), input_path, output_path=output_path)
+        start_process(json.loads(template.render({'exif': get_exif(input_path)})), input_path, output_path=output_path)
     threads = []
     for input_path in input_files:
         thread = threading.Thread(target=process_file, args=(input_path,))
@@ -157,5 +160,15 @@ def handle_process():
     return jsonify({'message': 'Process started successfully'}), 200
 
 
+def open_browser():
+    # 等待服务器启动
+    import time
+    time.sleep(1)
+    # 打开浏览器并访问指定的URL
+    webbrowser.open('http://localhost:15050')
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    # 在单独的线程中打开浏览器
+    threading.Thread(target=open_browser).start()
+    app.run(port=15050, host="localhost")
+
