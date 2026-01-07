@@ -1,6 +1,7 @@
 import configparser
 import json
 import os
+import threading
 
 from flask import Flask, render_template, jsonify, request, send_file
 
@@ -124,23 +125,35 @@ def handle_process():
     input_files = [item['value'] for item in data['selectedItems']]
     input_folder = config.get('DEFAULT', 'input_folder')
     output_folder = config.get('DEFAULT', 'output_folder')
-    for input_path in input_files:
+    def process_file(input_path):
         if not os.path.exists(input_path):
-            continue
+            return
         # 获取 input_path 相对 input_folder 的位置
         relative_path = os.path.relpath(input_path, input_folder)
+
         # 基于 output_folder 组装出输出路径 output_path
         output_path = os.path.join(output_folder, relative_path)
+
         # 如果路径不存在, 那么递归创建文件夹
         output_dir = os.path.dirname(output_path)
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
+
         # 如果 output_path 对应的文件存在, 直接跳过
         if os.path.exists(output_path):
-            continue
+            return
+
         # 开始处理
         print(f'input_path: {input_path}, output_path: {output_path}')
         start_process(json.loads(template), input_path, output_path=output_path)
+    threads = []
+    for input_path in input_files:
+        thread = threading.Thread(target=process_file, args=(input_path,))
+        threads.append(thread)
+        thread.start()
+    # 等待所有线程完成
+    for thread in threads:
+        thread.join()
     return jsonify({'message': 'Process started successfully'}), 200
 
 
