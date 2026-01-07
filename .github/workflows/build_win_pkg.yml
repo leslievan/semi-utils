@@ -27,11 +27,13 @@ jobs:
 
     - name: Build Executable
       run: |
-        pyinstaller ./static/build_win_pkg.spec
+        pyinstaller ./build_win_pkg.spec
 
     - name: Add Release Resource to Package
       run: |
         Move-Item -Path "./fonts" -Destination "./dist"
+        Move-Item -Path "./config.ini" -Destination "./dist"
+        Move-Item -Path "./render.jinja2" -Destination "./dist"
         New-Item -Path "./dist/input" -ItemType "directory" -Force | Out-Null
         New-Item -Path "./dist/output" -ItemType "directory" -Force | Out-Null
         New-Item -Path "./dist/exiftool" -ItemType "directory" -Force | Out-Null
