@@ -59,7 +59,7 @@ class TrimFilter(ImageProcessor):
     def process(self, ctx: PipelineContext):
         buffer = []
         for image in ctx.get_buffer():
-            bbox = self.get_foreground_bbox(image)
+            bbox = self.get_foreground_bbox(image, trim_left=ctx.get("trim_left"), trim_right=ctx.get("trim_right"), trim_top=ctx.get("trim_top"), trim_bottom=ctx.get("trim_bottom"))
             buffer.append(image.crop(bbox))
         ctx.update_buffer(buffer).save_buffer(self.name()).success()
 
@@ -120,7 +120,11 @@ class TrimFilter(ImageProcessor):
             self,
             image: Image.Image,
             threshold: float = 10.0,
-            padding: int = 0
+            padding: int = 0,
+            trim_left: bool = True,
+            trim_right: bool = True,
+            trim_top: bool = True,
+            trim_bottom: bool = True,
     ) -> Tuple[int, int, int, int]:
         img_array = np.array(image, dtype=np.float32)
 
@@ -139,6 +143,14 @@ class TrimFilter(ImageProcessor):
         # ===== 第三步：从四个方向向内扫描，收缩边界框 =====
         left, right, top, bottom = self._shrink_bbox(diff, threshold, width, height)
 
+        if not trim_left:
+            left = 0
+        if not trim_right:
+            right = width
+        if not trim_top:
+            top = 0
+        if not trim_bottom:
+            bottom = height
         # ===== 第四步：应用 padding 并确保边界合法 =====
         left = max(0, left - padding)
         top = max(0, top - padding)
@@ -192,11 +204,11 @@ class WatermarkFilter(ImageProcessor):
         right_margin = ctx.getint("right_margin", 0)
         top_margin = ctx.getint("top_margin", 0)
         bottom_margin = ctx.getint("bottom_margin", int(img.height * .12))
-        middle_spacing = ctx.getint("middle_spacing", int(bottom_margin * .13))
+        middle_spacing = ctx.getint("middle_spacing", int(bottom_margin * .05))
 
         for t_s in [ctx.get("left_top"), ctx.get("left_bottom"), ctx.get("right_top"), ctx.get("right_bottom")]:
             if "height" not in t_s:
-                t_s["height"] = int(bottom_margin * .13)
+                t_s["height"] = int(bottom_margin * .3)
 
         left_top = start_process([ctx.get("left_top")])
         left_bottom = start_process([ctx.get("left_bottom")])

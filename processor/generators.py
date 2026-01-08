@@ -198,10 +198,12 @@ class RichTextGenerator(ImageProcessor):
     def generate(segment: TextSegment) -> Image.Image:
         from processor.filters import ResizeFilter, TrimFilter
         font = load_font(segment.font_path)
+
         # 获取文本尺寸
-        left, top, right, bottom = font.getbbox(segment.text)
+        metrics = font.getmetrics()
+        bbox = font.getbbox(segment.text)
         # 创建透明画布
-        image = Image.new('RGBA', (right, bottom), (0, 0, 0, 0))
+        image = Image.new('RGBA', (int(bbox[2] - bbox[0]), metrics[0] + metrics[1]), (0, 0, 0, 0))
         draw = ImageDraw.Draw(image)
         # 直接绘制文本
         draw.text((0, 0), segment.text, font=font, fill=_parse_color(segment.color))
@@ -210,6 +212,8 @@ class RichTextGenerator(ImageProcessor):
             "buffer": [image],
             "height": segment.height * 1.13 if segment.is_bold else segment.height,
             "save_buffer": False,
+            "trim_top": False,
+            "trim_bottom": False,
         })
         TrimFilter().process(resize_ctx)
         ResizeFilter().process(resize_ctx)
