@@ -8,9 +8,7 @@ from flask import Flask, render_template, jsonify, request, send_file
 from jinja2 import Template
 
 from processor.core import start_process
-from util import list_files, log_rt, get_exif
-
-date_key_set = ['DateCreated', 'CreateDate', 'DateTimeOriginal', 'DateTimeCreated', 'DigitalCreationDateTime']
+from util import list_files, log_rt, get_exif, vh, vw
 
 CONFIG_PATH = 'config.ini'
 
@@ -123,6 +121,8 @@ def handle_process():
     with open(config.get('render', 'template_path')) as f:
         template_str = f.read()
     template = Template(template_str)
+    template.globals['vh'] = vh
+    template.globals['vw'] = vw
 
     data = request.get_json()
     input_files = [item['value'] for item in data['selectedItems']]
