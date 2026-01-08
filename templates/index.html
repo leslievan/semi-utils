@@ -344,7 +344,7 @@
             // --- 业务逻辑：编辑器 ---
             initEditor() {
                 this.aceEditor = ace.edit("json-editor");
-                this.aceEditor.setTheme("ace/theme/github");
+                this.aceEditor.setTheme("ace/theme/textmate");
                 this.aceEditor.session.setMode("ace/mode/json");
                 this.aceEditor.setShowPrintMargin(false);
                 this.aceEditor.setReadOnly(true); // 默认只读
