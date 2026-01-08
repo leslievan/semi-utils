@@ -192,11 +192,11 @@ class WatermarkFilter(ImageProcessor):
         right_margin = ctx.get("right_margin", 0)
         top_margin = ctx.get("top_margin", 0)
         bottom_margin = ctx.get("bottom_margin", int(img.height * .12))
-        middle_spacing = ctx.get("middle_spacing", int(bottom_margin * .15))
+        middle_spacing = ctx.get("middle_spacing", int(bottom_margin * .13))
 
         for t_s in [ctx.get("left_top"), ctx.get("left_bottom"), ctx.get("right_top"), ctx.get("right_bottom")]:
             if "height" not in t_s:
-                t_s["height"] = int(bottom_margin * .2)
+                t_s["height"] = int(bottom_margin * .13)
 
         left_top = start_process([ctx.get("left_top")])
         left_bottom = start_process([ctx.get("left_bottom")])
@@ -229,12 +229,7 @@ class WatermarkFilter(ImageProcessor):
         # 计算文本块距离底部边缘的留白，使其在 bottom_margin 区域内垂直居中
         elem_margin = int((bottom_margin - elem_height) / 2)
         # PIL 坐标原点在左上角。
-        l_x = left_margin + left_logo_width
-        # 若有图标，建议增加一点间距，这里保持逻辑简洁，视实际需求微调
-        if left_logo_width > 0:
-            l_x += common_spacing
-        else:
-            l_x += min(common_spacing, left_margin)
+        l_x = left_margin + left_logo_width + common_spacing
 
         # 右侧文本 X 坐标基准 (右对齐)
         # 右侧内容的右边界 = canvas_width - right_margin - right_logo_width
@@ -254,13 +249,13 @@ class WatermarkFilter(ImageProcessor):
         # 左上图片的底部 Y 坐标 = lt_y + left_top.height
         # 右上 Y = 左上底部 Y - 右上高度
         rt_y = (lt_y + left_top.height) - right_top.height
-        rt_x = right_content_end_x - right_top.width - min(common_spacing, right_margin)  # 右对齐计算
+        rt_x = right_content_end_x - right_top.width - common_spacing  # 右对齐计算
         # --- 右下 (Right Bottom) ---
         # 规则：右下和左下是“底部对齐”。
         # 左下图片的底部 Y 坐标 = lb_y + left_bottom.height
         # 右下 Y = 左下底部 Y - 右下高度
         rb_y = (lb_y + left_bottom.height) - right_bottom.height
-        rb_x = right_content_end_x - right_bottom.width - min(common_spacing, right_margin)  # 右对齐计算
+        rb_x = right_content_end_x - right_bottom.width - common_spacing  # 右对齐计算
 
         # 6. 绘制文本元素
         # 使用 mask 确保透明背景的文字能正确叠加
@@ -273,14 +268,15 @@ class WatermarkFilter(ImageProcessor):
         if right_logo:
             # 先画一条分割线
             logo_size = elem_height
-            delimiter = Image.new("RGB", (int(canvas_width * .005), logo_size), delimiter_color)
-            delimiter_x = canvas_width - right_margin - max(right_top.width,
-                                                            right_bottom.width) - 2 * common_spacing - delimiter.width
-            delimiter_y = footer_start_y + elem_margin
+            delimiter = Image.new("RGB", (int(canvas_width * .005), int(logo_size * 1.1)), delimiter_color)
+            delimiter_x = canvas_width - right_margin - max(right_top.width, right_bottom.width) - 2 * common_spacing - delimiter.width
+            delimiter_y = int(footer_start_y + elem_margin - logo_size * .05)
             canvas.paste(delimiter, (delimiter_x, delimiter_y))
+
             right_logo = right_logo.resize((logo_size, logo_size), Image.Resampling.LANCZOS)
             right_logo_x = delimiter_x - common_spacing - logo_size
-            canvas.paste(right_logo, (right_logo_x, delimiter_y),
+            right_logo_y = footer_start_y + elem_margin
+            canvas.paste(right_logo, (right_logo_x, right_logo_y),
                          mask=right_logo if right_logo.mode == 'RGBA' else None)
 
         # 7. 返回结果

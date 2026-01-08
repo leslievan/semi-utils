@@ -48,6 +48,7 @@ class TextSegment:
     text: str
     font_path: Optional[str] = None
     height: int = 100
+    is_bold: bool = False
     color: str = "black"
 
     def get(self, key: str, default=None):
@@ -60,6 +61,7 @@ class TextSegment:
             font_path=data.get("font_path", None),
             height=data.get("height", 100),
             color=data.get("color", "black"),
+            is_bold=data.get("is_bold", False),
         )
 
     @staticmethod
@@ -206,7 +208,7 @@ class RichTextGenerator(ImageProcessor):
 
         resize_ctx = PipelineContext({
             "buffer": [image],
-            "height": segment.height,
+            "height": segment.height * 1.13 if segment.is_bold else segment.height,
             "save_buffer": False,
         })
         TrimFilter().process(resize_ctx)

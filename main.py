@@ -143,7 +143,7 @@ def handle_process():
             os.makedirs(output_dir)
 
         # 如果 output_path 对应的文件存在, 直接跳过
-        if os.path.exists(output_path):
+        if os.path.exists(output_path) and not config.getboolean('DEFAULT', 'skip_existed'):
             return
 
         # 开始处理
