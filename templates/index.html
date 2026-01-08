@@ -482,12 +482,30 @@
 
             // --- 核心：手动渲染树 (为了极致的稳定性和性能) ---
             // 使用 JS 生成 DOM 挂载到 Alpine Ref 上，比递归模板更容易调试数据丢失问题
+            // --- 核心：手动渲染树 (修改版：支持文件夹级联选中) ---
             renderTree(nodes, container, isInput) {
                 container.innerHTML = ''; // 清空
                 if (!nodes || !nodes.length) return;
 
                 const ul = document.createElement('ul');
                 ul.className = 'space-y-1 mt-1';
+
+                // 辅助函数：递归获取当前节点下所有的文件 Value
+                const collectFileValues = (node) => {
+                    let paths = [];
+                    const val = node.value || node.key;
+                    // 如果是文件，收集它
+                    if (node.is_file) {
+                        paths.push(val);
+                    }
+                    // 如果有子节点，递归收集
+                    if (node.children && node.children.length) {
+                        node.children.forEach(child => {
+                            paths = paths.concat(collectFileValues(child));
+                        });
+                    }
+                    return paths;
+                };
 
                 const createNode = (item) => {
                     const li = document.createElement('li');
@@ -498,10 +516,10 @@
 
                     const isFile = !!item.is_file;
                     const hasChildren = item.children && item.children.length > 0;
-                    const value = item.value || item.key; // 兼容不同 API 字段
+                    const value = item.value || item.key;
                     const label = item.label || item.title || item.name;
 
-                    // 1. 图标 / 展开箭头
+                    // 1. 图标逻辑
                     const iconBox = document.createElement('span');
                     iconBox.className = 'w-5 h-5 flex items-center justify-center mr-1 text-slate-400';
                     if (hasChildren) {
@@ -512,16 +530,42 @@
                         iconBox.innerHTML = '<svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" /></svg>';
                     }
 
-                    // 2. 复选框 (仅 Input 且是文件)
-                    if (isInput && isFile) {
+                    // 2. 复选框 (修改点：不仅文件，文件夹也可以有复选框)
+                    if (isInput) {
                         const checkbox = document.createElement('input');
                         checkbox.type = 'checkbox';
                         checkbox.className = 'mr-2 w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500';
-                        checkbox.addEventListener('click', (e) => e.stopPropagation()); // 防止触发折叠/预览
+
+                        // 初始化选中状态 (仅文件需回显，文件夹默认不回显或需复杂逻辑，这里简化为仅回显文件)
+                        if (isFile && this.selectedItems.includes(value)) {
+                            checkbox.checked = true;
+                        }
+
+                        checkbox.addEventListener('click', (e) => e.stopPropagation()); // 防止触发折叠
+
+                        // 级联选中逻辑
                         checkbox.addEventListener('change', (e) => {
-                            if (e.target.checked) this.selectedItems.push(value);
-                            else this.selectedItems = this.selectedItems.filter(v => v !== value);
+                            const isChecked = e.target.checked;
+
+                            // A. 数据层更新：获取受影响的所有文件路径
+                            const targetValues = collectFileValues(item);
+
+                            if (isChecked) {
+                                // 并集去重：添加所有子文件到 selectedItems
+                                this.selectedItems = [...new Set([...this.selectedItems, ...targetValues])];
+                            } else {
+                                // 差集：从 selectedItems 中移除所有子文件
+                                this.selectedItems = this.selectedItems.filter(v => !targetValues.includes(v));
+                            }
+
+                            // B. 视图层更新：级联控制所有子 DOM 复选框
+                            // 查找当前 li 下面所有的 checkbox，强制设为即时状态
+                            const childCheckboxes = li.querySelectorAll('input[type="checkbox"]');
+                            childCheckboxes.forEach(cb => {
+                                cb.checked = isChecked;
+                            });
                         });
+
                         row.appendChild(checkbox);
                     }
 
@@ -529,11 +573,11 @@
 
                     // 3. 文本
                     const text = document.createElement('span');
-                    text.className = 'truncate text-xs font-medium';
+                    text.className = 'truncate text-xs font-mediumSelect';
                     text.innerText = label;
                     row.appendChild(text);
 
-                    // 4. 事件绑定
+                    // 4. 事件绑定 (预览/折叠)
                     let childUl = null;
                     if (hasChildren) {
                         childUl = document.createElement('ul');
@@ -542,12 +586,14 @@
                     }
 
                     row.addEventListener('click', () => {
-                        // 预览
-                        this.preview.url = `/api/v1/file?path=${encodeURIComponent(value)}`;
-                        this.preview.name = label;
-                        this.preview.isFile = isFile
+                        // 预览 (仅文件)
+                        if (isFile) {
+                            this.preview.url = `/api/v1/file?path=${encodeURIComponent(value)}`;
+                            this.preview.name = label;
+                            this.preview.isFile = true;
+                        }
 
-                        // 折叠/展开
+                        // 折叠/展开 (如果有子节点)
                         if (childUl) {
                             const isHidden = childUl.classList.contains('hidden');
                             if (isHidden) {
