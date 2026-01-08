@@ -114,10 +114,14 @@ def get_file():
                 download_name=f"{Path(abs_path).stem}.jpg"
             )
             response.headers['Accept-Ranges'] = 'none'
-            return response
-
-        # 其他文件直接返回
-        return send_file(abs_path, as_attachment=False)
+        else:
+            # 其他文件直接返回
+            response = send_file(abs_path, as_attachment=False)
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        response.headers['Accept-Ranges'] = 'none'
+        return response
 
     except PermissionError:
         return jsonify({'error': 'Permission denied'}), 403
