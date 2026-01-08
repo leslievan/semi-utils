@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" xmlns:x-transition="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -131,12 +131,12 @@
                         </div>
 
                         <!-- 空数据状态 -->
-                        <div x-show="!loading.files && inputTreeData.length === 0" class="text-center py-8 text-slate-400 text-xs">
+                        <div x-show="!loading.files && inputTreeData.input_files.length ===0" class="text-center py-8 text-slate-400 text-xs">
                             未找到文件或配置路径错误
                         </div>
 
                         <!-- 递归树渲染入口 -->
-                        <ul x-show="!loading.files && inputTreeData.length > 0" class="space-y-1">
+                        <ul x-show="!loading.files && inputTreeData.input_files.length > 0" class="space-y-1">
                             <template x-for="node in inputTreeData" :key="node.key || node.value">
                                 <li x-data="treeNode(node, 'input')">
                                     <!-- 引入递归组件 -->
@@ -184,13 +184,13 @@
 
                 <div class="flex-1 bg-slate-50/50 flex items-center justify-center p-4 relative overflow-hidden">
                     <!-- 空状态 -->
-                    <div x-show="!preview.url" class="text-center opacity-40">
+                    <div x-show="!preview.url || !preview.isFile" class="text-center opacity-40">
                         <svg class="w-16 h-16 mx-auto mb-2 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         <span class="text-xs text-slate-500">点击列表文件预览</span>
                     </div>
 
                     <!-- 图像展示 -->
-                    <div x-show="preview.url" class="w-full h-full flex flex-col transition-opacity duration-300"
+                    <div x-if="preview.url && preview.isFile" class="w-full h-full flex flex-col transition-opacity duration-300"
                          x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
                         <div class="text-xs text-center text-slate-500 mb-2 font-mono truncate bg-white py-1 px-2 rounded border border-slate-200 shadow-sm" x-text="preview.name"></div>
                         <div class="flex-1 relative rounded border border-slate-200 bg-[url('https://cdn.jsdelivr.net/npm/amis@6.12.0/sdk/images/transparent-bg.png')] bg-repeat">
@@ -249,7 +249,7 @@
             inputTreeData: [],
             outputTreeData: [],
             selectedItems: [],
-            preview: { url: '', name: '' },
+            preview: { url: '', name: '' , isFile: false },
             aceEditor: null,
 
             // 计算属性
@@ -388,14 +388,6 @@
                 } catch (e) {
                     console.error(e);
                     this.toast("文件列表加载失败 (请检查后端)", 'error');
-                    // MOCK DEBUG: 如果没有后端，取消下面注释可测试 UI
-                    /*
-                    const mock = [{ label: 'test_folder', value: '/tmp', children: [
-                        {label: 'image1.png', value: '/tmp/1.png', is_file: true},
-                        {label: 'image2.jpg', value: '/tmp/2.jpg', is_file: true}
-                    ]}];
-                    this.renderTree(mock, this.$refs.inputTreeRoot, true);
-                    */
                 } finally {
                     this.loading.files = false;
                 }
@@ -496,6 +488,7 @@
                         // 预览
                         this.preview.url = `/api/v1/file?path=${encodeURIComponent(value)}`;
                         this.preview.name = label;
+                        this.preview.isFile = isFile
 
                         // 折叠/展开
                         if (childUl) {
