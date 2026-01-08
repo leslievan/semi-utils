@@ -3,7 +3,7 @@ name: Build Windows Release Package
 on:
   push:
     tags:
-      - 'build*' # Push events to matching build* tags
+      - 'v*' # Push events to matching build* tags
 
 jobs:
   build:
