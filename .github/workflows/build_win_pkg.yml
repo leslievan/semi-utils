@@ -32,6 +32,7 @@ jobs:
     - name: Add Release Resource to Package
       run: |
         Move-Item -Path "./fonts" -Destination "./dist"
+        Move-Item -Path "./logs" -Destination "./dist"
         Move-Item -Path "./config.ini" -Destination "./dist"
         Move-Item -Path "./render.jinja2" -Destination "./dist"
         New-Item -Path "./dist/input" -ItemType "directory" -Force | Out-Null
