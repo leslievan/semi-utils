@@ -169,6 +169,8 @@ def open_browser():
 
 if __name__ == '__main__':
     # 在单独的线程中打开浏览器
-    threading.Thread(target=open_browser).start()
-    app.run(port=15050, host="localhost")
+    debug = config.getboolean('DEFAULT', 'debug')
+    if not debug:
+        threading.Thread(target=open_browser).start()
+    app.run(port=15050, host="localhost", debug=debug)
 
