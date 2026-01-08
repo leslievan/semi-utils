@@ -215,8 +215,8 @@ class WatermarkFilter(ImageProcessor):
         right_top = start_process([ctx.get("right_top")])
         right_bottom = start_process([ctx.get("right_bottom")])
 
-        left_logo = Image.open(ctx.get("left_logo")) if ctx.get("left_logo") else None
-        right_logo = Image.open(ctx.get("right_logo")) if ctx.get("right_logo") else None
+        left_logo = Image.open(ctx.get("left_logo")).convert('RGBA') if ctx.get("left_logo") else None
+        right_logo = Image.open(ctx.get("right_logo")).convert('RGBA') if ctx.get("right_logo") else None
 
         canvas_width = img.width + left_margin + right_margin
         canvas_height = img.height + top_margin + bottom_margin
