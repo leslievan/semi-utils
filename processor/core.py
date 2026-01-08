@@ -17,6 +17,9 @@ class PipelineContext(MutableMapping):
     def get(self, key: str, default: Any = None) -> Any:
         return self._config.get(key) if key in self._config and self._config.get(key) is not None else default
 
+    def getint(self, key: str, default: int = 0) -> int:
+        return int(self.get(key, default))
+
     def get_processor_name(self):
         return self.get("processor_name")
 
@@ -57,7 +60,7 @@ class PipelineContext(MutableMapping):
         self._config[key] = value
 
     def save_buffer(self, processor_name: str, force_save: bool = False):
-        if not (force_save or self.get("save_buffer", True)):
+        if not (force_save or self.get("save_buffer", False)):
             return self
         directory = self.get("output", "./tmp")
         if not os.path.isdir(directory):

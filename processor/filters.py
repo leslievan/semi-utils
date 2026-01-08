@@ -151,10 +151,10 @@ class TrimFilter(ImageProcessor):
 class MarginFilter(ImageProcessor):
 
     def process(self, ctx: PipelineContext):
-        left_margin = ctx.get("left_margin", 0)
-        right_margin = ctx.get("right_margin", 0)
-        top_margin = ctx.get("top_margin", 0)
-        bottom_margin = ctx.get("bottom_margin", 0)
+        left_margin = ctx.getint("left_margin", 0)
+        right_margin = ctx.getint("right_margin", 0)
+        top_margin = ctx.getint("top_margin", 0)
+        bottom_margin = ctx.getint("bottom_margin", 0)
         color = ctx.get("margin_color", "white")
 
         buffer = []
@@ -188,11 +188,11 @@ class WatermarkFilter(ImageProcessor):
         img = ctx.get_buffer()[0]
         color = ctx.get("color", "white")
         delimiter_color = ctx.get("delimiter_color", "black")
-        left_margin = ctx.get("left_margin", 0)
-        right_margin = ctx.get("right_margin", 0)
-        top_margin = ctx.get("top_margin", 0)
-        bottom_margin = ctx.get("bottom_margin", int(img.height * .12))
-        middle_spacing = ctx.get("middle_spacing", int(bottom_margin * .13))
+        left_margin = ctx.getint("left_margin", 0)
+        right_margin = ctx.getint("right_margin", 0)
+        top_margin = ctx.getint("top_margin", 0)
+        bottom_margin = ctx.getint("bottom_margin", int(img.height * .12))
+        middle_spacing = ctx.getint("middle_spacing", int(bottom_margin * .13))
 
         for t_s in [ctx.get("left_top"), ctx.get("left_bottom"), ctx.get("right_top"), ctx.get("right_bottom")]:
             if "height" not in t_s:
