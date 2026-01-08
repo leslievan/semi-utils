@@ -71,8 +71,8 @@ def list_files(path: str, suffixes: set[str]):
     try:
         # 分离文件夹和文件，分别排序
         items = list(root.iterdir())
-        dirs = sorted([i for i in items if i.is_dir()], key=lambda x: x.name.lower())
-        files = sorted([i for i in items if i.is_file()], key=lambda x: x.name.lower())
+        dirs = sorted([i for i in items if i.is_dir()], key=lambda x: x.name.lower(), reverse=True)
+        files = sorted([i for i in items if i.is_file()], key=lambda x: (x.stat().st_mtime, x.name.lower()), reverse=True)
 
         # 先处理文件夹
         for item in dirs:
