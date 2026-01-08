@@ -203,7 +203,7 @@ class RichTextGenerator(ImageProcessor):
         metrics = font.getmetrics()
         bbox = font.getbbox(segment.text)
         # 创建透明画布
-        image = Image.new('RGBA', (int(bbox[2] - bbox[0]), metrics[0] + metrics[1]), (0, 0, 0, 0))
+        image = Image.new('RGBA', (int(bbox[2] - bbox[0]), metrics[0] + abs(metrics[1])), (0, 0, 0, 0))
         draw = ImageDraw.Draw(image)
         # 直接绘制文本
         draw.text((0, 0), segment.text, font=font, fill=_parse_color(segment.color))
