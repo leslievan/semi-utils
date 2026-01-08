@@ -423,7 +423,7 @@
                         this.toast("配置已保存", 'success');
                         console.log('保存后 $refs.input:', this.$refs.inputTreeRoot);
                         console.log('保存后 $refs.output:', this.$refs.outputTreeRoot);
-                        this.fetchFiles(); // 刷新文件树
+                        this.fetchFiles(true, true); // 刷新文件树
                     } else {
                         throw new Error("服务端返回错误");
                     }
@@ -434,14 +434,27 @@
 
             async fetchFiles(renderInput=true) {
                 this.loading.files = true;
-                if (renderInput) {
-                    this.selectedItems = []; // 重置选中
-                }
 
                 try {
                     const res = await fetch('/api/v1/file/tree');
                     const json = await res.json();
                     const data = this.normalizeApiResponse(json);
+
+                    const allCurrentFileValues = new Set();
+
+                    const collectValues = (node) => {
+                        if (node.is_file) {
+                            const val = node.value || node.key;
+                            allCurrentFileValues.add(val);
+                        }
+                        if (node.children && node.children.length) {
+                            node.children.forEach(collectValues);
+                        }
+                    };
+                    data.input_files.forEach(collectValues)
+                    this.selectedItems = this.selectedItems.filter(value =>
+                        allCurrentFileValues.has(value)
+                    );
 
                     if (data) {
                         // 渲染两棵树
