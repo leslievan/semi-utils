@@ -1,7 +1,6 @@
 name: Build Windows Release Package
 
 on:
-  pull_request:
   push:
     tags:
       - 'build*' # Push events to matching build* tags
@@ -32,7 +31,7 @@ jobs:
     - name: Add Release Resource to Package
       run: |
         Move-Item -Path "./fonts" -Destination "./dist"
-        Move-Item -Path "./logs" -Destination "./dist"
+        Move-Item -Path "./logos" -Destination "./dist"
         Move-Item -Path "./config.ini" -Destination "./dist"
         Move-Item -Path "./render.jinja2" -Destination "./dist"
         New-Item -Path "./dist/input" -ItemType "directory" -Force | Out-Null
@@ -40,8 +39,21 @@ jobs:
         New-Item -Path "./dist/exiftool" -ItemType "directory" -Force | Out-Null
         Invoke-WebRequest -Uri "https://github.com/leslievan/semi-utils/raw/exiftool/exiftool/exiftool.exe" -OutFile "./dist/exiftool/exiftool.exe"
 
+    - name: Determine Artifact Name
+      id: artifact_name
+      shell: pwsh
+      run: |
+        $tag = "${{ github.ref_name }}"
+        # 如果 tag 以 "build-" 开头，去掉它
+        if ($tag.StartsWith("v-")) {
+          $cleanTag = $tag.Substring(2)
+        } else {
+          $cleanTag = $tag
+        }
+        $artifactName = "semi-utils-${cleanTag}-win-x64"
+        echo "artifact_name=$artifactName" >> $env:GITHUB_OUTPUT
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: semi-utils-latest_win_amd64_pkg
+        name: ${{ steps.artifact_name.outputs.artifact_name }}
         path: dist
