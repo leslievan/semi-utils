@@ -1,3 +1,4 @@
+import io
 import platform
 import re
 import shutil
@@ -6,6 +7,7 @@ import time
 from functools import wraps
 from pathlib import Path
 
+from PIL import Image
 from jinja2 import pass_context
 
 if platform.system() == 'Windows':
@@ -127,5 +129,24 @@ def vh(context, percent):
 
 
 @pass_context
-def logo_path(context, brand: str = None):
-    brand = brand or context.get('brand')
+def auto_logo(context, brand: str = None):
+    exif = context.get('exif', {})
+    brand = (brand or exif.get('Make', 'default')).lower()
+    logos_dir = Path('./logos')
+
+    for f in logos_dir.iterdir():
+        if f.suffix.lower() in {'.png', '.jpg', '.jpeg'} and f.stem.lower() in brand:
+            return str(f.absolute())
+    return None
+
+
+def convert_heic_to_jpeg(path: str, quality: int = 90) -> io.BytesIO:
+    """转换 HEIC 为 JPEG 字节流"""
+    with Image.open(path) as img:
+        if img.mode in ('RGBA', 'P', 'LA'):
+            img = img.convert('RGB')
+
+        buffer = io.BytesIO()
+        img.save(buffer, format='JPEG', quality=quality)
+        buffer.seek(0)
+        return buffer

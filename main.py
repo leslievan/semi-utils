@@ -3,12 +3,13 @@ import json
 import os
 import threading
 import webbrowser
+from pathlib import Path
 
 from flask import Flask, render_template, jsonify, request, send_file
 from jinja2 import Template
 
 from processor.core import start_process
-from util import list_files, log_rt, get_exif, vh, vw
+from util import list_files, log_rt, get_exif, vh, vw, auto_logo, convert_heic_to_jpeg
 
 CONFIG_PATH = 'config.ini'
 
@@ -105,7 +106,17 @@ def get_file():
         return jsonify({'error': 'Path is a directory, not a file'}), 400
 
     try:
-        # 直接发送文件（适用于下载或二进制文件）
+        # HEIC 文件转换处理
+        if Path(abs_path).suffix.lower() in {'.heic', '.heif'}:
+            response = send_file(
+                convert_heic_to_jpeg(abs_path),
+                mimetype='image/jpeg',
+                download_name=f"{Path(abs_path).stem}.jpg"
+            )
+            response.headers['Accept-Ranges'] = 'none'
+            return response
+
+        # 其他文件直接返回
         return send_file(abs_path, as_attachment=False)
 
     except PermissionError:
@@ -114,18 +125,23 @@ def get_file():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/api/v1/start_process', methods=['POST'])
-@log_rt
-def handle_process():
-    # 获取模板
-    with open(config.get('render', 'template_path')) as f:
+def get_template(template_path):
+    with open(template_path) as f:
         template_str = f.read()
     template = Template(template_str)
     template.globals['vh'] = vh
     template.globals['vw'] = vw
+    template.globals['auto_logo'] = auto_logo
+    return template
+
+@app.route('/api/v1/start_process', methods=['POST'])
+@log_rt
+def handle_process():
+    # 获取模板
+    template = get_template(config.get('render', 'template_path'))
 
     data = request.get_json()
-    input_files = [item['value'] for item in data['selectedItems']]
+    input_files = data['selectedItems']
     input_folder = config.get('DEFAULT', 'input_folder')
     output_folder = config.get('DEFAULT', 'output_folder')
     def process_file(input_path):
