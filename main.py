@@ -36,7 +36,7 @@ def get_config():
     return jsonify({
         'input_folder': config.get('DEFAULT', 'input_folder'),
         'output_folder': config.get('DEFAULT', 'output_folder'),
-        'skip_existed': config.get('DEFAULT', 'skip_existed'),
+        'override_existed': config.get('DEFAULT', 'override_existed'),
         'template': template,
     })
 
@@ -54,8 +54,8 @@ def save_config():
             config.set('DEFAULT', 'input_folder', data['input_folder'])
         if 'output_folder' in data:
             config.set('DEFAULT', 'output_folder', data['output_folder'])
-        if 'skip_existed' in data:
-            config.set('DEFAULT', 'skip_existed', str(data['skip_existed']))
+        if 'override_existed' in data:
+            config.set('DEFAULT', 'override_existed', str(data['override_existed']))
 
         # 保存配置到配置文件
         with open(CONFIG_PATH, 'w', encoding='utf-8') as f:
@@ -159,7 +159,7 @@ def handle_process():
             os.makedirs(output_dir)
 
         # 如果 output_path 对应的文件存在, 直接跳过
-        if os.path.exists(output_path) and not config.getboolean('DEFAULT', 'skip_existed'):
+        if os.path.exists(output_path) and not config.getboolean('DEFAULT', 'override_existed'):
             return
 
         # 开始处理
