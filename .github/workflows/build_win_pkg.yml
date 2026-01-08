@@ -45,8 +45,8 @@ jobs:
       run: |
         $tag = "${{ github.ref_name }}"
         # 如果 tag 以 "build-" 开头，去掉它
-        if ($tag.StartsWith("v-")) {
-          $cleanTag = $tag.Substring(2)
+        if ($tag.StartsWith("v")) {
+          $cleanTag = $tag.Substring(1)
         } else {
           $cleanTag = $tag
         }
