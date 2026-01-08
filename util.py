@@ -119,13 +119,13 @@ def log_rt(func):
 @pass_context
 def vw(context, percent):
     exif = context.get('exif', {})
-    return int(exif.get('ImageWidth', 0) * percent / 100)
+    return int(int(exif.get('ImageWidth', 0)) * percent / 100)
 
 
 @pass_context
 def vh(context, percent):
     exif = context.get('exif', {})
-    return int(exif.get('ImageHeight', 0) * percent / 100)
+    return int(int(exif.get('ImageHeight', 0)) * percent / 100)
 
 
 @pass_context
