@@ -19,7 +19,7 @@
     "right_top": {
       "processor_name": "rich_text",
       "text": "{{exif.FocalLengthIn35mmFormat}} f/{{exif.AperatureValue}} {{exif.ShutterSpeedValue}}s ISO{{exif.ISO}}",
-      "font_path": "fonts/AlibabaPuHuiTi-2-85-Bold.otf",
+                "font_path": "fonts/AlibabaPuHuiTi-2-85-Bold.otf",
       "color": "#242424"
     },
     "right_bottom": {
@@ -27,7 +27,7 @@
       "text": "{{(exif.DateTimeOriginal or exif.CreateDate or exif.DigitalCreationDate or exif.DateCreated or exif.DateTimeCreated or exif.DigitalCreationDateTime)[:16]}}",
       "color": "#242424"
     },
-    "top_margin": "{{vh(5)}}",
+    "left_logo": "{{auto_logo()}}",
     "color": "white",
     "processor_name": "watermark"
   }
