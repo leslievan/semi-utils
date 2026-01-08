@@ -22,14 +22,35 @@
 
     <style>
         /* 基础微调 */
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-        .ace_editor { border: 1px solid #e5e7eb; border-radius: 0.375rem; }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        .ace_editor {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
 
         /* 树节点连接线效果 (可选) */
-        .tree-line { border-left: 1px dashed #e5e7eb; margin-left: 0.5rem; padding-left: 0.5rem; }
+        .tree-line {
+            border-left: 1px dashed #e5e7eb;
+            margin-left: 0.5rem;
+            padding-left: 0.5rem;
+        }
 
         /* Loading 遮罩 */
         .loading-mask {
@@ -45,7 +66,8 @@
 <header class="bg-white border-b border-slate-200 h-14 flex items-center px-6 shadow-sm shrink-0 z-10">
     <div class="flex items-center gap-2">
         <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">S</div>
-        <h1 class="font-bold text-lg text-slate-800 tracking-tight">Semi-Utils <span class="text-xs font-normal text-slate-400 ml-1">v2.0</span></h1>
+        <h1 class="font-bold text-lg text-slate-800 tracking-tight">Semi-Utils <span
+                class="text-xs font-normal text-slate-400 ml-1">v2.0</span></h1>
     </div>
 </header>
 
@@ -87,16 +109,19 @@
             <!-- 底部操作栏 -->
             <div class="p-3 border-t border-slate-100 bg-slate-50 flex justify-end gap-2 shrink-0">
                 <template x-if="isStatic">
-                    <button @click="enableEdit()" class="btn-primary bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition shadow-sm text-xs font-medium">
+                    <button @click="enableEdit()"
+                            class="btn-primary bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition shadow-sm text-xs font-medium">
                         编辑配置
                     </button>
                 </template>
                 <template x-if="!isStatic">
                     <div class="flex gap-2">
-                        <button @click="resetConfig()" class="px-3 py-2 border border-slate-300 bg-white hover:bg-slate-50 text-slate-600 rounded transition text-xs font-medium">
+                        <button @click="resetConfig()"
+                                class="px-3 py-2 border border-slate-300 bg-white hover:bg-slate-50 text-slate-600 rounded transition text-xs font-medium">
                             取消
                         </button>
-                        <button @click="saveConfig()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition shadow-sm text-xs font-medium">
+                        <button @click="saveConfig()"
+                                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition shadow-sm text-xs font-medium">
                             保存配置
                         </button>
                     </div>
@@ -108,8 +133,12 @@
         <div class="col-span-12 md:col-span-4 lg:col-span-5 flex flex-col h-full bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden relative">
             <div class="px-4 py-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
                 <h3 class="font-bold text-slate-700">文件列表</h3>
-                <button @click="fetchFiles()" class="text-slate-400 hover:text-blue-500 transition p-1 rounded hover:bg-blue-50">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                <button @click="fetchFiles()"
+                        class="text-slate-400 hover:text-blue-500 transition p-1 rounded hover:bg-blue-50">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
                 </button>
             </div>
 
@@ -119,19 +148,28 @@
                 <div class="bg-white">
                     <div class="flex items-center gap-2 mb-2 pb-1 border-b border-slate-100">
                         <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Source</span>
-                        <span class="text-xs px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full" x-text="`${selectedItems.length} 选中`"></span>
+                        <span class="text-xs px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full"
+                              x-text="`${selectedItems.length} 选中`"></span>
                     </div>
 
                     <!-- 树容器 -->
                     <div class="min-h-[100px]">
                         <!-- Loading 状态 -->
-                        <div x-show="loading.files" class="flex flex-col items-center justify-center py-8 text-slate-400 space-y-2">
-                            <svg class="animate-spin h-6 w-6 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        <div x-show="loading.files"
+                             class="flex flex-col items-center justify-center py-8 text-slate-400 space-y-2">
+                            <svg class="animate-spin h-6 w-6 text-blue-500" xmlns="http://www.w3.org/2000/svg"
+                                 fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                        stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
                             <span class="text-xs">正在扫描文件系统...</span>
                         </div>
 
                         <!-- 空数据状态 -->
-                        <div x-show="!loading.files && inputTreeData.input_files.length ===0" class="text-center py-8 text-slate-400 text-xs">
+                        <div x-show="!loading.files && inputTreeData.input_files.length ===0"
+                             class="text-center py-8 text-slate-400 text-xs">
                             未找到文件或配置路径错误
                         </div>
 
@@ -146,7 +184,8 @@
                                     <template x-if="node.children && node.children.length && isOpen">
                                         <ul class="tree-line">
                                             <template x-for="child in node.children" :key="child.key || child.value">
-                                                <li x-data="treeNode(child, 'input')" x-html="renderNode()" class="my-1"></li>
+                                                <li x-data="treeNode(child, 'input')" x-html="renderNode()"
+                                                    class="my-1"></li>
                                             </template>
                                         </ul>
                                     </template>
@@ -185,16 +224,24 @@
                 <div class="flex-1 bg-slate-50/50 flex items-center justify-center p-4 relative overflow-hidden">
                     <!-- 空状态 -->
                     <div x-show="!preview.url || !preview.isFile" class="text-center opacity-40">
-                        <svg class="w-16 h-16 mx-auto mb-2 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        <svg class="w-16 h-16 mx-auto mb-2 text-slate-300" fill="none" stroke="currentColor"
+                             viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
                         <span class="text-xs text-slate-500">点击列表文件预览</span>
                     </div>
 
                     <!-- 图像展示 -->
-                    <div x-if="preview.url && preview.isFile" class="w-full h-full flex flex-col transition-opacity duration-300"
-                         x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-                        <div class="text-xs text-center text-slate-500 mb-2 font-mono truncate bg-white py-1 px-2 rounded border border-slate-200 shadow-sm" x-text="preview.name"></div>
+                    <div x-if="preview.url && preview.isFile" x-show="preview.url && preview.isFile"
+                         class="w-full h-full flex flex-col transition-opacity duration-300"
+                         x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0"
+                         x-transition:enter-end="opacity-100">
+                        <div class="text-xs text-center text-slate-500 mb-2 font-mono truncate bg-white py-1 px-2 rounded border border-slate-200 shadow-sm"
+                             x-text="preview.name"></div>
                         <div class="flex-1 relative rounded border border-slate-200 bg-[url('https://cdn.jsdelivr.net/npm/amis@6.12.0/sdk/images/transparent-bg.png')] bg-repeat">
-                            <img :src="preview.url" class="absolute inset-0 w-full h-full object-contain p-2">
+                            <img x-effect="if(preview.isFile) $el.src = preview.url"
+                                 class="absolute inset-0 w-full h-full object-contain p-2">
                         </div>
                     </div>
                 </div>
@@ -204,7 +251,8 @@
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 shrink-0 relative overflow-hidden">
 
                 <!-- 进度条/Loading Overlay -->
-                <div x-show="loading.process" class="loading-mask absolute inset-0 z-20 flex flex-col items-center justify-center">
+                <div x-show="loading.process"
+                     class="loading-mask absolute inset-0 z-20 flex flex-col items-center justify-center">
                     <div class="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-2"></div>
                     <span class="text-xs font-bold text-blue-600">处理中，请稍候...</span>
                 </div>
@@ -224,7 +272,12 @@
                 <button @click="startProcess()"
                         :disabled="!canStart"
                         class="w-full py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white rounded-lg font-bold shadow-md shadow-emerald-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
                     开始执行
                 </button>
                 <p class="mt-2 text-center text-xs text-slate-400" x-show="!canStart">请先保存配置并选择至少一个文件</p>
@@ -244,17 +297,21 @@
         return {
             // 状态
             isStatic: true,
-            loading: { files: false, process: false },
-            config: { input_folder: '', output_folder: '', template: '{}' },
+            loading: {files: false, process: false},
+            config: {input_folder: '', output_folder: '', template: '{}'},
             inputTreeData: [],
             outputTreeData: [],
             selectedItems: [],
-            preview: { url: '', name: '' , isFile: false },
+            preview: {url: '', name: '', isFile: false},
             aceEditor: null,
 
             // 计算属性
-            get isValidConfig() { return this.isStatic; },
-            get canStart() { return this.isStatic && this.selectedItems.length > 0 && !this.loading.process; },
+            get isValidConfig() {
+                return this.isStatic;
+            },
+            get canStart() {
+                return this.isStatic && this.selectedItems.length > 0 && !this.loading.process;
+            },
 
             // 初始化
             async init() {
@@ -316,7 +373,7 @@
                     const data = this.normalizeApiResponse(json);
 
                     if (data) {
-                        this.config = { ...data }; // 复制以切断引用
+                        this.config = {...data}; // 复制以切断引用
                         // 处理 Template: 可能是对象也可能是字符串
                         let tplStr = typeof this.config.template === 'object' ?
                             JSON.stringify(this.config.template, null, 2) :
@@ -338,7 +395,7 @@
                 const jsonVal = this.aceEditor.getValue();
                 try {
                     JSON.parse(jsonVal);
-                } catch(e) {
+                } catch (e) {
                     this.toast("JSON 格式错误，请检查", 'error');
                     return;
                 }
@@ -351,11 +408,11 @@
 
                     const res = await fetch('/api/v1/config', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify(payload)
                     });
 
-                    if(res.ok) {
+                    if (res.ok) {
                         this.isStatic = true;
                         this.aceEditor.setReadOnly(true);
                         this.aceEditor.container.style.backgroundColor = "#f9fafb";
@@ -398,8 +455,8 @@
                 try {
                     const res = await fetch('/api/v1/start_process', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ selectedItems: this.selectedItems })
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({selectedItems: this.selectedItems})
                     });
                     if (res.ok) {
                         this.toast("执行成功!", 'success');
@@ -462,7 +519,7 @@
                         checkbox.className = 'mr-2 w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500';
                         checkbox.addEventListener('click', (e) => e.stopPropagation()); // 防止触发折叠/预览
                         checkbox.addEventListener('change', (e) => {
-                            if(e.target.checked) this.selectedItems.push(value);
+                            if (e.target.checked) this.selectedItems.push(value);
                             else this.selectedItems = this.selectedItems.filter(v => v !== value);
                         });
                         row.appendChild(checkbox);
@@ -504,7 +561,7 @@
                     });
 
                     li.appendChild(row);
-                    if(childUl) li.appendChild(childUl);
+                    if (childUl) li.appendChild(childUl);
                     return li;
                 };
 
