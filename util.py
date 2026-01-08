@@ -56,9 +56,6 @@ def get_exif(path) -> dict:
     return exif_dict
 
 
-from pathlib import Path
-
-
 def list_files(path: str, suffixes: set[str]):
     """
     使用 pathlib 实现的版本
@@ -119,43 +116,16 @@ def log_rt(func):
 
 @pass_context
 def vw(context, percent):
-    """
-    根据上下文中的 exif.ImageWidth 计算视口高度百分比对应的像素值
-    :param context: Jinja2 模板上下文（类似字典）
-    :param percent: 百分比数值（如 90 表示 90%）
-    :return: 整数像素值
-    """
-    # 安全获取 exif.ImageWidth
     exif = context.get('exif', {})
-    if hasattr(exif, 'get'):
-        width = exif.get('ImageWidth', 0)
-    else:
-        # 支持对象形式（如 SimpleNamespace）
-        width = getattr(exif, 'ImageWidth', 0)
-    try:
-        width = int(width)
-    except (TypeError, ValueError):
-        width = 0
-    return int(width * percent / 100)
+    return int(exif.get('ImageWidth', 0) * percent / 100)
 
 
 @pass_context
 def vh(context, percent):
-    """
-    根据上下文中的 exif.ImageWidth 计算视口高度百分比对应的像素值
-    :param context: Jinja2 模板上下文（类似字典）
-    :param percent: 百分比数值（如 90 表示 90%）
-    :return: 整数像素值
-    """
-    # 安全获取 exif.ImageWidth
     exif = context.get('exif', {})
-    if hasattr(exif, 'get'):
-        height = exif.get('ImageHeight', 0)
-    else:
-        # 支持对象形式（如 SimpleNamespace）
-        height = getattr(exif, 'ImageHeight', 0)
-    try:
-        height = int(height)
-    except (TypeError, ValueError):
-        height = 0
-    return int(height * percent / 100)
+    return int(exif.get('ImageHeight', 0) * percent / 100)
+
+
+@pass_context
+def logo_path(context, brand: str = None):
+    brand = brand or context.get('brand')
