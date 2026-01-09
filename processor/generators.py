@@ -1,4 +1,5 @@
 import sys
+from abc import ABC
 from dataclasses import dataclass, asdict
 from enum import Enum
 from pathlib import Path
@@ -74,7 +75,13 @@ class TextSegment:
         ) for datum in data]
 
 
-class SolidColorGenerator(ImageProcessor):
+class Generator(ImageProcessor, ABC):
+
+    def category(self) -> str:
+        return "generator"
+
+
+class SolidColorGenerator(Generator):
 
     def process(self, ctx: PipelineContext):
         width, height = ctx.get("width"), ctx.get("height")
@@ -170,7 +177,7 @@ def _draw_gradient_numpy(
     return Image.fromarray(pixels, mode='RGBA')
 
 
-class GradientColorGenerator(ImageProcessor):
+class GradientColorGenerator(Generator):
     def process(self, ctx: PipelineContext):
         width, height = ctx.get("width"), ctx.get("height")
         start_color = ctx.get("start_color")
@@ -193,7 +200,7 @@ class GradientColorGenerator(ImageProcessor):
         return "gradient_color"
 
 
-class RichTextGenerator(ImageProcessor):
+class RichTextGenerator(Generator):
     @staticmethod
     def generate(segment: TextSegment) -> Image.Image:
         from processor.filters import ResizeFilter, TrimFilter
@@ -228,7 +235,7 @@ class RichTextGenerator(ImageProcessor):
         return "rich_text"
 
 
-class MultiRichTextGenerator(ImageProcessor):
+class MultiRichTextGenerator(Generator):
     def process(self, ctx: PipelineContext):
         from processor.mergers import ConcatMerger
         text_segments: List[TextSegment] = TextSegment.from_dicts(ctx.get("text_segments"))

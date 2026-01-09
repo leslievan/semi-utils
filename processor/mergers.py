@@ -1,3 +1,6 @@
+from abc import ABC
+from typing import List
+
 from PIL import Image
 
 from processor.core import ImageProcessor, Direction, Alignment, PipelineContext
@@ -15,8 +18,12 @@ def _calc_offset(size: int, max_size: int, alignment: Alignment) -> int:
         return max_size - size
     return 0
 
+class Merger(ImageProcessor, ABC):
+    def category(self) -> str:
+        return "merger"
 
-class ConcatMerger(ImageProcessor):
+
+class ConcatMerger(Merger):
     def process(self, ctx: PipelineContext):
         buffer = ctx.get_buffer()
         alignment = ctx.get_enum_value("alignment", Alignment.BOTTOM, Alignment)

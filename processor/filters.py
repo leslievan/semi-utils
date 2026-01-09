@@ -1,3 +1,4 @@
+from abc import ABC
 from typing import Tuple
 
 import numpy as np
@@ -7,7 +8,12 @@ from processor.core import ImageProcessor, PipelineContext, start_process
 from processor.generators import TextSegment, MultiRichTextGenerator
 
 
-class BlurFilter(ImageProcessor):
+class FilterProcessor(ImageProcessor, ABC):
+    def category(self) -> str:
+        return "filter"
+
+
+class BlurFilter(FilterProcessor):
     def process(self, ctx: PipelineContext):
         radius = ctx.get("blur_radius", 5)
 
@@ -23,7 +29,7 @@ class BlurFilter(ImageProcessor):
         return "blur"
 
 
-class ResizeFilter(ImageProcessor):
+class ResizeFilter(FilterProcessor):
     def process(self, ctx: PipelineContext):
         width, height = ctx.get("width"), ctx.get("height")
         scale = ctx.get("scale")
@@ -52,7 +58,7 @@ class ResizeFilter(ImageProcessor):
         return "resize"
 
 
-class TrimFilter(ImageProcessor):
+class TrimFilter(FilterProcessor):
     threshold: float = 10.0,
     padding: int = 0
 
@@ -162,7 +168,7 @@ class TrimFilter(ImageProcessor):
         return left, top, right, bottom
 
 
-class MarginFilter(ImageProcessor):
+class MarginFilter(FilterProcessor):
 
     def process(self, ctx: PipelineContext):
         left_margin = ctx.getint("left_margin", 0)
@@ -197,7 +203,7 @@ class MarginFilter(ImageProcessor):
         return "margin"
 
 
-class WatermarkFilter(ImageProcessor):
+class WatermarkFilter(FilterProcessor):
     def process(self, ctx: PipelineContext):
         img = ctx.get_buffer()[0]
         color = ctx.get("color", "white")
@@ -300,7 +306,7 @@ class WatermarkFilter(ImageProcessor):
         return "watermark"
 
 
-class WatermarkWithTimestampFilter(ImageProcessor):
+class WatermarkWithTimestampFilter(FilterProcessor):
     def process(self, ctx: PipelineContext):
         img = ctx.get_buffer()[0]
 
