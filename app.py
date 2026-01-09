@@ -163,9 +163,15 @@ def handle_process():
         if os.path.exists(output_path) and not config.getboolean('DEFAULT', 'override_existed'):
             return
 
+        _input_path = Path(input_path)
         # 开始处理
         print(f'input_path: {input_path}, output_path: {output_path}')
-        start_process(json.loads(template.render({'exif': get_exif(input_path)})), input_path, output_path=output_path)
+        context = {
+            'exif': get_exif(input_path),
+            'filename': _input_path.stem,
+            'file_dir': str(_input_path.parent.absolute()),
+        }
+        start_process(json.loads(template.render(context)), input_path, output_path=output_path)
 
     threads = []
     for input_path in input_files:
@@ -202,6 +208,5 @@ if __name__ == '__main__':
 
     if not debug:
         threading.Thread(target=open_browser_later).start()
-        start_server()
-    else:
-        start_server()
+
+    start_server()
