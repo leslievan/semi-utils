@@ -4,9 +4,13 @@ import time
 import uuid
 from abc import ABC, abstractmethod
 from enum import Enum
+from itertools import chain
 from typing import Dict, Any, Type, List, MutableMapping, Iterator
 
 from PIL import Image, ImageColor
+
+from processor.mergers import Merger
+
 
 class PipelineContext(MutableMapping):
     """管道上下文"""
@@ -240,6 +244,7 @@ def _parse_color(color) -> tuple:
 
 _processor_registry: Dict[str, Type['ImageProcessor']] = {}
 
+
 def get_all_processors() -> Dict[str, Type['ImageProcessor']]:
     """获取所有已注册的处理器"""
     return _processor_registry.copy()
@@ -258,18 +263,37 @@ def register_processor(key: str, processor_cls: Type['ImageProcessor']):
     print(f"Registered processor: {key} -> {processor_cls.__name__}")
 
 
-def start_process(data: List[dict], input_path:str=None, output_path: str=None):
+def start_process(data: List[dict], input_path: str = None, output_path: str = None):
     nodes = [PipelineContext(datum) for datum in data]
     if input_path is not None:
         nodes[0].set("buffer_path", [input_path])
-    buffer = nodes[0].get_buffer()
-    for node in nodes:
-        node.update_buffer(buffer)
+
+    # 所有处理器的输出, 0 被看作是头元素的输出
+    output = nodes[0].get_buffer()
+
+    all_buffer = [output]
+    last_merger_idx = -1
+
+    for idx, node in enumerate(nodes):  # 修正1: 添加 enumerate
         processor = get_processor(node.get_processor_name())
         if processor is None:
-            raise RuntimeError(f"Processor '{node.get_processor_name()}' ")
+            raise RuntimeError(f"Processor '{node.get_processor_name()}' not found")
+
+        if not isinstance(processor, Merger):
+            node.update_buffer(output)
+        else:
+            # 收集下标从上一个 merger 之后, 到当前 idx 为止的 buffer
+            buffers_to_merge = all_buffer[last_merger_idx + 1:idx + 1]
+
+            # 将数组的数组展平为数组
+            flattened = list(chain.from_iterable(buffers_to_merge))
+            node.update_buffer(flattened)
+            last_merger_idx = idx
+
         processor().process(node)
-        buffer = node.get_buffer()
+        output = node.get_buffer()
+        all_buffer.append(output)
+
     nodes[-1].save_buffer("final").success()
     if output_path is not None:
         nodes[-1].get_buffer()[0].convert("RGB").save(output_path)
