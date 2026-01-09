@@ -10,6 +10,7 @@ from typing import Dict, Any, Type, List, MutableMapping, Iterator
 from PIL import Image, ImageColor
 
 from processor.mergers import Merger
+from util import get_exif
 
 
 class PipelineContext(MutableMapping):
@@ -21,7 +22,10 @@ class PipelineContext(MutableMapping):
     def get(self, key: str, default: Any = None) -> Any:
         return self._config.get(key) if key in self._config and self._config.get(key) is not None else default
 
-    def get_color(self, key: str, default: Any = None) -> Any:
+    def get_exif(self) -> Dict[str, Any]:
+        return self.get('exif')
+
+    def getcolor(self, key: str, default: Any = None) -> Any:
         return _parse_color(self._config.get(key, default))
 
     def getint(self, key: str, default: int = 0) -> int:
@@ -267,6 +271,12 @@ def start_process(data: List[dict], input_path: str = None, output_path: str = N
     nodes = [PipelineContext(datum) for datum in data]
     if input_path is not None:
         nodes[0].set("buffer_path", [input_path])
+
+    # 填充 exif 信息
+    exif = get_exif(input_path)
+    for node in nodes:
+        if 'exif' not in node:
+            node['exif'] = exif
 
     # 所有处理器的输出, 0 被看作是头元素的输出
     output = nodes[0].get_buffer()
