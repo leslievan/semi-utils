@@ -5,6 +5,7 @@ import re
 import shutil
 import subprocess
 import time
+import tomllib
 from functools import wraps
 from pathlib import Path
 
@@ -155,9 +156,16 @@ def convert_heic_to_jpeg(path: str, quality: int = 90) -> io.BytesIO:
 
 
 CONFIG_PATH = 'config.ini'
+PROJECT_INFO = 'pyproject.toml'
 
 
 def load_config() -> configparser.ConfigParser:
     config = configparser.ConfigParser()
     config.read(CONFIG_PATH)
     return config
+
+
+def load_project_info():
+    with open(PROJECT_INFO, "rb") as f:  # 注意：tomllib 需要以二进制模式（"rb"）打开文件
+        data = tomllib.load(f)
+    return data

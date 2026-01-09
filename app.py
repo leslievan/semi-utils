@@ -8,16 +8,17 @@ from flask import render_template, jsonify, request, send_file, Flask
 from jinja2 import Template
 
 from processor.core import start_process
-from util import list_files, log_rt, get_exif, vh, vw, auto_logo, convert_heic_to_jpeg, load_config, CONFIG_PATH
+from util import list_files, log_rt, get_exif, vh, vw, auto_logo, convert_heic_to_jpeg, load_config, CONFIG_PATH, \
+    load_project_info
 
 api = Flask(__name__)
 
 config = load_config()
-
+project_info = load_project_info()
 
 @api.route('/')
 def index():
-    return render_template('index.html', title='Semi-Utils')
+    return render_template('index.html', title='Semi-Utils Pro', version=project_info['project']['version'])
 
 
 @api.route('/api/v1/config', methods=['GET'])
