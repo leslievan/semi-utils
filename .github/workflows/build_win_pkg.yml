@@ -1,23 +1,28 @@
 name: Build Windows Release Package
 
 on:
-  pull_request:
   push:
     tags:
-      - 'build*' # Push events to matching build* tags
+      - 'v*' # Push events to matching build* tags
+  workflow_dispatch:
+
+env:
+  EXIFTOOL_URL: https://github.com/leslievan/fastfiles/raw/refs/heads/main/exiftool/exiftool-13.45_64.zip
+  PACKAGE_BASENAME: semi-utils
+  PLATFORM: win-x64
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+    - name: Checkout repository source code into 'dist'
+      uses: actions/checkout@v4
 
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.9'
+        python-version: '3.13'
 
     - name: Install Dependencies
       run: |
@@ -27,19 +32,69 @@ jobs:
 
     - name: Build Executable
       run: |
-        pyinstaller build_win_pkg.spec
+        pyinstaller ./build_win_pkg.spec
 
-    - name: Add Release Resource to Package
+    - name: Prepare Package and Unpack ExifTool
+      shell: pwsh
       run: |
-        Move-Item -Path "./input" -Destination "./dist"
-        Move-Item -Path "./logos" -Destination "./dist"
-        Move-Item -Path "./fonts" -Destination "./dist"
-        Move-Item -Path "./config.yaml" -Destination "./dist/config.yaml"
-        New-Item -Path "./dist/exiftool" -ItemType "directory" -Force | Out-Null
-        Invoke-WebRequest -Uri "https://github.com/leslievan/semi-utils/raw/exiftool/exiftool/exiftool.exe" -OutFile "./dist/exiftool/exiftool.exe"
+        # 1. 设置脚本在遇到任何错误时立即停止，这是 CI/CD 的最佳实践
+        $ErrorActionPreference = "Stop"
+
+        # 2. 定义目标目录变量，便于维护
+        $distPath = "./dist"
+
+        # 3. 批量移动文件和文件夹，代码更简洁
+        Write-Host "Moving resources to $distPath"
+        $itemsToMove = @("./fonts", "./logos", "./config.ini", "./render.jinja2")
+        Move-Item -Path $itemsToMove -Destination $distPath -Force
+
+        # 4. 批量创建所需目录
+        Write-Host "Creating subdirectories in $distPath"
+        @("input", "output", "exiftool") | ForEach-Object {
+            New-Item -Path (Join-Path $distPath $_) -ItemType Directory -Force | Out-Null
+        }
+
+        # 5. 下载并正确解压 ExifTool
+        Write-Host "Downloading ExifTool..."
+        $zipFile = "exiftool.zip"
+        $exiftoolDestPath = Join-Path $distPath "exiftool"
+
+        Invoke-WebRequest -Uri "${{ env.EXIFTOOL_URL }}" -OutFile $zipFile
+
+        Write-Host "Expanding ExifTool archive..."
+        Expand-Archive -Path $zipFile -DestinationPath $exiftoolDestPath -Force
+
+        # --- 解决多一层目录问题的核心逻辑 ---
+        # 查找解压后可能产生的唯一子目录
+        $subFolder = Get-ChildItem -Path $exiftoolDestPath -Directory | Select-Object -First 1
+
+        if ($null -ne $subFolder) {
+            Write-Host "Correcting directory structure. Moving items from $($subFolder.FullName) ..."
+            # 将子目录内的所有内容移动到上一级
+            Move-Item -Path (Join-Path $subFolder.FullName "*") -Destination $exiftoolDestPath -Force
+            # 删除现在已经为空的子目录
+            Remove-Item -Path $subFolder.FullName -Force
+            Write-Host "Directory structure corrected."
+        } else {
+            Write-Host "Archive was already flat. No correction needed."
+        }
+
+        Write-Host "Setup complete."
+
+    - name: Determine Artifact Name
+      id: artifact_name
+      shell: pwsh
+      run: |
+        $TAG="${{ github.ref_name }}"
+        $CLEAN_TAG = $TAG.Substring(1)
+        
+        $ARTIFACT_NAME="${{ env.PACKAGE_BASENAME }}-${CLEAN_TAG}-${{ env.PLATFORM }}"
+
+        echo "Generated Artifact Name: ${ARTIFACT_NAME}"
+        echo "artifact_name=${ARTIFACT_NAME}" >> $env:GITHUB_OUTPUT
 
     - name: Upload Artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
-        name: semi-utils-latest_win_amd64_pkg
+        name: ${{ steps.artifact_name.outputs.artifact_name }}
         path: dist

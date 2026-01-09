@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:x-transition="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+
+    <!-- 1. Tailwind CSS (样式) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- 2. Ace Editor (代码编辑器) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.24.1/ace.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.24.1/mode-json.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.24.1/theme-github.js"></script>
+
+    <!-- 3. Toastify (轻量级通知) -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+    <!-- 4. Alpine.js (核心逻辑) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+
+    <style>
+        /* 基础微调 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        .ace_editor {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* 树节点连接线效果 (可选) */
+        .tree-line {
+            border-left: 1px dashed #e5e7eb;
+            margin-left: 0.5rem;
+            padding-left: 0.5rem;
+        }
+
+        /* Loading 遮罩 */
+        .loading-mask {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(2px);
+        }
+    </style>
+</head>
+<body class="bg-slate-100 h-screen w-full flex flex-col overflow-hidden text-sm text-slate-700"
+      x-data="app()" x-init="init()">
+
+<!-- 顶部导航 -->
+<header class="bg-white border-b border-slate-200 h-14 flex items-center px-6 shadow-sm shrink-0 z-10">
+    <div class="flex items-center gap-2">
+        <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">S</div>
+        <h1 class="font-bold text-lg text-slate-800 tracking-tight">{{ title }} <span
+                class="text-xs font-normal text-slate-400 ml-1">v{{version}}</span></h1>
+    </div>
+</header>
+
+<!-- 主布局 Grid -->
+<main class="flex-1 p-4 overflow-hidden relative">
+    <div class="grid grid-cols-12 gap-4 h-full">
+
+        <!-- Col 1: 配置管理 (Ace Editor) -->
+        <div class="col-span-12 md:col-span-4 lg:col-span-3 flex flex-col h-full bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="px-4 py-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                <h3 class="font-bold text-slate-700">配置管理</h3>
+                <span class="text-xs px-2 py-0.5 rounded-full"
+                      :class="isStatic ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'"
+                      x-text="isStatic ? '只读' : '编辑中'"></span>
+            </div>
+
+            <div class="p-4 flex-1 overflow-y-auto space-y-4">
+                <!-- 表单项 -->
+                <div>
+                    <label class="block mb-1.5 font-semibold text-slate-600">输入文件夹</label>
+                    <input type="text" x-model="config.input_folder" :disabled="isStatic"
+                           class="w-full h-9 px-3 rounded border border-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition disabled:bg-slate-100 disabled:text-slate-500">
+                </div>
+                <div>
+                    <label class="block mb-1.5 font-semibold text-slate-600">输出文件夹</label>
+                    <input type="text" x-model="config.output_folder" :disabled="isStatic"
+                           class="w-full h-9 px-3 rounded border border-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition disabled:bg-slate-100 disabled:text-slate-500">
+                </div>
+                <div class="flex flex-col flex-1 min-h-[250px]">
+                    <label class="block mb-1.5 font-semibold text-slate-600 flex justify-between">
+                        <span>模板配置 (JSON)</span>
+                        <span class="font-normal text-xs text-slate-400">Jinja2 Supported</span>
+                    </label>
+                    <!-- Ace Editor 挂载点 -->
+                    <div id="json-editor" class="w-full flex-1 relative min-h-[500px]"></div>
+                </div>
+            </div>
+
+            <!-- 底部操作栏 -->
+            <div class="p-3 border-t border-slate-100 bg-slate-50 flex justify-end gap-2 shrink-0">
+                <template x-if="isStatic">
+                    <button @click="enableEdit()"
+                            class="btn-primary bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition shadow-sm text-xs font-medium">
+                        编辑配置
+                    </button>
+                </template>
+                <template x-if="!isStatic">
+                    <div class="flex gap-2">
+                        <button @click="resetConfig()"
+                                class="px-3 py-2 border border-slate-300 bg-white hover:bg-slate-50 text-slate-600 rounded transition text-xs font-medium">
+                            取消
+                        </button>
+                        <button @click="saveConfig()"
+                                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition shadow-sm text-xs font-medium">
+                            保存配置
+                        </button>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- Col 2: 文件树 (Recursive Alpine Component) -->
+        <div class="col-span-12 md:col-span-4 lg:col-span-5 flex flex-col h-full bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden relative">
+            <div class="px-4 py-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                <h3 class="font-bold text-slate-700">文件列表</h3>
+                <button @click="fetchFiles()"
+                        class="text-slate-400 hover:text-blue-500 transition p-1 rounded hover:bg-blue-50">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-4 flex flex-col gap-6">
+
+                <!-- 输入树 -->
+                <div class="bg-white ">
+                    <div class="flex items-center gap-2 mb-2 pb-1 border-b border-slate-100">
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Source</span>
+                        <span class="text-xs px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full"
+                              x-text="`${selectedItems.length} 选中`"></span>
+                    </div>
+
+                    <!-- 树容器 -->
+                    <div class="min-h-[100px] max-h-[40vh] overflow-y-auto">
+                        <!-- Loading 状态 -->
+                        <div x-show="loading.files"
+                             class="flex flex-col items-center justify-center py-8 text-slate-400 space-y-2">
+                            <svg class="animate-spin h-6 w-6 text-blue-500" xmlns="http://www.w3.org/2000/svg"
+                                 fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                        stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span class="text-xs">正在扫描文件系统...</span>
+                        </div>
+
+                        <!-- 空数据状态 -->
+                        <div x-show="!loading.files && inputTreeData?.input_files?.length ===0"
+                             class="text-center py-8 text-slate-400 text-xs">
+                            未找到文件或配置路径错误
+                        </div>
+
+                        <!-- 递归树渲染入口 -->
+                        <ul x-show="!loading.files && inputTreeData?.input_files?.length > 0" class="space-y-1">
+                            <template x-for="node in inputTreeData" :key="node.key || node.value">
+                                <li x-data="treeNode(node, 'input')">
+                                    <!-- 引入递归组件 -->
+                                    <div x-html="renderNode()"></div>
+                                    <!-- 子节点递归容器 (Actual recursion happens in logic, or simplified via structure) -->
+                                    <!-- Alpine x-for nesting hack: we use x-if for component-like behavior -->
+                                    <template x-if="node.children && node.children.length && isOpen">
+                                        <ul class="tree-line">
+                                            <template x-for="child in node.children" :key="child.key || child.value">
+                                                <li x-data="treeNode(child, 'input')" x-html="renderNode()"
+                                                    class="my-1"></li>
+                                            </template>
+                                        </ul>
+                                    </template>
+                                </li>
+                            </template>
+                        </ul>
+
+                        <!--
+                            注意：上面简单的 x-for 只能两层。
+                            为了完美的一性文件递归，我们下面使用了 Alpine V3 推荐的 x-data + x-init 结合 HTML 模板引用的方式。
+                            见底部的 <template id="tree-node-template">
+                        -->
+                        <ul class="text-sm" x-ref="inputTreeRoot"></ul>
+                    </div>
+                </div>
+
+                <!-- 输出树 (只读，用于预览) -->
+                <div class="bg-white max-h-[40vh]">
+                    <div class="flex items-center gap-2 mb-2 pb-1 border-b border-slate-100">
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Output</span>
+                    </div>
+                    <div class="min-h-[100px] max-h-[40vh] overflow-y-auto">
+                        <ul class="text-sm" x-ref="outputTreeRoot"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Col 3: 预览与执行 -->
+        <div class="col-span-12 md:col-span-4 lg:col-span-4 flex flex-col h-full gap-4">
+
+            <!-- 预览卡片 -->
+            <div class="flex-1 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
+                <div class="px-4 py-3 border-b border-slate-100 bg-slate-50">
+                    <h3 class="font-bold text-slate-700">图片预览</h3>
+                </div>
+
+                <div class="flex-1 bg-slate-50/50 flex items-center justify-center p-4 relative overflow-hidden">
+                    <!-- 空状态 -->
+                    <div x-show="!preview.url || !preview.isFile" class="text-center opacity-40">
+                        <svg class="w-16 h-16 mx-auto mb-2 text-slate-300" fill="none" stroke="currentColor"
+                             viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <span class="text-xs text-slate-500">点击列表文件预览</span>
+                    </div>
+
+                    <!-- 图像展示 -->
+                    <div x-show="preview.url && preview.isFile"
+                         class="w-full h-full flex flex-col transition-opacity duration-300"
+                         x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0"
+                         x-transition:enter-end="opacity-100">
+                        <div class="text-xs text-center text-slate-500 mb-2 font-mono truncate bg-white py-1 px-2 rounded border border-slate-200 shadow-sm"
+                             x-text="preview.name"></div>
+                        <div class="flex-1 relative rounded border border-slate-200 bg-white bg-repeat">
+                            <img x-effect="if(preview.isFile) $el.src = preview.url"
+                                 class="absolute inset-0 w-full h-full object-contain p-2">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 操作卡片 -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 shrink-0 relative overflow-hidden">
+
+                <!-- 进度条/Loading Overlay -->
+                <div x-show="loading.process"
+                     class="loading-mask absolute inset-0 z-20 flex flex-col items-center justify-center">
+                    <div class="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-2"></div>
+                    <span class="text-xs font-bold text-blue-600">处理中，请稍候...</span>
+                </div>
+
+                <div class="flex justify-between items-end mb-4">
+                    <div>
+                        <span class="block text-2xl font-bold text-slate-800" x-text="selectedItems.length">0</span>
+                        <span class="text-xs text-slate-400">待处理文件</span>
+                    </div>
+                    <div class="text-right">
+                             <span class="text-xs font-medium px-2 py-1 rounded"
+                                   :class="isValidConfig ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'"
+                                   x-text="isValidConfig ? '配置有效' : '配置需保存'"></span>
+                    </div>
+                </div>
+
+                <button @click="startProcess()"
+                        :disabled="!canStart"
+                        class="w-full py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white rounded-lg font-bold shadow-md shadow-emerald-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    开始执行
+                </button>
+                <p class="mt-2 text-center text-xs text-slate-400" x-show="!canStart">请先保存配置并选择至少一个文件</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 递归树模板 (Alpine x-for 无法深度递归，使用 x-html + JS Component 方式最稳定) -->
+    <!-- 这里为了方便，我们直接把树的渲染逻辑封装在 JS 的 TreeRenderer 类中，但数据绑定在 Alpine -->
+</main>
+
+<script>
+    /**
+     * 核心应用逻辑
+     */
+    function app() {
+        return {
+            // 状态
+            isStatic: true,
+            loading: {files: false, process: false},
+            config: {input_folder: '', output_folder: '', template: '{}'},
+            inputTreeData: [],
+            outputTreeData: [],
+            selectedItems: [],
+            preview: {url: '', name: '', isFile: false},
+            aceEditor: null,
+
+            // 计算属性
+            get isValidConfig() {
+                return this.isStatic;
+            },
+            get canStart() {
+                return this.isStatic && this.selectedItems.length > 0 && !this.loading.process;
+            },
+
+            // 初始化
+            async init() {
+                // 1. 初始化 Ace Editor
+                this.initEditor();
+
+                // 2. 初始化 Toastify 助手
+                this.toast = (msg, type = 'info') => {
+                    Toastify({
+                        text: msg,
+                        duration: 3000,
+                        gravity: "top",
+                        position: "center",
+                        style: {
+                            background: type === 'error' ? "#ef4444" : (type === 'success' ? "#10b981" : "#3b82f6"),
+                            borderRadius: "8px",
+                            fontSize: "13px",
+                            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+                        }
+                    }).showToast();
+                };
+
+                // 3. 初始加载数据
+                await this.fetchConfig();
+                await this.fetchFiles();
+            },
+
+            // --- 业务逻辑：编辑器 ---
+            initEditor() {
+                this.aceEditor = ace.edit("json-editor");
+                this.aceEditor.setTheme("ace/theme/textmate");
+                this.aceEditor.session.setMode("ace/mode/json");
+                this.aceEditor.setShowPrintMargin(false);
+                this.aceEditor.setReadOnly(true); // 默认只读
+
+                // 脏检查：双向绑定
+                this.aceEditor.on('change', () => {
+                    // 仅当非程序更新时同步? 或者是简单的单向流
+                    this.config.template = this.aceEditor.getValue();
+                });
+            },
+
+            enableEdit() {
+                this.isStatic = false;
+                this.aceEditor.setReadOnly(false);
+                this.aceEditor.container.style.backgroundColor = "#fff";
+            },
+
+            async resetConfig() {
+                await this.fetchConfig(); // 还原
+            },
+
+            // --- 业务逻辑：API 请求 ---
+            async fetchConfig() {
+                try {
+                    const res = await fetch('/api/v1/config');
+                    const json = await res.json();
+                    // 智能解包 Data
+                    const data = this.normalizeApiResponse(json);
+
+                    if (data) {
+                        this.config = {...data}; // 复制以切断引用
+                        // 处理 Template: 可能是对象也可能是字符串
+                        let tplStr = typeof this.config.template === 'object' ?
+                            JSON.stringify(this.config.template, null, 2) :
+                            this.config.template;
+
+                        this.aceEditor.setValue(tplStr || '{}', -1); // -1 保持光标位置
+                        this.isStatic = true;
+                        this.aceEditor.setReadOnly(true);
+                        this.aceEditor.container.style.backgroundColor = "#f9fafb"; // 灰色背景暗示只读
+                    }
+                } catch (e) {
+                    console.error(e);
+                    this.toast("获取配置失败: " + e.message, 'error');
+                }
+            },
+
+            async saveConfig() {
+                console.log('保存前 $refs.input:', this.$refs.inputTreeRoot);
+                console.log('保存前 $refs.output:', this.$refs.outputTreeRoot);
+                // 校验 JSON
+                const jsonVal = this.aceEditor.getValue();
+                try {
+                    JSON.parse(jsonVal);
+                } catch (e) {
+                    this.toast("JSON 格式错误，请检查", 'error');
+                    return;
+                }
+
+                try {
+                    const payload = {
+                        ...this.config,
+                        template: jsonVal
+                    };
+
+                    const res = await fetch('/api/v1/config', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (res.ok) {
+                        this.isStatic = true;
+                        this.aceEditor.setReadOnly(true);
+                        this.aceEditor.container.style.backgroundColor = "#f9fafb";
+                        this.toast("配置已保存", 'success');
+                        console.log('保存后 $refs.input:', this.$refs.inputTreeRoot);
+                        console.log('保存后 $refs.output:', this.$refs.outputTreeRoot);
+                        this.fetchFiles(true, true); // 刷新文件树
+                    } else {
+                        throw new Error("服务端返回错误");
+                    }
+                } catch (e) {
+                    this.toast("保存失败: " + e.message, 'error');
+                }
+            },
+
+            async fetchFiles(renderInput=true) {
+                this.loading.files = true;
+
+                try {
+                    const res = await fetch('/api/v1/file/tree');
+                    const json = await res.json();
+                    const data = this.normalizeApiResponse(json);
+
+                    const allCurrentFileValues = new Set();
+
+                    const collectValues = (node) => {
+                        if (node.is_file) {
+                            const val = node.value || node.key;
+                            allCurrentFileValues.add(val);
+                        }
+                        if (node.children && node.children.length) {
+                            node.children.forEach(collectValues);
+                        }
+                    };
+                    data.input_files.forEach(collectValues)
+                    this.selectedItems = this.selectedItems.filter(value =>
+                        allCurrentFileValues.has(value)
+                    );
+
+                    if (data) {
+                        // 渲染两棵树
+                        // 注意：这里我们使用 JS Renderer 类来生成 DOM，
+                        // 因为这比写递归 Template 更可控，且能完美解决 "回显" 问题
+                        if (renderInput) {
+                            this.renderTree(data.input_files || [], this.$refs.inputTreeRoot, true);
+                        }
+                        this.renderTree(data.output_files || [], this.$refs.outputTreeRoot, false);
+                    }
+                } catch (e) {
+                    console.error(e);
+                    this.toast("文件列表加载失败 (请检查后端)", 'error');
+                } finally {
+                    this.loading.files = false;
+                }
+            },
+
+            async startProcess() {
+                this.loading.process = true;
+                try {
+                    const res = await fetch('/api/v1/start_process', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({selectedItems: this.selectedItems})
+                    });
+                    if (res.ok) {
+                        this.toast("执行成功!", 'success');
+                        this.fetchFiles(false); // 刷新结果
+                    } else {
+                        this.toast("执行异常", 'error');
+                    }
+                } catch (e) {
+                    this.toast("网络请求失败", 'error');
+                } finally {
+                    this.loading.process = false;
+                }
+            },
+
+            // --- 辅助工具：数据清洗 ---
+            normalizeApiResponse(json) {
+                // Amis 通常返回 { status: 0, msg: '', data: { ... } }
+                // 有时候直接是 { ... }
+                if (json && json.data && json.status === 0) return json.data;
+                if (json && json.data) return json.data; // 通用
+                return json; // Fallback
+            },
+
+            // --- 核心：手动渲染树 (为了极致的稳定性和性能) ---
+            // 使用 JS 生成 DOM 挂载到 Alpine Ref 上，比递归模板更容易调试数据丢失问题
+            // --- 核心：手动渲染树 (修改版：支持文件夹级联选中) ---
+            renderTree(nodes, container, isInput) {
+                container.innerHTML = ''; // 清空
+                if (!nodes || !nodes.length) return;
+
+                const ul = document.createElement('ul');
+                ul.className = 'space-y-1 mt-1';
+
+                // 辅助函数：递归获取当前节点下所有的文件 Value
+                const collectFileValues = (node) => {
+                    let paths = [];
+                    const val = node.value || node.key;
+                    // 如果是文件，收集它
+                    if (node.is_file) {
+                        paths.push(val);
+                    }
+                    // 如果有子节点，递归收集
+                    if (node.children && node.children.length) {
+                        node.children.forEach(child => {
+                            paths = paths.concat(collectFileValues(child));
+                        });
+                    }
+                    return paths;
+                };
+
+                const createNode = (item) => {
+                    const li = document.createElement('li');
+                    li.className = 'select-none';
+
+                    const row = document.createElement('div');
+                    row.className = 'flex items-center py-1 px-2 rounded hover:bg-slate-100 cursor-pointer group transition-colors duration-150 text-slate-700';
+
+                    const isFile = !!item.is_file;
+                    const hasChildren = item.children && item.children.length > 0;
+                    const value = item.value || item.key;
+                    const label = item.label || item.title || item.name;
+
+                    // 1. 图标逻辑
+                    const iconBox = document.createElement('span');
+                    iconBox.className = 'w-5 h-5 flex items-center justify-center mr-1 text-slate-400';
+                    if (hasChildren) {
+                        iconBox.innerHTML = '<svg class="w-3 h-3 transition-transform transform" viewBox="0 0 20 20" fill="currentColor"><path d="M6 6L14 10L6 14V6Z" /></svg>';
+                    } else if (isFile) {
+                        iconBox.innerHTML = '<svg class="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>';
+                    } else {
+                        iconBox.innerHTML = '<svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" /></svg>';
+                    }
+
+                    // 2. 复选框 (修改点：不仅文件，文件夹也可以有复选框)
+                    if (isInput) {
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.className = 'mr-2 w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500';
+
+                        // 初始化选中状态 (仅文件需回显，文件夹默认不回显或需复杂逻辑，这里简化为仅回显文件)
+                        if (isFile && this.selectedItems.includes(value)) {
+                            checkbox.checked = true;
+                        }
+
+                        checkbox.addEventListener('click', (e) => e.stopPropagation()); // 防止触发折叠
+
+                        // 级联选中逻辑
+                        checkbox.addEventListener('change', (e) => {
+                            const isChecked = e.target.checked;
+
+                            // A. 数据层更新：获取受影响的所有文件路径
+                            const targetValues = collectFileValues(item);
+
+                            if (isChecked) {
+                                // 并集去重：添加所有子文件到 selectedItems
+                                this.selectedItems = [...new Set([...this.selectedItems, ...targetValues])];
+                            } else {
+                                // 差集：从 selectedItems 中移除所有子文件
+                                this.selectedItems = this.selectedItems.filter(v => !targetValues.includes(v));
+                            }
+
+                            // B. 视图层更新：级联控制所有子 DOM 复选框
+                            // 查找当前 li 下面所有的 checkbox，强制设为即时状态
+                            const childCheckboxes = li.querySelectorAll('input[type="checkbox"]');
+                            childCheckboxes.forEach(cb => {
+                                cb.checked = isChecked;
+                            });
+                        });
+
+                        row.appendChild(checkbox);
+                    }
+
+                    row.appendChild(iconBox);
+
+                    // 3. 文本
+                    const text = document.createElement('span');
+                    text.className = 'truncate text-xs font-mediumSelect';
+                    text.innerText = label;
+                    row.appendChild(text);
+
+                    // 4. 事件绑定 (预览/折叠)
+                    let childUl = null;
+                    if (hasChildren) {
+                        childUl = document.createElement('ul');
+                        childUl.className = 'pl-4 border-l border-slate-200 ml-2.5'; // 默认折叠
+                        item.children.forEach(child => childUl.appendChild(createNode(child)));
+                    }
+
+                    row.addEventListener('click', () => {
+                        // 预览 (仅文件)
+                        if (isFile) {
+                            this.preview.url = `/api/v1/file?path=${encodeURIComponent(value)}`;
+                            this.preview.name = label;
+                            this.preview.isFile = true;
+                        }
+
+                        // 折叠/展开 (如果有子节点)
+                        if (childUl) {
+                            const isHidden = childUl.classList.contains('hidden');
+                            if (isHidden) {
+                                childUl.classList.remove('hidden');
+                                iconBox.firstChild.classList.add('rotate-90');
+                            } else {
+                                childUl.classList.add('hidden');
+                                iconBox.firstChild.classList.remove('rotate-90');
+                            }
+                        }
+                    });
+
+                    li.appendChild(row);
+                    if (childUl) li.appendChild(childUl);
+                    return li;
+                };
+
+                nodes.forEach(node => ul.appendChild(createNode(node)));
+                container.appendChild(ul);
+            }
+        }
+    }
+</script>
+</body>
+</html>

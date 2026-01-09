@@ -9,3 +9,4 @@ exiftool
 build
 dist
 logs
+tmp
