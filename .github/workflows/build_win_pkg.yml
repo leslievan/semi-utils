@@ -42,7 +42,8 @@ jobs:
         New-Item -Path "./dist/input" -ItemType "directory" -Force | Out-Null
         New-Item -Path "./dist/output" -ItemType "directory" -Force | Out-Null
         New-Item -Path "./dist/exiftool" -ItemType "directory" -Force | Out-Null
-        Invoke-WebRequest -Uri "https://github.com/leslievan/semi-utils/raw/exiftool/exiftool/exiftool.exe" -OutFile "./dist/exiftool/exiftool.exe"
+        Invoke-WebRequest -Uri ${{ env.EXIFTOOL_URL }} -OutFile "exiftool.zip"
+        Expand-Archive -Path exiftool.zip -DestinationPath "./dist/exiftool" -Force
 
     - name: Determine Artifact Name
       id: artifact_name
