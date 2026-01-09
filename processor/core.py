@@ -9,7 +9,7 @@ from typing import Dict, Any, Type, List, MutableMapping, Iterator
 
 from PIL import Image, ImageColor
 
-from processor.mergers import Merger
+
 from util import get_exif
 
 
@@ -268,6 +268,7 @@ def register_processor(key: str, processor_cls: Type['ImageProcessor']):
 
 
 def start_process(data: List[dict], input_path: str = None, output_path: str = None):
+    from processor.mergers import Merger
     nodes = [PipelineContext(datum) for datum in data]
     if input_path is not None:
         nodes[0].set("buffer_path", [input_path])
