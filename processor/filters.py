@@ -59,6 +59,8 @@ class TrimFilter(ImageProcessor):
     def process(self, ctx: PipelineContext):
         buffer = []
         for image in ctx.get_buffer():
+            if image.height * image.width == 0:
+                continue
             bbox = self.get_foreground_bbox(image, trim_left=ctx.get("trim_left"), trim_right=ctx.get("trim_right"), trim_top=ctx.get("trim_top"), trim_bottom=ctx.get("trim_bottom"))
             buffer.append(image.crop(bbox))
         ctx.update_buffer(buffer).save_buffer(self.name()).success()
