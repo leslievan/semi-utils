@@ -85,7 +85,7 @@ class PipelineContext(MutableMapping):
             else:
                 raise RuntimeError(f"Unsupported image mode {img.mode}")
 
-            new_filename = f"{processor_name}_{uuid.uuid4().hex}.{file_ext}"
+            new_filename = f"{processor_name}_{int(time.time())}_{uuid.uuid4().hex}.{file_ext}"
             path = os.path.join(directory, new_filename)
             img.save(path)
             buffer_path.append(path)
