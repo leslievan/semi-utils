@@ -171,6 +171,8 @@ def handle_process():
             'filename': _input_path.stem,
             'file_dir': str(_input_path.parent.absolute()),
         }
+        if config.getboolean('DEFAULT', 'debug'):
+            print('debug: context=' + json.dumps(context))
         start_process(json.loads(template.render(context)), input_path, output_path=output_path)
 
     threads = []
