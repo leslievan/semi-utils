@@ -86,7 +86,7 @@ jobs:
       shell: pwsh
       run: |
         $TAG="${{ github.ref_name }}"
-        $CLEAN_TAG = $TAG.Substring(1)
+        $CLEAN_TAG = $TAG -replace '^v', ''
         
         $ARTIFACT_NAME="${{ env.PACKAGE_BASENAME }}-${CLEAN_TAG}-${{ env.PLATFORM }}"
 
