@@ -3,7 +3,7 @@
     "left_top": {
       "text_segments": [
         {
-          "text": "{{ exif.CameraModelName | replace('_', '') }}",
+          "text": "{{ exif.CameraModelName|default('-') | replace('_', '') }}",
           "color": "black",
           "font_path": "fonts/AlibabaPuHuiTi-2-85-Bold.otf",
           "is_bold": true
@@ -13,22 +13,22 @@
     },
     "left_bottom": {
       "processor_name": "rich_text",
-      "text": "{{ exif.LensModel }}",
+      "text": "{{ exif.LensModel | default('-')}}",
       "color": "#242424"
     },
     "right_top": {
       "processor_name": "rich_text",
-      "text": "{{exif.FocalLengthIn35mmFormat}} f/{{exif.AperatureValue}} {{exif.ShutterSpeedValue}}s ISO{{exif.ISO}}",
+      "text": "{{exif.FocalLengthIn35mmFormat|default('-')}} f/{{exif.AperatureValue|default('-')}} {{exif.ShutterSpeedValue|default('-')}}s ISO{{exif.ISO|default('0')}}",
                 "font_path": "fonts/AlibabaPuHuiTi-2-85-Bold.otf",
       "color": "#242424"
     },
     "right_bottom": {
       "processor_name": "rich_text",
-      "text": "{{(exif.DateTimeOriginal or exif.CreateDate or exif.DigitalCreationDate or exif.DateCreated or exif.DateTimeCreated or exif.DigitalCreationDateTime)[:16]}}",
+      "text": "{{(exif.DateTimeOriginal or exif.CreateDate or exif.DigitalCreationDate or exif.DateCreated or exif.DateTimeCreated or exif.DigitalCreationDateTime|default('0'))[:16]}}",
       "color": "#242424"
     },
     "left_logo": "{{auto_logo()}}",
-    "color": "white",
+    "color": "red",
     "processor_name": "watermark"
   }
 ]
