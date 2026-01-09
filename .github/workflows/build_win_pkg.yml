@@ -34,17 +34,52 @@ jobs:
       run: |
         pyinstaller ./build_win_pkg.spec
 
-    - name: Add Release Resource to Package
+    - name: Prepare Package and Unpack ExifTool
+      shell: pwsh
       run: |
-        Move-Item -Path "./fonts" -Destination "./dist"
-        Move-Item -Path "./logos" -Destination "./dist"
-        Move-Item -Path "./config.ini" -Destination "./dist"
-        Move-Item -Path "./render.jinja2" -Destination "./dist"
-        New-Item -Path "./dist/input" -ItemType "directory" -Force | Out-Null
-        New-Item -Path "./dist/output" -ItemType "directory" -Force | Out-Null
-        New-Item -Path "./dist/exiftool" -ItemType "directory" -Force | Out-Null
-        Invoke-WebRequest -Uri ${{ env.EXIFTOOL_URL }} -OutFile "exiftool.zip"
-        Expand-Archive -Path exiftool.zip -DestinationPath "./dist/exiftool" -Force
+        # 1. 设置脚本在遇到任何错误时立即停止，这是 CI/CD 的最佳实践
+        $ErrorActionPreference = "Stop"
+
+        # 2. 定义目标目录变量，便于维护
+        $distPath = "./dist"
+
+        # 3. 批量移动文件和文件夹，代码更简洁
+        Write-Host "Moving resources to $distPath"
+        $itemsToMove = @("./fonts", "./logos", "./config.ini", "./render.jinja2")
+        Move-Item -Path $itemsToMove -Destination $distPath -Force
+
+        # 4. 批量创建所需目录
+        Write-Host "Creating subdirectories in $distPath"
+        @("input", "output", "exiftool") | ForEach-Object {
+            New-Item -Path (Join-Path $distPath $_) -ItemType Directory -Force | Out-Null
+        }
+
+        # 5. 下载并正确解压 ExifTool
+        Write-Host "Downloading ExifTool..."
+        $zipFile = "exiftool.zip"
+        $exiftoolDestPath = Join-Path $distPath "exiftool"
+
+        Invoke-WebRequest -Uri "${{ env.EXIFTOOL_URL }}" -OutFile $zipFile
+
+        Write-Host "Expanding ExifTool archive..."
+        Expand-Archive -Path $zipFile -DestinationPath $exiftoolDestPath -Force
+
+        # --- 解决多一层目录问题的核心逻辑 ---
+        # 查找解压后可能产生的唯一子目录
+        $subFolder = Get-ChildItem -Path $exiftoolDestPath -Directory | Select-Object -First 1
+
+        if ($null -ne $subFolder) {
+            Write-Host "Correcting directory structure. Moving items from $($subFolder.FullName) ..."
+            # 将子目录内的所有内容移动到上一级
+            Move-Item -Path (Join-Path $subFolder.FullName "*") -Destination $exiftoolDestPath -Force
+            # 删除现在已经为空的子目录
+            Remove-Item -Path $subFolder.FullName -Force
+            Write-Host "Directory structure corrected."
+        } else {
+            Write-Host "Archive was already flat. No correction needed."
+        }
+
+        Write-Host "Setup complete."
 
     - name: Determine Artifact Name
       id: artifact_name
