@@ -13,7 +13,7 @@ from PIL import Image
 from jinja2 import pass_context
 
 if platform.system() == 'Windows':
-    EXIFTOOL_PATH = Path('./exiftool/exiftool.exe')
+    EXIFTOOL_PATH = Path('./exiftool/exiftool(-k).exe')
     ENCODING = 'gbk'
 elif shutil.which('exiftool') is not None:
     EXIFTOOL_PATH = shutil.which('exiftool')
