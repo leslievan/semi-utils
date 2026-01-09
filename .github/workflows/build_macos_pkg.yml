@@ -40,8 +40,8 @@ jobs:
           echo "Final package structure in 'dist':"
           ls -R dist
 
-      - name: Determine Package Name from Git Tag
-        id: package_info
+      - name: Determine Artifact Name
+        id: artifact_name
         shell: bash
         run: |
           TAG=${{ github.ref_name }}
@@ -55,6 +55,6 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.package_info.outputs.artifact_name }}
+          name: ${{ steps.artifact_name.outputs.artifact_name }}
           path: dist
 
