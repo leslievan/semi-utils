@@ -205,35 +205,40 @@ class MarginFilter(FilterProcessor):
         return "margin"
 
 
-ratio_pattern = re.compile('[0-9]+:[0-9]+')
 
+class MarginWithRatioFilter(FilterProcessor):
+    ratio_pattern = re.compile('[0-9.]+:[0-9.]+')
+    ratio_threshold = 0.01
 
-class MarginByRatioFilter(FilterProcessor):
     def process(self, ctx: PipelineContext):
         buffer = ctx.get_buffer()
         if not buffer:
             return
         real_ratio = 1. * int(ctx.get_exif().get('ImageWidth')) / int(ctx.get_exif().get('ImageHeight'))
-        if 'ratio' in ctx and ratio_pattern.match(ctx.get("ratio")):
+        if 'ratio' in ctx and MarginWithRatioFilter.ratio_pattern.match(ctx.get("ratio")):
             ratio_w, ratio_h = ctx.get("ratio").split(':')
-            real_ratio = 1. * int(ratio_w) / int(ratio_h)
+            real_ratio = 1. * float(ratio_w) / float(ratio_h)
         img = buffer[0]
         cur_ratio = 1. * img.width / img.height
-        if cur_ratio > real_ratio:
+        if cur_ratio - real_ratio > MarginWithRatioFilter.ratio_threshold:
             # 图片太宽, 增加高度
             new_h = int(img.width / real_ratio)
-            ctx.set('top_margin', new_h / 2)
-            ctx.set('bottom_margin', new_h - new_h / 2)
-        else:
+            pad_vertical = new_h - img.height
+            ctx.set('top_margin', pad_vertical / 2)
+            ctx.set('bottom_margin', pad_vertical - pad_vertical / 2)
+        elif cur_ratio - real_ratio < MarginWithRatioFilter.ratio_threshold:
             # 图片太窄, 增加宽度
             new_w = int(img.height * real_ratio)
-            ctx.set('left_margin', new_w / 2)
-            ctx.set('right_margin', new_w - new_w / 2)
-        get_processor('margin').process(ctx)
+            pad_horizontal = new_w - img.width
+            ctx.set('left_margin', pad_horizontal / 2)
+            ctx.set('right_margin', pad_horizontal - pad_horizontal / 2)
+        else:
+            return
+        MarginFilter().process(ctx)
         ctx.save_buffer(self.name()).success()
 
     def name(self) -> str:
-        return "margin_by_ratio"
+        return "margin_with_ratio"
 
 
 class WatermarkFilter(FilterProcessor):
