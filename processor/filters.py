@@ -7,6 +7,7 @@ from PIL import Image, ImageFilter
 
 from processor.core import ImageProcessor, PipelineContext, start_process, get_processor
 from processor.generators import MultiRichTextGenerator
+from util import get_exif
 
 
 class FilterProcessor(ImageProcessor, ABC):
@@ -362,3 +363,21 @@ class WatermarkWithTimestampFilter(FilterProcessor):
 
     def name(self) -> str:
         return "watermark_with_timestamp"
+
+if __name__ == '__main__':
+    buffer_path = '/Users/leslie/Workspace/3_PyProjs/semi-photo-utils/input/元旦/20250406-DSC_5779.jpg'
+    ctx = PipelineContext({
+        'buffer_path': [buffer_path],
+        'exif': get_exif(buffer_path)
+    })
+    test_filter = MarginWithRatioFilter()
+    # test_filter.process(ctx)
+    # ctx.save_buffer(test_filter.name(), True).success()
+
+    ctx.set('ratio', '2.25:1')
+    # test_filter.process(ctx)
+    # ctx.save_buffer(test_filter.name(), True).success()
+
+    ctx.set('margin_color', 'blue')
+    test_filter.process(ctx)
+    ctx.save_buffer(test_filter.name(), True).success()
