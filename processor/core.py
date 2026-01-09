@@ -17,6 +17,9 @@ class PipelineContext(MutableMapping):
     def get(self, key: str, default: Any = None) -> Any:
         return self._config.get(key) if key in self._config and self._config.get(key) is not None else default
 
+    def get_color(self, key: str, default: Any = None) -> Any:
+        return _parse_color(self._config.get(key, default))
+
     def getint(self, key: str, default: int = 0) -> int:
         return int(self.get(key, default))
 
@@ -115,6 +118,10 @@ class ImageProcessor(ABC):
 
     @abstractmethod
     def name(self) -> str:
+        pass
+
+    @abstractmethod
+    def category(self) -> str:
         pass
 
     def __init_subclass__(cls, **kwargs):
