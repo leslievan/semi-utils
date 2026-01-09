@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['main.py'],
+    ['app.py'],
     pathex=[],
     binaries=[],
     datas=[('./templates', './templates')],
