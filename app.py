@@ -53,7 +53,7 @@ class TrayApp:
             menu=self.setup_menu()
         )
 
-        print('Semi-Utils Pro 已启动')
+        print('✅ Semi-Utils Pro 启动成功')
         self.tray.run()
 
 
