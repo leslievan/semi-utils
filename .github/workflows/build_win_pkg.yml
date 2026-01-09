@@ -52,12 +52,9 @@ jobs:
         $CLEAN_TAG = $TAG.Substring(1)
         
         $ARTIFACT_NAME="${{ env.PACKAGE_BASENAME }}-${CLEAN_TAG}-${{ env.PLATFORM }}"
-        $ARCHIVE_FILE="${ARTIFACT_NAME}.zip"
 
         echo "Generated Artifact Name: ${ARTIFACT_NAME}"
-        echo "Generated Archive File: ${ARCHIVE_FILE}"
         echo "artifact_name=${ARTIFACT_NAME}" >> "$GITHUB_OUTPUT"
-        echo "archive_file=${ARCHIVE_FILE}" >> "$GITHUB_OUTPUT"
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
