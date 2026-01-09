@@ -57,7 +57,7 @@ class PipelineContext(MutableMapping):
         if not self.get("buffer_loaded", False) and self.get("buffer_path"):
             self.set("buffer", [Image.open(path) for path in self.get("buffer_path")])
             self.set("buffer_loaded", True)
-        return self.get("buffer")
+        return self.get("buffer", [])
 
     def set(self, key: str, value: Any):
         self._config[key] = value
