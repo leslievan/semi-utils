@@ -182,8 +182,8 @@ class GradientColorGenerator(Generator):
         width, height = ctx.get("width"), ctx.get("height")
         start_color = ctx.get("start_color")
         end_color = ctx.get("end_color")
-        direction = ctx.get_enum_value("direction", Direction.HORIZONTAL, Direction)  # horizontal, vertical, diagonal
-        method = ctx.get_enum_value("interpolate_method", InterpolateMethod.LINEAR, InterpolateMethod)
+        direction = ctx.getenum("direction", Direction.HORIZONTAL, Direction)  # horizontal, vertical, diagonal
+        method = ctx.getenum("interpolate_method", InterpolateMethod.LINEAR, InterpolateMethod)
 
         start_rgba = _parse_color(start_color)
         end_rgba = _parse_color(end_color)

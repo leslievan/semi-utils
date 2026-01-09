@@ -27,9 +27,9 @@ class Merger(ImageProcessor, ABC):
 class AlignmentMerger(Merger):
     def process(self, ctx: PipelineContext):
         buffer: List[Image] = ctx.get_buffer()
-        horizontal_alignment = ctx.get_enum_value("horizontal_alignment", Alignment.CENTER, Alignment)
-        vertical_alignment = ctx.get_enum_value("vertical_alignment", Alignment.CENTER, Alignment)
-        background: tuple = ctx.get_color("background", (255, 255, 255, 0))  # 默认透明
+        horizontal_alignment = ctx.getenum("horizontal_alignment", Alignment.CENTER, Alignment)
+        vertical_alignment = ctx.getenum("vertical_alignment", Alignment.CENTER, Alignment)
+        background: tuple = ctx.getcolor("background", (255, 255, 255, 0))  # 默认透明
         offsets = ctx.get("offsets", [])
 
         if not buffer:
@@ -63,8 +63,8 @@ class AlignmentMerger(Merger):
 class ConcatMerger(Merger):
     def process(self, ctx: PipelineContext):
         buffer = ctx.get_buffer()
-        alignment = ctx.get_enum_value("alignment", Alignment.BOTTOM, Alignment)
-        direction = ctx.get_enum_value("direction", Direction.HORIZONTAL, Direction)
+        alignment = ctx.getenum("alignment", Alignment.BOTTOM, Alignment)
+        direction = ctx.getenum("direction", Direction.HORIZONTAL, Direction)
         spacing = ctx.get("spacing", 10)
         background: tuple = ctx.get("background", (255, 255, 255, 0))  # 默认透明
 

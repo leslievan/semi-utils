@@ -27,10 +27,7 @@ class PipelineContext(MutableMapping):
     def getint(self, key: str, default: int = 0) -> int:
         return int(self.get(key, default))
 
-    def get_processor_name(self):
-        return self.get("processor_name")
-
-    def get_enum_value(self, key: str, default: Any = None, enum: Type[Enum] = None) -> Any:
+    def getenum(self, key: str, default: Any = None, enum: Type[Enum] = None) -> Any:
         value = self.get(key, default)
 
         # 未指定枚举类型，直接返回原值
@@ -56,6 +53,9 @@ class PipelineContext(MutableMapping):
 
         # 都找不到，返回默认值
         return default
+
+    def get_processor_name(self):
+        return self.get("processor_name")
 
     def get_buffer(self) -> List[Image]:
         if not self.get("buffer_loaded", False) and self.get("buffer_path"):
