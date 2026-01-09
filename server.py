@@ -1,32 +1,25 @@
-import configparser
 import json
 import os
 import threading
-import webbrowser
 from pathlib import Path
 
-from flask import Flask, render_template, jsonify, request, send_file
+from flask import render_template, jsonify, request, send_file, Flask
 from jinja2 import Template
 
 from processor.core import start_process
-from util import list_files, log_rt, get_exif, vh, vw, auto_logo, convert_heic_to_jpeg
+from util import list_files, log_rt, get_exif, vh, vw, auto_logo, convert_heic_to_jpeg, load_config, CONFIG_PATH
 
-CONFIG_PATH = 'config.ini'
+api = Flask(__name__)
 
-# 解析配置
-config = configparser.ConfigParser()
-config.read(CONFIG_PATH)
-
-# 创建 flask 服务器
-app = Flask(__name__)
+config = load_config()
 
 
-@app.route('/')
+@api.route('/')
 def index():
     return render_template('index.html', title='Semi-Utils')
 
 
-@app.route('/api/v1/config', methods=['GET'])
+@api.route('/api/v1/config', methods=['GET'])
 def get_config():
     template_path = config.get('render', 'template_path')
 
@@ -41,7 +34,7 @@ def get_config():
     })
 
 
-@app.route('/api/v1/config', methods=['POST'])
+@api.route('/api/v1/config', methods=['POST'])
 def save_config():
     try:
         data = request.get_json()
@@ -73,7 +66,7 @@ def save_config():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/api/v1/file/tree', methods=['GET'])
+@api.route('/api/v1/file/tree', methods=['GET'])
 def list_input_files():
     suffixes = set([ft for ft in config.get('DEFAULT', 'supported_file_suffixes').split(',')])
     return jsonify({
@@ -82,7 +75,7 @@ def list_input_files():
     })
 
 
-@app.route('/api/v1/file', methods=['GET'])
+@api.route('/api/v1/file', methods=['GET'])
 def get_file():
     """
     获取文件内容
@@ -138,7 +131,8 @@ def get_template(template_path):
     template.globals['auto_logo'] = auto_logo
     return template
 
-@app.route('/api/v1/start_process', methods=['POST'])
+
+@api.route('/api/v1/start_process', methods=['POST'])
 @log_rt
 def handle_process():
     # 获取模板
@@ -148,6 +142,7 @@ def handle_process():
     input_files = data['selectedItems']
     input_folder = config.get('DEFAULT', 'input_folder')
     output_folder = config.get('DEFAULT', 'output_folder')
+
     def process_file(input_path):
         if not os.path.exists(input_path):
             return
@@ -169,6 +164,7 @@ def handle_process():
         # 开始处理
         print(f'input_path: {input_path}, output_path: {output_path}')
         start_process(json.loads(template.render({'exif': get_exif(input_path)})), input_path, output_path=output_path)
+
     threads = []
     for input_path in input_files:
         thread = threading.Thread(target=process_file, args=(input_path,))
@@ -180,17 +176,12 @@ def handle_process():
     return jsonify({'message': 'Process started successfully'}), 200
 
 
-def open_browser():
-    # 等待服务器启动
-    import time
-    time.sleep(1)
-    # 打开浏览器并访问指定的URL
-    webbrowser.open('http://localhost:15050')
+def start_server():
+    api.run(
+        port=config.getint('DEFAULT', 'port'),
+        host=config.get('DEFAULT', 'host'),
+        debug=config.getboolean('DEFAULT', 'debug'),
+    )
 
 if __name__ == '__main__':
-    # 在单独的线程中打开浏览器
-    debug = config.getboolean('DEFAULT', 'debug')
-    if not debug:
-        threading.Thread(target=open_browser).start()
-    app.run(port=15050, host="localhost", debug=debug)
-
+    start_server()

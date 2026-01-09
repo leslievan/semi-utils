@@ -1,3 +1,4 @@
+import configparser
 import io
 import platform
 import re
@@ -72,7 +73,8 @@ def list_files(path: str, suffixes: set[str]):
         # 分离文件夹和文件，分别排序
         items = list(root.iterdir())
         dirs = sorted([i for i in items if i.is_dir()], key=lambda x: x.name.lower(), reverse=True)
-        files = sorted([i for i in items if i.is_file()], key=lambda x: (x.stat().st_mtime, x.name.lower()), reverse=True)
+        files = sorted([i for i in items if i.is_file()], key=lambda x: (x.stat().st_mtime, x.name.lower()),
+                       reverse=True)
 
         # 先处理文件夹
         for item in dirs:
@@ -150,3 +152,12 @@ def convert_heic_to_jpeg(path: str, quality: int = 90) -> io.BytesIO:
         img.save(buffer, format='JPEG', quality=quality)
         buffer.seek(0)
         return buffer
+
+
+CONFIG_PATH = 'config.ini'
+
+
+def load_config() -> configparser.ConfigParser:
+    config = configparser.ConfigParser()
+    config.read(CONFIG_PATH)
+    return config
