@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - 'v*' # Push events to matching build* tags
-  workflow_dispatch:
 
 env:
   EXIFTOOL_URL: https://github.com/leslievan/fastfiles/raw/refs/heads/main/exiftool/exiftool-13.45_64.zip
