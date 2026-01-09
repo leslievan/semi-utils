@@ -201,12 +201,13 @@ class RichTextGenerator(ImageProcessor):
 
         # 获取文本尺寸
         metrics = font.getmetrics()
-        bbox = font.getbbox(segment.text)
+        text = ' ' if not segment.text or segment.text == '' else segment.text
+        bbox = font.getbbox(text)
         # 创建透明画布
         image = Image.new('RGBA', (int(bbox[2] - bbox[0]), metrics[0] + abs(metrics[1])), (0, 0, 0, 0))
         draw = ImageDraw.Draw(image)
         # 直接绘制文本
-        draw.text((0, 0), segment.text, font=font, fill=_parse_color(segment.color))
+        draw.text((0, 0), text, font=font, fill=_parse_color(segment.color))
 
         resize_ctx = PipelineContext({
             "buffer": [image],
