@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 echo "🚀 开始初始化项目环境"
-PYTHON_VERSION=$(python --version 2>&1 awk '{print $2}')
+PYTHON_VERSION=$(python --version 2>&1 awk "{print $2}")
 echo "✓ Python 已安装, 版本: $PYTHON_VERSION"
 
 if ! command -v poetry &> /dev/null; then
@@ -14,7 +14,11 @@ fi
 
 poetry config virtualenvs.in-project true
 echo "💡 安装项目依赖"
-poetry install
-
+poetry install --no-root
 echo ""
 echo "✅ 环境初始化完成"
+
+source .venv/bin/activate
+echo "✅ 虚拟环境激活成功, 版本: $PYTHON_VERSION"
+echo "🚀 开始启动 Semi-Utils Pro"
+python ./app.py
