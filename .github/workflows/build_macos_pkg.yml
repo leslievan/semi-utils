@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 
 env:
   EXIFTOOL_URL: https://github.com/leslievan/fastfiles/raw/refs/heads/main/exiftool/Image-ExifTool-13.45.tar.gz
