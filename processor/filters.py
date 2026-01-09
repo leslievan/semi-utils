@@ -1,11 +1,12 @@
+import re
 from abc import ABC
 from typing import Tuple
 
 import numpy as np
 from PIL import Image, ImageFilter
 
-from processor.core import ImageProcessor, PipelineContext, start_process
-from processor.generators import TextSegment, MultiRichTextGenerator
+from processor.core import ImageProcessor, PipelineContext, start_process, get_processor
+from processor.generators import MultiRichTextGenerator
 
 
 class FilterProcessor(ImageProcessor, ABC):
@@ -67,7 +68,8 @@ class TrimFilter(FilterProcessor):
         for image in ctx.get_buffer():
             if image.height * image.width == 0:
                 continue
-            bbox = self.get_foreground_bbox(image, trim_left=ctx.get("trim_left"), trim_right=ctx.get("trim_right"), trim_top=ctx.get("trim_top"), trim_bottom=ctx.get("trim_bottom"))
+            bbox = self.get_foreground_bbox(image, trim_left=ctx.get("trim_left"), trim_right=ctx.get("trim_right"),
+                                            trim_top=ctx.get("trim_top"), trim_bottom=ctx.get("trim_bottom"))
             buffer.append(image.crop(bbox))
         ctx.update_buffer(buffer).save_buffer(self.name()).success()
 
@@ -203,6 +205,37 @@ class MarginFilter(FilterProcessor):
         return "margin"
 
 
+ratio_pattern = re.compile('[0-9]+:[0-9]+')
+
+
+class MarginByRatioFilter(FilterProcessor):
+    def process(self, ctx: PipelineContext):
+        buffer = ctx.get_buffer()
+        if not buffer:
+            return
+        real_ratio = 1. * int(ctx.get_exif().get('ImageWidth')) / int(ctx.get_exif().get('ImageHeight'))
+        if 'ratio' in ctx and ratio_pattern.match(ctx.get("ratio")):
+            ratio_w, ratio_h = ctx.get("ratio").split(':')
+            real_ratio = 1. * int(ratio_w) / int(ratio_h)
+        img = buffer[0]
+        cur_ratio = 1. * img.width / img.height
+        if cur_ratio > real_ratio:
+            # 图片太宽, 增加高度
+            new_h = int(img.width / real_ratio)
+            ctx.set('top_margin', new_h / 2)
+            ctx.set('bottom_margin', new_h - new_h / 2)
+        else:
+            # 图片太窄, 增加宽度
+            new_w = int(img.height * real_ratio)
+            ctx.set('left_margin', new_w / 2)
+            ctx.set('right_margin', new_w - new_w / 2)
+        get_processor('margin').process(ctx)
+        ctx.save_buffer(self.name()).success()
+
+    def name(self) -> str:
+        return "margin_by_ratio"
+
+
 class WatermarkFilter(FilterProcessor):
     def process(self, ctx: PipelineContext):
         img = ctx.get_buffer()[0]
@@ -289,7 +322,8 @@ class WatermarkFilter(FilterProcessor):
             # 先画一条分割线
             logo_size = elem_height
             delimiter = Image.new("RGB", (int(canvas_width * .005), int(logo_size * 1.1)), delimiter_color)
-            delimiter_x = canvas_width - right_margin - max(right_top.width, right_bottom.width) - 2 * common_spacing - delimiter.width
+            delimiter_x = canvas_width - right_margin - max(right_top.width,
+                                                            right_bottom.width) - 2 * common_spacing - delimiter.width
             delimiter_y = int(footer_start_y + elem_margin - logo_size * .05)
             canvas.paste(delimiter, (delimiter_x, delimiter_y))
 
