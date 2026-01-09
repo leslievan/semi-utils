@@ -20,4 +20,4 @@ WatermarkWithTimestampFilter()
 
 # 注册 pillow heic 支持
 pillow_heif.register_heif_opener()
-print("Registered plugin: pillow_heif")
+print("✓ Registered plugin: pillow_heif")

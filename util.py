@@ -1,16 +1,15 @@
-import configparser
 import io
 import platform
 import re
 import shutil
 import subprocess
 import time
-import tomllib
 from functools import wraps
 from pathlib import Path
 
 from PIL import Image
-from jinja2 import pass_context
+
+from core.logger import llogger
 
 if platform.system() == 'Windows':
     EXIFTOOL_PATH = Path('./exiftool/exiftool.exe')
@@ -112,35 +111,12 @@ def log_rt(func):
         start_time = time.time()  # 记录开始时间
         result = func(*args, **kwargs)  # 调用被装饰的函数
         end_time = time.time()  # 记录结束时间
-        elapsed_time = end_time - start_time  # 计算运行时间
-        print(f"Function {func.__name__} took {elapsed_time:.6f} seconds to execute.")
+        elapsed_time = (end_time - start_time) * 1000  # 计算运行时间
+
+        llogger.info(f"[monitor]api#{func.__name__} cost {elapsed_time:.2f}ms")
         return result
 
     return wrapper
-
-
-@pass_context
-def vw(context, percent):
-    exif = context.get('exif', {})
-    return int(int(exif.get('ImageWidth', 0)) * percent / 100)
-
-
-@pass_context
-def vh(context, percent):
-    exif = context.get('exif', {})
-    return int(int(exif.get('ImageHeight', 0)) * percent / 100)
-
-
-@pass_context
-def auto_logo(context, brand: str = None):
-    exif = context.get('exif', {})
-    brand = (brand or exif.get('Make', 'default')).lower()
-    logos_dir = Path('./logos')
-
-    for f in logos_dir.iterdir():
-        if f.suffix.lower() in {'.png', '.jpg', '.jpeg'} and f.stem.lower() in brand:
-            return str(f.absolute())
-    return None
 
 
 def convert_heic_to_jpeg(path: str, quality: int = 90) -> io.BytesIO:
@@ -153,19 +129,3 @@ def convert_heic_to_jpeg(path: str, quality: int = 90) -> io.BytesIO:
         img.save(buffer, format='JPEG', quality=quality)
         buffer.seek(0)
         return buffer
-
-
-CONFIG_PATH = 'config.ini'
-PROJECT_INFO = 'pyproject.toml'
-
-
-def load_config() -> configparser.ConfigParser:
-    config = configparser.ConfigParser()
-    config.read(CONFIG_PATH)
-    return config
-
-
-def load_project_info():
-    with open(PROJECT_INFO, "rb") as f:  # 注意：tomllib 需要以二进制模式（"rb"）打开文件
-        data = tomllib.load(f)
-    return data

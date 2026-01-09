@@ -8,8 +8,9 @@ from itertools import chain
 from typing import Dict, Any, Type, List, MutableMapping, Iterator
 
 from PIL import Image, ImageColor
+from loguru import logger
 
-
+from core.logger import llogger
 from util import get_exif
 
 
@@ -88,7 +89,8 @@ class PipelineContext(MutableMapping):
             new_filename = f"{processor_name}_{int(time.time())}_{uuid.uuid4().hex}.{file_ext}"
             path = os.path.join(directory, new_filename)
             img.save(path)
-            buffer_path.append(path)
+            print(f"✓ Generate new image {path}")
+        buffer_path.append(path)
         self.set("buffer_path", buffer_path)
         return self
 
@@ -97,8 +99,6 @@ class PipelineContext(MutableMapping):
         return self
 
     def success(self, success: bool = True):
-        if self.get("buffer_path"):
-            print(f"generate new image {self.get('buffer_path')}")
         self.set("success", success)
         return self
 
@@ -153,9 +153,10 @@ class ImageProcessor(ABC):
                 end_time = time.perf_counter()
                 cost_ms = (end_time - start_time) * 1000
                 # 打印日志
-                print(f"{self.name()} cost {cost_ms:.2f} ms")
+                llogger.info(f"[monitor]processor#{self.name()} cost {cost_ms:.2f}ms")
 
-        # 将子类的 process 方法替换为包装后的方法
+
+    # 将子类的 process 方法替换为包装后的方法
         cls.process = wrapper
 
         # 自动注册到注册表
@@ -264,7 +265,7 @@ def register_processor(key: str, processor_cls: Type['ImageProcessor']):
     if key in _processor_registry:
         return
     _processor_registry[key] = processor_cls
-    print(f"Registered processor: {key} -> {processor_cls.__name__}")
+    print(f"✓ Registered processor: {key} -> {processor_cls.__name__}")
 
 
 def start_process(data: List[dict], input_path: str = None, output_path: str = None):
@@ -274,10 +275,11 @@ def start_process(data: List[dict], input_path: str = None, output_path: str = N
         nodes[0].set("buffer_path", [input_path])
 
     # 填充 exif 信息
-    exif = get_exif(input_path)
-    for node in nodes:
-        if 'exif' not in node:
-            node['exif'] = exif
+    if input_path is not None:
+        exif = get_exif(input_path)
+        for node in nodes:
+            if 'exif' not in node:
+                node['exif'] = exif
 
     # 所有处理器的输出, 0 被看作是头元素的输出
     output = nodes[0].get_buffer()
@@ -308,5 +310,5 @@ def start_process(data: List[dict], input_path: str = None, output_path: str = N
     nodes[-1].save_buffer("final").success()
     if output_path is not None:
         nodes[-1].get_buffer()[0].convert("RGB").save(output_path)
-        print(f"generate new image {output_path}")
+        llogger.success(f"generate new image {output_path}")
     return nodes[-1].get_buffer()[0]

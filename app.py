@@ -6,15 +6,19 @@ from pathlib import Path
 
 from flask import render_template, jsonify, request, send_file, Flask
 from jinja2 import Template
+from loguru import logger
 
+from core import CONFIG_PATH
+from core.configs import load_config, load_project_info
+from core.jinja2renders import vw, vh, auto_logo
 from processor.core import start_process
-from util import list_files, log_rt, get_exif, vh, vw, auto_logo, convert_heic_to_jpeg, load_config, CONFIG_PATH, \
-    load_project_info
+from util import list_files, log_rt, get_exif, convert_heic_to_jpeg
 
 api = Flask(__name__)
 
 config = load_config()
 project_info = load_project_info()
+
 
 @api.route('/')
 def index():
@@ -69,6 +73,7 @@ def save_config():
 
 
 @api.route('/api/v1/file/tree', methods=['GET'])
+@log_rt
 def list_input_files():
     suffixes = set([ft for ft in config.get('DEFAULT', 'supported_file_suffixes').split(',')])
     return jsonify({
@@ -145,6 +150,7 @@ def handle_process():
     input_folder = config.get('DEFAULT', 'input_folder')
     output_folder = config.get('DEFAULT', 'output_folder')
 
+    @logger.catch(level='ERROR')
     def process_file(input_path):
         if not os.path.exists(input_path):
             return
@@ -188,6 +194,7 @@ def handle_process():
 
 def start_server():
     print('✅ Semi-Utils Pro 启动成功')
+    print('====================================================================')
     api.run(
         port=config.getint('DEFAULT', 'port'),
         host=config.get('DEFAULT', 'host'),
