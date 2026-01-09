@@ -50,7 +50,7 @@ jobs:
       id: artifact_name
       shell: pwsh
       run: |
-        $TAG=${{ github.ref_name }}
+        $TAG="${{ github.ref_name }}"
         $CLEAN_TAG = $TAG.Substring(1)
         
         $ARTIFACT_NAME="${{ env.PACKAGE_BASENAME }}-${CLEAN_TAG}-${{ env.PLATFORM }}"
