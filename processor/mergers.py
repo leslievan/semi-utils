@@ -18,9 +18,46 @@ def _calc_offset(size: int, max_size: int, alignment: Alignment) -> int:
         return max_size - size
     return 0
 
+
 class Merger(ImageProcessor, ABC):
     def category(self) -> str:
         return "merger"
+
+
+class AlignmentMerger(Merger):
+    def process(self, ctx: PipelineContext):
+        buffer: List[Image] = ctx.get_buffer()
+        horizontal_alignment = ctx.get_enum_value("horizontal_alignment", Alignment.CENTER, Alignment)
+        vertical_alignment = ctx.get_enum_value("vertical_alignment", Alignment.CENTER, Alignment)
+        background: tuple = ctx.get_color("background", (255, 255, 255, 0))  # 默认透明
+        offsets = ctx.get("offsets", [])
+
+        if not buffer:
+            return
+        # 计算画布大小（所有图片的最大宽高）
+        max_width = max(img.width for img in buffer)
+        max_height = max(img.height for img in buffer)
+        # 创建画布
+        canvas = Image.new("RGBA", (max_width, max_height), background)
+        # 遍历所有图片进行合并
+        for i, img in enumerate(buffer):
+            # 获取偏移量，索引超出时默认为 (0, 0)
+            offset_x, offset_y = offsets[i] if i < len(offsets) else (0, 0)
+            # 处理水平对齐
+            img_x = _calc_offset(img.width, max_width, horizontal_alignment)
+            # 处理垂直对齐
+            img_y = _calc_offset(img.height, max_height, vertical_alignment)
+            # 处理偏移量
+            img_x += offset_x
+            img_y += offset_y
+            # 确保图片是 RGBA 模式以正确处理透明度
+            paste_img = img if img.mode == 'RGBA' else img.convert('RGBA')
+            # 粘贴图片到画布（使用 alpha 通道作为蒙版）
+            canvas.paste(paste_img, (img_x, img_y), paste_img)
+        ctx.update_buffer([canvas]).save_buffer(self.name()).success()
+
+    def name(self) -> str:
+        return "alignment"
 
 
 class ConcatMerger(Merger):
