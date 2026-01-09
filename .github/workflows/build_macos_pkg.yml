@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - 'v*'
-  # 允许在 GitHub Actions 页面手动触发此工作流，方便测试
   workflow_dispatch:
 
 env:
