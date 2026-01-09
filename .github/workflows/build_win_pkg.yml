@@ -4,14 +4,20 @@ on:
   push:
     tags:
       - 'v*' # Push events to matching build* tags
+  workflow_dispatch:
+
+env:
+  EXIFTOOL_URL: https://github.com/leslievan/fastfiles/raw/refs/heads/main/exiftool/exiftool-13.45_64.zip
+  PACKAGE_BASENAME: semi-utils
+  PLATFORM: win-x64
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+    - name: Checkout repository source code into 'dist'
+      uses: actions/checkout@v4
 
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -43,15 +49,17 @@ jobs:
       id: artifact_name
       shell: pwsh
       run: |
-        $tag = "${{ github.ref_name }}"
-        # 如果 tag 以 "build-" 开头，去掉它
-        if ($tag.StartsWith("v")) {
-          $cleanTag = $tag.Substring(1)
-        } else {
-          $cleanTag = $tag
-        }
-        $artifactName = "semi-utils-${cleanTag}-win-x64"
-        echo "artifact_name=$artifactName" >> $env:GITHUB_OUTPUT
+        $TAG=${{ github.ref_name }}
+        $CLEAN_TAG = $TAG.Substring(1)
+        
+        $ARTIFACT_NAME="${{ env.PACKAGE_BASENAME }}-${CLEAN_TAG}-${{ env.PLATFORM }}"
+        $ARCHIVE_FILE="${ARTIFACT_NAME}.zip"
+
+        echo "Generated Artifact Name: ${ARTIFACT_NAME}"
+        echo "Generated Archive File: ${ARCHIVE_FILE}"
+        echo "artifact_name=${ARTIFACT_NAME}" >> "$GITHUB_OUTPUT"
+        echo "archive_file=${ARCHIVE_FILE}" >> "$GITHUB_OUTPUT"
+
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:

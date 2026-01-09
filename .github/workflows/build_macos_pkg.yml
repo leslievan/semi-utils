@@ -1,0 +1,64 @@
+name: Build and Package Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  # 允许在 GitHub Actions 页面手动触发此工作流，方便测试
+  workflow_dispatch:
+
+env:
+  EXIFTOOL_URL: https://github.com/leslievan/fastfiles/raw/refs/heads/main/exiftool/Image-ExifTool-13.45.tar.gz
+  PACKAGE_BASENAME: semi-utils
+  PLATFORM: macos-x64
+
+jobs:
+  build-and-package:
+    name: Build and Package for Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository source code into 'dist'
+        uses: actions/checkout@v4
+        with:
+          path: dist
+
+      - name: Download ExifTool
+        run: |
+          echo "Downloading ExifTool from ${{ env.EXIFTOOL_URL }}"
+          curl -L ${{ env.EXIFTOOL_URL }} -o exiftool.tar.gz
+
+      - name: Extract ExifTool to 'dist/exiftool'
+        run: |
+          mkdir -p dist/exiftool
+          tar -xzf exiftool.tar.gz -C dist/exiftool --strip-components=1
+
+      - name: Clean up temporary files
+        run: rm exiftool.tar.gz
+
+      - name: Verify package structure
+        run: |
+          echo "Final package structure in 'dist':"
+          ls -R dist
+
+      - name: Determine Package Name from Git Tag
+        id: package_info
+        shell: bash
+        run: |
+          TAG=${{ github.ref_name }}
+          CLEAN_TAG=${TAG#v}
+          
+          ARTIFACT_NAME="${{ env.PACKAGE_BASENAME }}-${CLEAN_TAG}-${{ env.PLATFORM }}"
+          ARCHIVE_FILE="${ARTIFACT_NAME}.zip"
+
+          echo "Generated Artifact Name: ${ARTIFACT_NAME}"
+          echo "Generated Archive File: ${ARCHIVE_FILE}"
+          echo "artifact_name=${ARTIFACT_NAME}" >> "$GITHUB_OUTPUT"
+          echo "archive_file=${ARCHIVE_FILE}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.artifact_name.outputs.artifact_name }}
+          path: dist
+
