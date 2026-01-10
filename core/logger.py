@@ -2,6 +2,8 @@ import sys
 import os
 from loguru import logger
 
+from core.configs import load_config
+
 # --- 配置常量 ---
 # 日志文件存放路径
 LOG_DIR = "logs"
@@ -73,5 +75,5 @@ def setup_logging(debug: bool = False):
 
 # --- 初始化 (通常在程序入口调用，或者直接 import 这个实例) ---
 # 默认初始化一次，项目中直接 import { logger } from ... 即可
-llogger = setup_logging(debug=True)
+llogger = setup_logging(debug=load_config().getboolean('DEFAULT', 'debug'))
 

@@ -11,8 +11,9 @@ from loguru import logger
 from core import CONFIG_PATH
 from core.configs import load_config, load_project_info
 from core.jinja2renders import vw, vh, auto_logo
-from processor.core import start_process
+from core.logger import llogger
 from core.util import list_files, log_rt, get_exif, convert_heic_to_jpeg
+from processor.core import start_process
 
 api = Flask(__name__)
 
@@ -177,9 +178,13 @@ def handle_process():
             'filename': _input_path.stem,
             'file_dir': str(_input_path.parent.absolute()),
         }
-        if config.getboolean('DEFAULT', 'debug'):
-            print('debug: context=' + json.dumps(context))
-        start_process(json.loads(template.render(context)), input_path, output_path=output_path)
+        final_template = template.render(context)
+        llogger.debug(f'''
+------------begin final_template---------------------
+{final_template}
+------------end final_template---------------------''')
+        llogger.debug('')
+        start_process(json.loads(final_template), input_path, output_path=output_path)
 
     threads = []
     for input_path in input_files:
