@@ -12,7 +12,7 @@ from core import CONFIG_PATH
 from core.configs import load_config, load_project_info
 from core.jinja2renders import vw, vh, auto_logo
 from processor.core import start_process
-from util import list_files, log_rt, get_exif, convert_heic_to_jpeg
+from core.util import list_files, log_rt, get_exif, convert_heic_to_jpeg
 
 api = Flask(__name__)
 

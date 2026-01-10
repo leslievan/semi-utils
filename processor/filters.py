@@ -5,9 +5,9 @@ from typing import Tuple
 import numpy as np
 from PIL import Image, ImageFilter
 
-from processor.core import ImageProcessor, PipelineContext, start_process, get_processor
+from processor.core import ImageProcessor, PipelineContext, start_process
 from processor.generators import MultiRichTextGenerator
-from util import get_exif
+from core.util import get_exif
 
 
 class FilterProcessor(ImageProcessor, ABC):

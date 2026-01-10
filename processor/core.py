@@ -8,10 +8,9 @@ from itertools import chain
 from typing import Dict, Any, Type, List, MutableMapping, Iterator
 
 from PIL import Image, ImageColor
-from loguru import logger
 
 from core.logger import llogger
-from util import get_exif
+from core.util import get_exif
 
 
 class PipelineContext(MutableMapping):
