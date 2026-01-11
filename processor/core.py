@@ -291,12 +291,12 @@ def start_process(data: List[dict], input_path: str = None, output_path: str = N
     all_buffer = [output]
     last_merger_idx = -1
 
-    for idx, node in enumerate(nodes):  # 修正1: 添加 enumerate
+    for idx, node in enumerate(nodes):
         processor = get_processor(node.get_processor_name())
         if processor is None:
             raise RuntimeError(f"Processor '{node.get_processor_name()}' not found")
 
-        if not isinstance(processor, Merger):
+        if not issubclass(processor, Merger):
             node.update_buffer(output)
         else:
             # 收集下标从上一个 merger 之后, 到当前 idx 为止的 buffer
