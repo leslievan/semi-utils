@@ -19,6 +19,6 @@ echo ""
 echo "✅ 环境初始化完成"
 
 source .venv/bin/activate
-echo "✅ 虚拟环境激活成功, 版本: $PYTHON_VERSION"
+echo "✅ 虚拟环境激活成功"
 echo "🚀 开始启动 Semi-Utils Pro"
-python ./app.py
+poetry run python ./app.py
