@@ -179,7 +179,7 @@ def handle_process():
         context = {
             'exif': get_exif(input_path),
             'filename': _input_path.stem,
-            'file_dir': str(_input_path.parent.absolute()),
+            'file_dir': str(_input_path.parent.absolute()).replace('\\', '/'),
         }
         final_template = template.render(context)
         llogger.debug(f'''
