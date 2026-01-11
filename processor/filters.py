@@ -446,6 +446,61 @@ class ShadowFilter(FilterProcessor):
             buffer.append(shadow_blurred)
         ctx.update_buffer(buffer).save_buffer(self.name()).success()
 
+    def process2(self, ctx: PipelineContext):
+        shadow_color = ctx.getcolor("shadow_color", (0, 0, 0, 255))
+        # 即使radius设为30，为了视觉效果彻底消失，建议不要设太小
+        shadow_radius = ctx.getint("shadow_radius", 30)
+        buffer = []
+        for img in ctx.get_buffer():
+            if img.mode != 'RGBA':
+                original_img = img.convert('RGBA')
+            else:
+                original_img = img
+
+            w, h = original_img.size
+            if shadow_radius <= 0:
+                buffer.append(img)
+                continue
+            # --- 优化点 1: 扩大画布范围 (3-Sigma 原则) ---
+            # 高斯模糊的尾部很长，只有预留 3倍半径 的空间，边缘像素才能自然衰减到 0 (完全透明)
+            # 如果只留 1倍，最外圈一定会被切断，留下一圈灰色的“硬边”
+            padding = shadow_radius * 3
+
+            full_width = w + padding * 2
+            full_height = h + padding * 2
+
+            # 创建底图
+            background = Image.new('RGBA', (full_width, full_height), (0, 0, 0, 0))
+            # --- 优化点 2: 制作纯色剪影 ---
+            shadow_layer = Image.new('RGBA', (w, h), shadow_color)
+            shadow_layer.putalpha(original_img.getchannel('A'))
+
+            # 将剪影贴入底图中心
+            background.paste(shadow_layer, (padding, padding))
+            # --- 优化点 3: 高斯模糊 ---
+            shadow_in_process = background.filter(ImageFilter.GaussianBlur(shadow_radius))
+            # --- 优化点 4: Alpha 通道非线性衰减 (缓动关键) ---
+            # 这一步是为了解决“灰色残留”并让阴影更有层次感。
+            # 我们提取阴影的 Alpha 通道，对其进行 指数运算。
+            # 作用：让原本很淡的边缘（如 alpha=10）迅速变成 0，而原本浓的地方保持保留。
+            # 这是清理 "脏边缘" 最有效的手段。
+            r, g, b, a = shadow_in_process.split()
+
+            # lambda x: int(x * ((x / 255.0) ** 0.5)) -> 这种会让阴影更丰满
+            # lambda x: int(x * ((x / 255.0) ** 2))   -> 这种会让边缘收得更快(Fade Out)，彻底消除灰边
+
+            # 这里使用平方级衰减 (Quad Ease In)，强力清洗边缘
+            a = a.point(lambda p: int(p * (p / 255.0) * 1.2))
+
+            shadow_in_process.putalpha(a)
+            # 组合原图
+            shadow_in_process.paste(original_img, (padding, padding), mask=original_img)
+
+            # (可选) 如果你不希望图片尺寸暴增，可以在这里 crop 回去，
+            # 但既然要阴影，通常就需要保留扩大的尺寸。
+            buffer.append(shadow_in_process)
+        ctx.update_buffer(buffer).save_buffer(self.name()).success()
+
     def _apply_alpha_falloff(self, img: Image.Image, gamma: float) -> Image.Image:
         """
         对 Alpha 通道应用幂函数衰减
