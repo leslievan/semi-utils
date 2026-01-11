@@ -7,7 +7,7 @@ from enum import Enum
 from itertools import chain
 from typing import Dict, Any, Type, List, MutableMapping, Iterator
 
-from PIL import Image, ImageColor
+from PIL import Image, ImageColor, ImageOps
 
 from core.configs import load_config
 from core.logger import llogger
@@ -68,7 +68,7 @@ class PipelineContext(MutableMapping):
 
     def get_buffer(self) -> List[Image]:
         if not self.get("buffer_loaded", False) and self.get("buffer_path"):
-            self.set("buffer", [Image.open(path) for path in self.get("buffer_path")])
+            self.set("buffer", [ImageOps.exif_transpose(Image.open(path)) for path in self.get("buffer_path")])
             self.set("buffer_loaded", True)
         return self.get("buffer", [])
 
