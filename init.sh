@@ -6,7 +6,7 @@ echo "✓ Python 已安装, 版本: $PYTHON_VERSION"
 
 if ! command -v poetry &> /dev/null; then
   echo "📦 Poetry 未安装, 正在安装..."
-  curl -sSL https://install.python-poetry.org | python3 -
+  curl -sSL https://file.lsvm.xyz/release/poetry/latest | python3 -
   export PATH="$HOME/.local/bin:$PATH"
 else
   echo "✓ Poetry 已安装: $(poetry --version)"
