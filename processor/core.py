@@ -9,6 +9,7 @@ from typing import Dict, Any, Type, List, MutableMapping, Iterator
 
 from PIL import Image, ImageColor
 
+from core.configs import load_config
 from core.logger import llogger
 from core.util import get_exif
 
@@ -308,6 +309,6 @@ def start_process(data: List[dict], input_path: str = None, output_path: str = N
 
     nodes[-1].save_buffer("final").success()
     if output_path is not None:
-        nodes[-1].get_buffer()[0].convert("RGB").save(output_path)
+        nodes[-1].get_buffer()[0].convert("RGB").save(output_path, quality=load_config().getint('DEFAULT', 'quality'), subsampling=load_config().getint('DEFAULT', 'subsampling'))
         llogger.success(f"generate new image {output_path}")
     return nodes[-1].get_buffer()[0]

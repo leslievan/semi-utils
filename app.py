@@ -38,6 +38,7 @@ def get_config():
         'output_folder': config.get('DEFAULT', 'output_folder'),
         'override_existed': config.get('DEFAULT', 'override_existed'),
         'template': template,
+        'quality': config.get('DEFAULT', 'quality'),
     })
 
 
@@ -56,6 +57,8 @@ def save_config():
             config.set('DEFAULT', 'output_folder', data['output_folder'])
         if 'override_existed' in data:
             config.set('DEFAULT', 'override_existed', str(data['override_existed']))
+        if 'quality' in data:
+            config.set('DEFAULT', 'quality', data['quality'])
 
         # 保存配置到配置文件
         with open(CONFIG_PATH, 'w', encoding='utf-8') as f:
