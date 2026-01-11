@@ -3,11 +3,11 @@ from abc import ABC
 from typing import Tuple
 
 import numpy as np
-from PIL import Image, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter
 
+from core.util import get_exif
 from processor.core import ImageProcessor, PipelineContext, start_process
 from processor.generators import MultiRichTextGenerator
-from core.util import get_exif
 
 
 class FilterProcessor(ImageProcessor, ABC):
@@ -69,8 +69,10 @@ class TrimFilter(FilterProcessor):
         for image in ctx.get_buffer():
             if image.height * image.width == 0:
                 continue
-            bbox = self.get_foreground_bbox(image, trim_left=ctx.get("trim_left", True), trim_right=ctx.get("trim_right", True),
-                                            trim_top=ctx.get("trim_top", True), trim_bottom=ctx.get("trim_bottom", True))
+            bbox = self.get_foreground_bbox(image, trim_left=ctx.get("trim_left", True),
+                                            trim_right=ctx.get("trim_right", True),
+                                            trim_top=ctx.get("trim_top", True),
+                                            trim_bottom=ctx.get("trim_bottom", True))
             buffer.append(image.crop(bbox))
         ctx.update_buffer(buffer).save_buffer(self.name()).success()
 
@@ -204,7 +206,6 @@ class MarginFilter(FilterProcessor):
 
     def name(self) -> str:
         return "margin"
-
 
 
 class MarginWithRatioFilter(FilterProcessor):
@@ -378,6 +379,93 @@ class WatermarkWithTimestampFilter(FilterProcessor):
 
     def name(self) -> str:
         return "watermark_with_timestamp"
+
+
+class RoundedCornerFilter(FilterProcessor):
+    def process(self, ctx: PipelineContext):
+        # CSS风格: border-radius, 单位px
+        radius = ctx.getint("border_radius", 0)
+
+        buffer = []
+        for img in ctx.get_buffer():
+            if img.mode != 'RGBA':
+                img = img.convert('RGBA')
+
+            width, height = img.size
+
+            # 创建圆角蒙版
+            mask = Image.new('L', (width, height), 0)
+            draw = ImageDraw.Draw(mask)
+
+            # 绘制圆角矩形
+            draw.rounded_rectangle([(0, 0), (width, height)], radius=radius, fill=255)
+
+            # 应用蒙版
+            output = Image.new('RGBA', (width, height), (0, 0, 0, 0))
+            output.paste(img, (0, 0))
+            output.putalpha(mask)
+
+            buffer.append(output)
+        ctx.update_buffer(buffer).save_buffer(self.name()).success()
+
+    def name(self) -> str:
+        return "rounded_corner"
+
+
+class ShadowFilter(FilterProcessor):
+
+    def process(self, ctx: PipelineContext):
+        # CSS风格: box-shadow
+        shadow_color = ctx.getcolor("shadow_color", "black")
+        shadow_blur = ctx.getint("shadow_blur", 10)
+        shadow_offset_x = ctx.getint("shadow_offset_x", 5)
+        shadow_offset_y = ctx.getint("shadow_offset_y", 5)
+
+        buffer = []
+        for img in ctx.get_buffer():
+            if img.mode != 'RGBA':
+                img = img.convert('RGBA')
+
+            width, height = img.size
+
+            # 计算新画布尺寸（需要容纳阴影）
+            margin = shadow_blur * 2
+            new_width = width + margin + abs(shadow_offset_x)
+            new_height = height + margin + abs(shadow_offset_y)
+
+            # 创建阴影层
+            shadow = Image.new('RGBA', (new_width, new_height), (0, 0, 0, 0))
+            shadow_draw = ImageDraw.Draw(shadow)
+
+            # 计算阴影位置
+            shadow_x = margin // 2 + shadow_offset_x
+            shadow_y = margin // 2 + shadow_offset_y
+
+            # 绘制阴影矩形
+            shadow_draw.rectangle(
+                [(shadow_x, shadow_y), (shadow_x + width, shadow_y + height)],
+                fill=shadow_color
+            )
+
+            # 应用模糊
+            shadow = shadow.filter(ImageFilter.GaussianBlur(shadow_blur))
+
+            # 创建最终图像
+            output = Image.new('RGBA', (new_width, new_height), (0, 0, 0, 0))
+            output.paste(shadow, (0, 0))
+
+            # 粘贴原图
+            img_x = margin // 2
+            img_y = margin // 2
+            output.paste(img, (img_x, img_y), img)
+
+            buffer.append(output)
+
+        ctx.update_buffer(buffer).save_buffer(self.name()).success()
+
+    def name(self) -> str:
+        return "shadow"
+
 
 if __name__ == '__main__':
     buffer_path = '/Users/leslie/Workspace/3_PyProjs/semi-photo-utils/input/元旦/20250406-DSC_5779.jpg'
