@@ -275,7 +275,7 @@ class WatermarkFilter(FilterProcessor):
         # 新建画布
         canvas = Image.new("RGBA", (canvas_width, canvas_height), color)
         # 主图
-        canvas.paste(img, (left_margin, top_margin))
+        canvas.paste(img, (left_margin, top_margin), mask=img if img.mode == 'RGBA' else None)
         # 底部区域
         footer_start_y = top_margin + img.height
         # 左图标处理
@@ -384,7 +384,7 @@ class WatermarkWithTimestampFilter(FilterProcessor):
 class RoundedCornerFilter(FilterProcessor):
     def process(self, ctx: PipelineContext):
         # CSS风格: border-radius, 单位px
-        radius = ctx.getint("border_radius", 0)
+        radius = ctx.getint("border_radius", 10)
 
         buffer = []
         for img in ctx.get_buffer():
