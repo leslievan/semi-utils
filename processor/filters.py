@@ -415,10 +415,10 @@ class RoundedCornerFilter(FilterProcessor):
 class ShadowFilter(FilterProcessor):
 
     def process(self, ctx: PipelineContext):
-        # 参数获取
-        shadow_color = ctx.getcolor("shadow_color", (0, 0, 0, 255))
+        shadow_color = ctx.getcolor("shadow_color", (0, 0, 0, 180))
         shadow_radius = ctx.getint("shadow_radius", 30)
-
+        # 新参数：衰减强度，值越大边缘越干净（推荐 1.5 ~ 3.0）
+        falloff = 1.5
         buffer = []
         for img in ctx.get_buffer():
             if img.mode != 'RGBA':
@@ -426,32 +426,47 @@ class ShadowFilter(FilterProcessor):
             else:
                 original_img = img
             w, h = original_img.size
-
             if shadow_radius <= 0:
                 buffer.append(img)
                 continue
-            padding = shadow_radius
-
-            # 创建一个用于绘制阴影的全透明底图
-            # 尺寸 = 原图尺寸 + 四周的 padding
+            padding = int(shadow_radius * 2)
             full_width = w + padding * 2
             full_height = h + padding * 2
-            shadow_layer = Image.new('RGBA', (full_width, full_height), (0, 0, 0, 0))
-            # 4. 绘制阴影实体
-            # 在画布的正中心绘制一个矩形，颜色为阴影色
-            # 坐标计算：(padding, padding) 到 (padding + w, padding + h)
-            draw = ImageDraw.Draw(shadow_layer)
-            draw.rectangle(
-                (padding, padding, padding + w, padding + h),
-                fill=shadow_color,
-                outline=None
-            )
-            shadow_layer = shadow_layer.filter(ImageFilter.GaussianBlur(shadow_radius / 2))
-            shadow_layer.paste(original_img, (padding, padding), mask=original_img)
-            img = shadow_layer
-            # --- handle 结束 ---
-            buffer.append(img)
+            # 1. 生成剪影阴影
+            background = Image.new('RGBA', (full_width, full_height), (0, 0, 0, 0))
+            shadow_layer = Image.new('RGBA', (w, h), shadow_color)
+            shadow_layer.putalpha(original_img.getchannel('A'))
+            background.paste(shadow_layer, (padding, padding))
+            # 2. 高斯模糊
+            shadow_blurred = background.filter(ImageFilter.GaussianBlur(shadow_radius))
+            # 3. 关键：应用透明度衰减曲线，消除边缘残留
+            shadow_blurred = self._apply_alpha_falloff(shadow_blurred, falloff)
+            # 4. 合成原图
+            shadow_blurred.paste(original_img, (padding, padding), mask=original_img)
+            buffer.append(shadow_blurred)
         ctx.update_buffer(buffer).save_buffer(self.name()).success()
+
+    def _apply_alpha_falloff(self, img: Image.Image, gamma: float) -> Image.Image:
+        """
+        对 Alpha 通道应用幂函数衰减
+        公式: new_alpha = (alpha / 255) ^ gamma * 255
+        gamma > 1 时，低透明度像素会被压制得更低，边缘更干净
+        """
+        r, g, b, a = img.split()
+
+        # 转为 numpy 处理
+        alpha_array = np.array(a, dtype=np.float32) / 255.0
+
+        # 应用幂函数（缓动曲线）
+        alpha_array = np.power(alpha_array, gamma)
+
+        # 可选：设置硬截断阈值，彻底消除极低透明度
+        alpha_array[alpha_array < 0.01] = 0
+
+        # 转回 PIL
+        new_alpha = Image.fromarray((alpha_array * 255).astype(np.uint8), mode='L')
+        img.putalpha(new_alpha)
+        return img
 
     def name(self) -> str:
         return "shadow"
