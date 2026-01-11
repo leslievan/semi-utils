@@ -3,7 +3,7 @@ name = "semi-photo-utils"
 version = "2.1.5"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = "^3.13"
 dependencies = [
     "flask>=3.1.2",
     "jinja2>=3.1.6",
@@ -13,3 +13,6 @@ dependencies = [
     "pillow-heif>=1.1.1",
     "pystray>=0.19.5",
 ]
+
+[tool.poetry.dependencies]
+python = "^3.13"
