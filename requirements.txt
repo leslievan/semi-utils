@@ -1,6 +1,6 @@
-flask>=3.1.2
-jinja2>=3.1.6
-numpy>=2.4.0
-pillow>=12.1.0
-pillow-heif>=1.1.1
-loguru>=0.7.3
+flask
+jinja2
+numpy
+pillow
+pillow-heif
+loguru
