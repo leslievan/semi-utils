@@ -88,10 +88,10 @@ class Generator(ImageProcessor, ABC):
 class SolidColorGenerator(Generator):
 
     def process(self, ctx: PipelineContext):
-        width, height = ctx.get("width"), ctx.get("height")
+        width, height = ctx.getint("width"), ctx.getint("height")
         color = ctx.get("color")
         image = Image.new("RGBA", (width, height), color)
-        ctx.update_buffer([image]).save_buffer().success()
+        ctx.update_buffer([image]).success()
 
     def name(self) -> str:
         return "solid_color"
