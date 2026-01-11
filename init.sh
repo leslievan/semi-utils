@@ -37,6 +37,6 @@ echo -e "${GREEN}✓  依赖安装完成${NC}"
 
 echo ""
 echo -e "${BOLD}${GREEN}✅  环境初始化完成${NC}"
-echo -e "${BOLD}${BLUE}🚀 开始启动 Semi-Utils Pro${NC}\n"
+echo -e "${BOLD}${BLUE}🚀  开始启动 Semi-Utils Pro${NC}\n"
 
 python3 ./app.py
