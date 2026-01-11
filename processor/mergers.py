@@ -1,3 +1,4 @@
+import json
 from abc import ABC
 from typing import List
 
@@ -30,7 +31,7 @@ class AlignmentMerger(Merger):
         horizontal_alignment = ctx.getenum("horizontal_alignment", Alignment.CENTER, Alignment)
         vertical_alignment = ctx.getenum("vertical_alignment", Alignment.CENTER, Alignment)
         background: tuple = ctx.getcolor("background", (255, 255, 255, 0))  # 默认透明
-        offsets = ctx.get("offsets", [])
+        offsets = json.loads(ctx.get("offsets", "[]"))
 
         if not buffer:
             return
@@ -43,6 +44,7 @@ class AlignmentMerger(Merger):
         for i, img in enumerate(buffer):
             # 获取偏移量，索引超出时默认为 (0, 0)
             offset_x, offset_y = offsets[i] if i < len(offsets) else (0, 0)
+            offset_x, offset_y = -offset_x, -offset_y
             # 处理水平对齐
             img_x = _calc_offset(img.width, max_width, horizontal_alignment)
             # 处理垂直对齐
