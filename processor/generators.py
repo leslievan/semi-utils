@@ -51,6 +51,7 @@ class TextSegment:
     height: int = 100
     is_bold: bool = False
     color: str = "black"
+    trim: bool = False
 
     def get(self, key: str, default=None):
         return getattr(self, key, default)
@@ -63,6 +64,7 @@ class TextSegment:
             height=data.get("height", 100),
             color=data.get("color", "black"),
             is_bold=data.get("is_bold", False),
+            trim=data.get("trim", False),
         )
 
     @staticmethod
@@ -72,6 +74,8 @@ class TextSegment:
             font_path=datum.get("font_path", None),
             height=datum.get("height", 100),
             color=datum.get("color", "black"),
+            is_bold=data.get("is_bold", False),
+            trim=data.get("trim", False),
         ) for datum in data]
 
 
@@ -220,8 +224,8 @@ class RichTextGenerator(Generator):
             "buffer": [image],
             "height": segment.height * 1.13 if segment.is_bold else segment.height,
             "save_buffer": False,
-            "trim_top": False,
-            "trim_bottom": False,
+            "trim_top": segment.trim,
+            "trim_bottom": segment.trim,
         })
         TrimFilter().process(resize_ctx)
         ResizeFilter().process(resize_ctx)
