@@ -415,52 +415,42 @@ class RoundedCornerFilter(FilterProcessor):
 class ShadowFilter(FilterProcessor):
 
     def process(self, ctx: PipelineContext):
-        # CSS风格: box-shadow
-        shadow_color = ctx.getcolor("shadow_color", "black")
-        shadow_blur = ctx.getint("shadow_blur", 10)
-        shadow_offset_x = ctx.getint("shadow_offset_x", 5)
-        shadow_offset_y = ctx.getint("shadow_offset_y", 5)
+        # 参数获取
+        shadow_color = ctx.getcolor("shadow_color", (0, 0, 0, 255))
+        shadow_radius = ctx.getint("shadow_radius", 30)
 
         buffer = []
         for img in ctx.get_buffer():
             if img.mode != 'RGBA':
-                img = img.convert('RGBA')
+                original_img = img.convert('RGBA')
+            else:
+                original_img = img
+            w, h = original_img.size
 
-            width, height = img.size
+            if shadow_radius <= 0:
+                buffer.append(img)
+                continue
+            padding = shadow_radius
 
-            # 计算新画布尺寸（需要容纳阴影）
-            margin = shadow_blur * 2
-            new_width = width + margin + abs(shadow_offset_x)
-            new_height = height + margin + abs(shadow_offset_y)
-
-            # 创建阴影层
-            shadow = Image.new('RGBA', (new_width, new_height), (0, 0, 0, 0))
-            shadow_draw = ImageDraw.Draw(shadow)
-
-            # 计算阴影位置
-            shadow_x = margin // 2 + shadow_offset_x
-            shadow_y = margin // 2 + shadow_offset_y
-
-            # 绘制阴影矩形
-            shadow_draw.rectangle(
-                [(shadow_x, shadow_y), (shadow_x + width, shadow_y + height)],
-                fill=shadow_color
+            # 创建一个用于绘制阴影的全透明底图
+            # 尺寸 = 原图尺寸 + 四周的 padding
+            full_width = w + padding * 2
+            full_height = h + padding * 2
+            shadow_layer = Image.new('RGBA', (full_width, full_height), (0, 0, 0, 0))
+            # 4. 绘制阴影实体
+            # 在画布的正中心绘制一个矩形，颜色为阴影色
+            # 坐标计算：(padding, padding) 到 (padding + w, padding + h)
+            draw = ImageDraw.Draw(shadow_layer)
+            draw.rectangle(
+                (padding, padding, padding + w, padding + h),
+                fill=shadow_color,
+                outline=None
             )
-
-            # 应用模糊
-            shadow = shadow.filter(ImageFilter.GaussianBlur(shadow_blur))
-
-            # 创建最终图像
-            output = Image.new('RGBA', (new_width, new_height), (0, 0, 0, 0))
-            output.paste(shadow, (0, 0))
-
-            # 粘贴原图
-            img_x = margin // 2
-            img_y = margin // 2
-            output.paste(img, (img_x, img_y), img)
-
-            buffer.append(output)
-
+            shadow_layer = shadow_layer.filter(ImageFilter.GaussianBlur(shadow_radius / 2))
+            shadow_layer.paste(original_img, (padding, padding), mask=original_img)
+            img = shadow_layer
+            # --- handle 结束 ---
+            buffer.append(img)
         ctx.update_buffer(buffer).save_buffer(self.name()).success()
 
     def name(self) -> str:
