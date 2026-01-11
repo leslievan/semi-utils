@@ -17,26 +17,26 @@ echo -e "${GREEN}✓  Python 已安装, 版本: ${BOLD}$PYTHON_VERSION${NC}"
 
 # 创建虚拟环境
 if [ ! -d ".venv" ]; then
-    echo -e "${GREEN}- 创建虚拟环境...${NC}"
+    echo -e "${GREEN}-  创建虚拟环境...${NC}"
     python3 -m venv .venv
-    echo -e "${GREEN}✓ 虚拟环境创建成功${NC}"
+    echo -e "${GREEN}✓  虚拟环境创建成功${NC}"
 else
-    echo -e "${GREEN}✓ 虚拟环境已存在${NC}"
+    echo -e "${GREEN}✓  虚拟环境已存在${NC}"
 fi
 
 # 激活虚拟环境
-echo -e "${GREEN}- 正在激活虚拟环境...${NC}"
+echo -e "${GREEN}-  正在激活虚拟环境...${NC}"
 source .venv/bin/activate
-echo -e "${GREEN}✓ 虚拟环境已激活${NC}"
+echo -e "${GREEN}✓  虚拟环境已激活${NC}"
 
 # 安装依赖
-echo -e "${GREEN}- 安装项目依赖...${NC}"
+echo -e "${GREEN}-  安装项目依赖...${NC}"
 pip install -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple \
     -r requirements.txt
-echo -e "${GREEN}✓ 依赖安装完成${NC}"
+echo -e "${GREEN}✓  依赖安装完成${NC}"
 
 echo ""
-echo -e "${BOLD}${GREEN}✅ 环境初始化完成${NC}"
+echo -e "${BOLD}${GREEN}✅  环境初始化完成${NC}"
 echo -e "${BOLD}${BLUE}🚀 开始启动 Semi-Utils Pro${NC}\n"
 
-# python ./app.py
+python ./app.py
