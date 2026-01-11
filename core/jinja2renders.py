@@ -23,5 +23,5 @@ def auto_logo(context, brand: str = None):
 
     for f in logos_dir.iterdir():
         if f.suffix.lower() in {'.png', '.jpg', '.jpeg'} and f.stem.lower() in brand:
-            return str(f.absolute())
+            return str(f.absolute()).replace('\\', '/')
     return None
