@@ -264,6 +264,8 @@ class WatermarkFilter(FilterProcessor):
 
         left_logo = Image.open(ctx.get("left_logo")).convert('RGBA') if ctx.get("left_logo") else None
         right_logo = Image.open(ctx.get("right_logo")).convert('RGBA') if ctx.get("right_logo") else None
+        center_logo = Image.open(ctx.get("center_logo")).convert('RGBA') if ctx.get("center_logo") else None
+        center_logo_height = ctx.getint("center_logo_height")
 
         canvas_width = img.width + left_margin + right_margin
         canvas_height = img.height + top_margin + bottom_margin
@@ -278,11 +280,24 @@ class WatermarkFilter(FilterProcessor):
         # 左图标处理
         left_logo_width = 0
         if left_logo:
-            # 缩放图标以适应底部高度 (正方形)
             logo_size = canvas_height - footer_start_y
+            # 缩放图标以适应底部高度 (正方形)
             left_logo = left_logo.resize((logo_size, logo_size), Image.Resampling.LANCZOS)
             canvas.paste(left_logo, (left_margin, footer_start_y), mask=left_logo if left_logo.mode == 'RGBA' else None)
             left_logo_width = logo_size
+
+        if center_logo:
+            logo_height = center_logo_height if center_logo_height else canvas_height - footer_start_y
+            resize_ctx = PipelineContext({
+                'buffer': [center_logo],
+                'height': logo_height
+            })
+            ResizeFilter().process(resize_ctx)
+            center_logo = resize_ctx.get_buffer()[0]
+            center_x = (canvas.width - center_logo.width) // 2
+            center_y = footer_start_y + ((canvas.height - footer_start_y) - center_logo.height) // 2
+            canvas.paste(center_logo, (center_x, center_y), mask=center_logo if center_logo.mode == 'RGBA' else None)
+
         # 文本处理
         elem_height = max(left_top.height + left_bottom.height, right_top.height + right_bottom.height) + middle_spacing
         # 计算文本块距离底部边缘的留白，使其在 bottom_margin 区域内垂直居中
