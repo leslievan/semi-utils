@@ -49,6 +49,10 @@ class PipelineContext(MutableMapping):
                 return enum[value]
             except KeyError:
                 pass
+            try:
+                return enum[value.upper()]
+            except KeyError:
+                pass
 
         # 尝试通过 value 查找 (如 1 -> Color.RED)
         try:
