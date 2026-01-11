@@ -32,6 +32,7 @@ class AlignmentMerger(Merger):
         vertical_alignment = ctx.getenum("vertical_alignment", Alignment.CENTER, Alignment)
         background: tuple = ctx.getcolor("background", (255, 255, 255, 0))  # 默认透明
         offsets = json.loads(ctx.get("offsets", "[]"))
+        weights = json.loads(ctx.get("weights", "[]"))
 
         if not buffer:
             return
@@ -40,6 +41,14 @@ class AlignmentMerger(Merger):
         max_height = max(img.height for img in buffer)
         # 创建画布
         canvas = Image.new("RGBA", (max_width, max_height), background)
+        # buffer 重排序
+        if weights:
+            missing_count = len(buffer) - len(weights)
+            weights = weights + [0] * missing_count
+            combined = zip(weights, buffer)
+            sorted_combined = sorted(combined, key=lambda x: x[0], reverse=False)
+            buffer = [item for _, item in sorted_combined]
+
         # 遍历所有图片进行合并
         for i, img in enumerate(buffer):
             # 获取偏移量，索引超出时默认为 (0, 0)
