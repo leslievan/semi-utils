@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 echo "🚀 开始初始化项目环境"
-PYTHON_VERSION=$(python --version 2>&1 awk "{print $2}")
+PYTHON_VERSION=$(python3 --version 2>&1 awk "{print $2}")
 echo "✓ Python 已安装, 版本: $PYTHON_VERSION"
 
 if ! command -v poetry &> /dev/null; then
