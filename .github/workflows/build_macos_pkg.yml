@@ -45,10 +45,15 @@ jobs:
         shell: bash
         run: |
           TAG=${{ github.ref_name }}
-          CLEAN_TAG=${TAG#v}
+          
+          if [[ $TAG == v* ]]; then
+            CLEAN_TAG=${TAG#v}
+          else
+            CLEAN_TAG=${{ github.sha }}
+            CLEAN_TAG=${CLEAN_TAG:0:7}
+          fi
           
           ARTIFACT_NAME="${{ env.PACKAGE_BASENAME }}-${CLEAN_TAG}-${{ env.PLATFORM }}"
-
           echo "Generated Artifact Name: ${ARTIFACT_NAME}"
           echo "artifact_name=${ARTIFACT_NAME}" >> "$GITHUB_OUTPUT"
 

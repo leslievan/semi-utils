@@ -89,10 +89,14 @@ jobs:
       shell: pwsh
       run: |
         $TAG="${{ github.ref_name }}"
-        $CLEAN_TAG = $TAG -replace '^v', ''
+        
+        if ($TAG -match '^v') {
+          $CLEAN_TAG = $TAG -replace '^v', ''
+        } else {
+          $CLEAN_TAG = "${{ github.sha }}".Substring(0, 7)
+        }
         
         $ARTIFACT_NAME="${{ env.PACKAGE_BASENAME }}-${CLEAN_TAG}-${{ env.PLATFORM }}"
-
         echo "Generated Artifact Name: ${ARTIFACT_NAME}"
         echo "artifact_name=${ARTIFACT_NAME}" >> $env:GITHUB_OUTPUT
 
