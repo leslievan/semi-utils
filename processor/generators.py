@@ -74,8 +74,8 @@ class TextSegment:
             font_path=datum.get("font_path", None),
             height=datum.get("height", 100),
             color=datum.get("color", "black"),
-            is_bold=data.get("is_bold", False),
-            trim=data.get("trim", False),
+            is_bold=datum.get("is_bold", False),
+            trim=datum.get("trim", False),
         ) for datum in data]
 
 
