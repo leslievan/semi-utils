@@ -76,8 +76,8 @@ class ConcatMerger(Merger):
         buffer = ctx.get_buffer()
         alignment = ctx.getenum("alignment", Alignment.BOTTOM, Alignment)
         direction = ctx.getenum("direction", Direction.HORIZONTAL, Direction)
-        spacing = ctx.get("spacing", 10)
-        background: tuple = ctx.get("background", (255, 255, 255, 0))  # 默认透明
+        spacing = ctx.getint("spacing", 10)
+        background = ctx.getcolor("background", (255, 255, 255, 0))  # 默认透明
 
         # 确保所有图片都是 RGBA 模式
         images = [img.convert("RGBA") if img.mode == "RGB" else img for img in buffer]
