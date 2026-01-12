@@ -373,7 +373,12 @@ class WatermarkWithTimestampFilter(FilterProcessor):
 
         if "height" not in ctx:
             ctx.set("height", int(img.height * .02))
-        MultiRichTextGenerator().process(ctx)
+        # 使用注册表动态获取处理器，避免直接导入
+        multi_text_processor = get_processor("multi_rich_text")
+        if multi_text_processor:
+            multi_text_processor().process(ctx)
+        else:
+            raise RuntimeError("multi_rich_text processor not found")
         text = ctx.get_buffer()[0]
 
         text_x = int(img.width * .93) - text.width
