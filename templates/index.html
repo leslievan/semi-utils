@@ -813,9 +813,10 @@
                         this.selectedItems = this.selectedItems.filter(v => allCurrentFileValues.has(v));
 
                         if (renderInput) {
-                            this.inputTreeData = data.input_files || [];
+                            this.inputTreeData = JSON.parse(JSON.stringify(data.input_files || []));
                         }
-                        this.outputTreeData = data.output_files || [];
+                        // 强制刷新输出树（使用 JSON parse/stringify 触发响应式更新）
+                        this.outputTreeData = JSON.parse(JSON.stringify(data.output_files || []));
                     }
                 } catch (e) {
                     this.toast("文件列表加载失败", 'error');
