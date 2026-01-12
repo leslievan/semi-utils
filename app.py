@@ -6,19 +6,23 @@ from pathlib import Path
 
 from flask import render_template, jsonify, request, send_file, Flask
 from jinja2 import Template
-from loguru import logger
 
 from core import CONFIG_PATH
 from core.configs import load_config, load_project_info
 from core.jinja2renders import vw, vh, auto_logo
-from core.logger import llogger
+from core.logger import logger, init_from_config
 from core.util import list_files, log_rt, get_exif, convert_heic_to_jpeg
 from processor.core import start_process
 
-api = Flask(__name__)
-
+# 加载配置
 config = load_config()
 project_info = load_project_info()
+
+# 初始化日志系统（必须在创建 Flask app 之前）
+init_from_config(config)
+
+# 创建 Flask app
+api = Flask(__name__)
 
 
 @api.route('/')
@@ -175,7 +179,7 @@ def handle_process():
 
         _input_path = Path(input_path)
         # 开始处理
-        print(f'input_path: {input_path}, output_path: {output_path}')
+        logger.debug(f'Processing: input={input_path}, output={output_path}')
         context = {
             'exif': get_exif(input_path),
             'filename': _input_path.stem,
@@ -184,11 +188,7 @@ def handle_process():
             'files': input_files
         }
         final_template = template.render(context)
-        llogger.debug(f'''
-------------begin final_template---------------------
-{final_template}
-------------end final_template---------------------''')
-        llogger.debug('')
+        logger.debug(f'Rendered template:\n{final_template}')
         start_process(json.loads(final_template), input_path, output_path=output_path)
 
     threads = []
@@ -203,8 +203,8 @@ def handle_process():
 
 
 def start_server():
-    print('✅ Semi-Utils Pro 启动成功')
-    print('====================================================================')
+    logger.info('✅ Semi-Utils Pro 启动成功')
+    logger.info(f'服务地址: http://{config.get("DEFAULT", "host")}:{config.getint("DEFAULT", "port")}')
     api.run(
         port=config.getint('DEFAULT', 'port'),
         host=config.get('DEFAULT', 'host'),
