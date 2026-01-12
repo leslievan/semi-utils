@@ -18,7 +18,7 @@ class FilterProcessor(ImageProcessor, ABC):
 
 class BlurFilter(FilterProcessor):
     def process(self, ctx: PipelineContext):
-        radius = ctx.get("blur_radius", 5)
+        radius = ctx.getint("blur_radius", 5)
 
         buffer = []
         for img in ctx.get_buffer():
