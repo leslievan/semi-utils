@@ -619,11 +619,11 @@
                     let childUl = null;
                     if (hasChildren) {
                         childUl = document.createElement('ul');
-                        childUl.className = 'pl-4 border-l border-slate-200 ml-2.5'; // 默认折叠
+                        childUl.className = 'pl-4 border-l border-slate-200 ml-2.5 hidden'; // 默认折叠
                         item.children.forEach(child => childUl.appendChild(createNode(child)));
                     }
 
-                    row.addEventListener('click', () => {
+                    row.addEventListener('click', (e) => {
                         // 预览 (仅文件)
                         if (isFile) {
                             this.preview.url = `/api/v1/file?path=${encodeURIComponent(value)}`;
