@@ -200,7 +200,6 @@ class GradientColorGenerator(Generator):
 class RichTextGenerator(Generator):
     @staticmethod
     def generate(segment: TextSegment) -> Image.Image:
-        from processor.filters import ResizeFilter, TrimFilter
         font = load_font(segment.font_path)
 
         # 获取文本尺寸
@@ -213,16 +212,23 @@ class RichTextGenerator(Generator):
         # 直接绘制文本
         draw.text((0, 0), text, font=font, fill=_parse_color(segment.color))
 
-        resize_ctx = PipelineContext({
-            "buffer": [image],
-            "height": segment.height * 1.13 if segment.is_bold else segment.height,
-            "save_buffer": False,
-            "trim_top": segment.trim,
-            "trim_bottom": segment.trim,
-        })
-        TrimFilter().process(resize_ctx)
-        ResizeFilter().process(resize_ctx)
-        return resize_ctx.get_buffer()[0]
+        # 使用 start_process 处理图片，解耦对 Filter 的直接依赖
+        pipeline = [
+            {
+                "processor_name": "trim",
+                "trim_top": segment.trim,
+                "trim_bottom": segment.trim,
+                "save_buffer": False,
+            },
+            {
+                "processor_name": "resize",
+                "height": segment.height * 1.13 if segment.is_bold else segment.height,
+                "save_buffer": False,
+            }
+        ]
+        # 使用临时 buffer 路径（实际上是 image 对象）
+        from processor.core import start_process
+        return start_process(pipeline, input_path=None, output_path=None, initial_buffer=[image])
 
     def process(self, ctx: PipelineContext):
         img = RichTextGenerator.generate(TextSegment.from_dict(ctx))
@@ -234,7 +240,6 @@ class RichTextGenerator(Generator):
 
 class MultiRichTextGenerator(Generator):
     def process(self, ctx: PipelineContext):
-        from processor.mergers import ConcatMerger
         text_segments: List[TextSegment] = TextSegment.from_dicts(ctx.get("text_segments"))
         text_alignment = ctx.get("text_alignment")
         text_spacing = ctx.getint("text_spacing")
@@ -248,16 +253,19 @@ class MultiRichTextGenerator(Generator):
             RichTextGenerator().process(context)
             text_images.extend(context.get_buffer())
 
-        concat_ctx = PipelineContext({
-            "buffer": text_images,
-            "alignment": text_alignment,
-            "spacing": text_spacing,
-            "output": ctx.get("output"),
-            "save_buffer": False,
-        })
-        ConcatMerger().process(concat_ctx)
+        # 使用 start_process 替代直接调用 ConcatMerger，解耦对 Merger 的直接依赖
+        from processor.core import start_process
+        pipeline = [
+            {
+                "processor_name": "concat",
+                "alignment": text_alignment,
+                "spacing": text_spacing,
+                "save_buffer": False,
+            }
+        ]
+        result = start_process(pipeline, initial_buffer=text_images)
 
-        ctx.update_buffer(concat_ctx.get_buffer()).save_buffer(self.name()).success()
+        ctx.update_buffer([result]).save_buffer(self.name()).success()
 
     def name(self) -> str:
         return "multi_rich_text"
