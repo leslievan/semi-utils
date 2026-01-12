@@ -9,7 +9,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from core.logger import llogger
+from core.logger import logger
 
 if platform.system() == 'Windows':
     EXIFTOOL_PATH = Path('./exiftool/exiftool.exe')
@@ -54,7 +54,7 @@ def get_exif(path) -> dict:
             # 将处理后的值更新到 exif_dict 中
             exif_dict[key] = value_clean
     except Exception as e:
-        print(f'get_exif error: {path} : {e}')
+        logger.error(f'get_exif error: {path} : {e}')
 
     return exif_dict
 
@@ -113,7 +113,7 @@ def log_rt(func):
         end_time = time.time()  # 记录结束时间
         elapsed_time = (end_time - start_time) * 1000  # 计算运行时间
 
-        llogger.info(f"[monitor]api#{func.__name__} cost {elapsed_time:.2f}ms")
+        logger.debug(f"[monitor]api#{func.__name__} cost {elapsed_time:.2f}ms")
         return result
 
     return wrapper

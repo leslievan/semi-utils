@@ -11,7 +11,7 @@ from typing import Dict, Any, Type, List, MutableMapping, Iterator
 from PIL import Image, ImageColor, ImageOps
 
 from core.configs import load_config
-from core.logger import llogger
+from core.logger import logger
 from core.util import get_exif
 
 
@@ -94,7 +94,7 @@ class PipelineContext(MutableMapping):
             new_filename = f"{processor_name}_{int(time.time())}_{uuid.uuid4().hex}.{file_ext}"
             path = os.path.join(directory, new_filename)
             img.save(path)
-            print(f"✓ Generate new image {path}")
+            logger.debug(f"Saved image: {path}")
         buffer_path.append(path)
         self.set("buffer_path", buffer_path)
         return self
@@ -158,7 +158,7 @@ class ImageProcessor(ABC):
                 end_time = time.perf_counter()
                 cost_ms = (end_time - start_time) * 1000
                 # 打印日志
-                llogger.info(f"[monitor]processor#{self.name()} cost {cost_ms:.2f}ms")
+                logger.debug(f"[monitor]processor#{self.name()} cost {cost_ms:.2f}ms")
 
 
     # 将子类的 process 方法替换为包装后的方法
@@ -175,7 +175,7 @@ class ImageProcessor(ABC):
             register_processor(key, cls)
         except Exception as e:
             # 如果无法创建实例，可以要求子类实现类级别的 name 属性
-            print(f"Warning: Could not auto-register {cls.__name__}: {e}")
+            logger.warning(f"Could not auto-register {cls.__name__}: {e}")
             # 或者可以抛出自定义异常要求子类实现特定接口
             raise TypeError(
                 f"{cls.__name__} must be instantiable without arguments "
@@ -270,7 +270,7 @@ def register_processor(key: str, processor_cls: Type['ImageProcessor']):
     if key in _processor_registry:
         return
     _processor_registry[key] = processor_cls
-    print(f"✓ Registered processor: {key} -> {processor_cls.__name__}")
+    logger.debug(f"Registered processor: {key} -> {processor_cls.__name__}")
 
 
 def start_process(data: List[dict], input_path: str = None, output_path: str = None):
@@ -320,5 +320,5 @@ def start_process(data: List[dict], input_path: str = None, output_path: str = N
     nodes[-1].save_buffer("final").success()
     if output_path is not None:
         nodes[-1].get_buffer()[0].convert("RGB").save(output_path, quality=load_config().getint('DEFAULT', 'quality'), subsampling=load_config().getint('DEFAULT', 'subsampling'))
-        llogger.success(f"generate new image {output_path}")
+        logger.success(f"Generated new image: {output_path}")
     return nodes[-1].get_buffer()[0]
