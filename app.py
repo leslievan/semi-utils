@@ -180,6 +180,7 @@ def handle_process():
             'exif': get_exif(input_path),
             'filename': _input_path.stem,
             'file_dir': str(_input_path.parent.absolute()).replace('\\', '/'),
+            'file_path': str(_input_path).replace('\\', '/'),
         }
         final_template = template.render(context)
         llogger.debug(f'''
