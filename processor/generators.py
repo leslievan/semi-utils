@@ -237,7 +237,7 @@ class MultiRichTextGenerator(Generator):
         from processor.mergers import ConcatMerger
         text_segments: List[TextSegment] = TextSegment.from_dicts(ctx.get("text_segments"))
         text_alignment = ctx.get("text_alignment")
-        text_spacing = ctx.get("text_spacing")
+        text_spacing = ctx.getint("text_spacing")
         height = ctx.get("height", 100)
 
         text_images = []
