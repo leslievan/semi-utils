@@ -22,6 +22,18 @@
                             700: '#0369a1',
                             800: '#075985',
                             900: '#0c4a6e',
+                        },
+                        danger: {
+                            50: '#fef2f2',
+                            100: '#fee2e2',
+                            200: '#fecaca',
+                            300: '#fca5a5',
+                            400: '#f87171',
+                            500: '#ef4444',
+                            600: '#dc2626',
+                            700: '#b91c1c',
+                            800: '#991b1b',
+                            900: '#7f1d1d',
                         }
                     },
                     animation: {
@@ -462,11 +474,65 @@
             <!-- 操作卡片 -->
             <div class="bg-white/80 backdrop-blur rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200/50 p-5 shrink-0 relative overflow-hidden animate-slide-up" style="animation-delay: 0.3s">
 
-                <!-- Loading Overlay -->
-                <div x-show="loading.process"
-                     class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm rounded-2xl">
-                    <div class="w-10 h-10 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mb-3"></div>
-                    <span class="text-sm font-bold text-primary-600">处理中...</span>
+                <!-- 进度条覆盖层 -->
+                <div x-show="progress.active"
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     class="absolute inset-0 z-10 flex flex-col justify-center bg-white/95 backdrop-blur-sm rounded-2xl p-5">
+
+                    <!-- 进度条 -->
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-semibold text-slate-600" x-text="progress.message || '处理中...'"></span>
+                            <span class="text-xs font-bold text-primary-600" x-text="`${progress.percent}%`"></span>
+                        </div>
+                        <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-primary-500 to-primary-600 rounded-full transition-all duration-300 ease-out"
+                                 :class="{'animate-pulse': progress.active}"
+                                 :style="`width: ${progress.percent}%`"></div>
+                        </div>
+                    </div>
+
+                    <!-- 当前文件 -->
+                    <div x-show="progress.current" class="mb-3 text-center">
+                        <span class="text-xs text-slate-500">正在处理: </span>
+                        <span class="text-xs font-medium text-slate-700 truncate max-w-[200px]" x-text="progress.current"></span>
+                    </div>
+
+                    <!-- 统计信息 -->
+                    <div class="flex justify-center gap-4 text-center">
+                        <div class="flex flex-col">
+                            <span class="text-lg font-bold text-slate-800" x-text="progress.total">0</span>
+                            <span class="text-[10px] text-slate-400 uppercase">总数</span>
+                        </div>
+                        <div class="w-px bg-slate-200"></div>
+                        <div class="flex flex-col">
+                            <span class="text-lg font-bold text-emerald-600" x-text="progress.success">0</span>
+                            <span class="text-[10px] text-slate-400 uppercase">成功</span>
+                        </div>
+                        <div class="w-px bg-slate-200"></div>
+                        <div class="flex flex-col">
+                            <span class="text-lg font-bold text-amber-500" x-text="progress.skipped">0</span>
+                            <span class="text-[10px] text-slate-400 uppercase">跳过</span>
+                        </div>
+                        <div class="w-px bg-slate-200"></div>
+                        <div class="flex flex-col">
+                            <span class="text-lg font-bold text-danger-600" x-text="progress.failure">0</span>
+                            <span class="text-[10px] text-slate-400 uppercase">失败</span>
+                        </div>
+                    </div>
+
+                    <!-- 完成状态 -->
+                    <div x-show="progress.complete" x-transition
+                         class="mt-4 p-3 rounded-xl text-center"
+                         :class="{
+                             'bg-emerald-50 text-emerald-700': progress.failure === 0,
+                             'bg-amber-50 text-amber-700': progress.failure > 0 && progress.success > 0,
+                             'bg-danger-50 text-danger-700': progress.success === 0
+                         }">
+                        <span class="text-sm font-medium" x-text="progress.completeMessage"></span>
+                    </div>
                 </div>
 
                 <div class="flex justify-between items-end mb-4">
@@ -604,13 +670,26 @@
             selectedItems: [],
             preview: {url: '', name: '', isFile: false},
             aceEditor: null,
+            progress: {
+                active: false,
+                complete: false,
+                total: 0,
+                processed: 0,
+                success: 0,
+                failure: 0,
+                skipped: 0,
+                percent: 0,
+                current: '',
+                message: '',
+                completeMessage: ''
+            },
 
             get isValidConfig() {
                 return this.isStatic;
             },
 
             get canStart() {
-                return this.isStatic && this.selectedItems.length > 0 && !this.loading.process;
+                return this.isStatic && this.selectedItems.length > 0 && !this.progress.active;
             },
 
             async init() {
@@ -763,24 +842,88 @@
             },
 
             async startProcess() {
-                this.loading.process = true;
+                // 重置进度状态
+                this.progress.active = true;
+                this.progress.complete = false;
+                this.progress.total = this.selectedItems.length;
+                this.progress.processed = 0;
+                this.progress.success = 0;
+                this.progress.failure = 0;
+                this.progress.skipped = 0;
+                this.progress.percent = 0;
+                this.progress.current = '';
+                this.progress.message = '准备处理...';
+                this.progress.completeMessage = '';
+
                 try {
-                    const res = await fetch('/api/v1/start_process', {
+                    const response = await fetch('/api/v1/start_process', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({selectedItems: this.selectedItems})
                     });
-                    if (res.ok) {
-                        this.toast("执行成功!", 'success');
-                        this.fetchFiles(false);
-                    } else {
-                        this.toast("执行异常", 'error');
+
+                    if (!response.ok) {
+                        throw new Error('服务端错误');
                     }
+
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    let buffer = '';
+                    let currentEvent = '';
+
+                    while (true) {
+                        const {done, value} = await reader.read();
+                        if (done) break;
+
+                        buffer += decoder.decode(value, {stream: true});
+                        const lines = buffer.split('\n');
+                        buffer = lines.pop() || ''; // 保留不完整的行
+
+                        for (const line of lines) {
+                            if (line.startsWith('event:')) {
+                                currentEvent = line.replace('event:', '').trim();
+                            } else if (line.startsWith('data:')) {
+                                const jsonStr = line.replace('data:', '').trim();
+                                try {
+                                    const data = JSON.parse(jsonStr);
+
+                                    // 更新进度数据
+                                    if (data.total !== undefined) this.progress.total = data.total;
+                                    if (data.processed !== undefined) this.progress.processed = data.processed;
+                                    if (data.success !== undefined) this.progress.success = data.success;
+                                    if (data.failure !== undefined) this.progress.failure = data.failure;
+                                    if (data.skipped !== undefined) this.progress.skipped = data.skipped;
+                                    if (data.percent !== undefined) this.progress.percent = data.percent;
+                                    if (data.current !== undefined) this.progress.current = data.current;
+                                    if (data.message !== undefined) this.progress.message = data.message;
+
+                                    // 处理完成事件
+                                    if (currentEvent === 'complete') {
+                                        this.progress.complete = true;
+                                        this.progress.completeMessage = data.message || '处理完成';
+                                    }
+                                } catch (e) {
+                                    console.error('解析 SSE 数据失败:', e, jsonStr);
+                                }
+                                currentEvent = ''; // 重置事件类型
+                            }
+                        }
+                    }
+
+                    // 处理完成后刷新文件列表
+                    await this.fetchFiles(false);
+
                 } catch (e) {
-                    this.toast("网络请求失败", 'error');
-                } finally {
-                    this.loading.process = false;
+                    this.toast('网络请求失败: ' + e.message, 'error');
+                    this.progress.active = false;
                 }
+
+                // 延迟关闭进度显示，让用户看到最终状态
+                setTimeout(() => {
+                    if (this.progress.complete) {
+                        this.progress.active = false;
+                    }
+                }, 3000);
             },
 
             normalizeApiResponse(json) {
