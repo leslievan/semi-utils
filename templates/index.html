@@ -563,10 +563,14 @@
 
             handleClick() {
                 if (this.isFile) {
+                    // 文件：显示预览
                     const app = window.Alpine.store('app');
                     app.preview.url = `/api/v1/file?path=${encodeURIComponent(this.value)}`;
                     app.preview.name = this.label;
                     app.preview.isFile = true;
+                } else if (this.hasChildren) {
+                    // 文件夹：切换折叠状态
+                    this.toggleFolder();
                 }
             },
 
