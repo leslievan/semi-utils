@@ -181,6 +181,7 @@ def handle_process():
             'filename': _input_path.stem,
             'file_dir': str(_input_path.parent.absolute()).replace('\\', '/'),
             'file_path': str(_input_path).replace('\\', '/'),
+            'files': input_files
         }
         final_template = template.render(context)
         llogger.debug(f'''
