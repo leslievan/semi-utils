@@ -4,7 +4,7 @@ from processor.filters import BlurFilter, MarginFilter, ResizeFilter, TrimFilter
     WatermarkWithTimestampFilter, ShadowFilter, RoundedCornerFilter, CropFilter
 from processor.generators import SolidColorGenerator, GradientColorGenerator, RichTextGenerator, MultiRichTextGenerator, \
     ImageLoader
-from processor.mergers import ConcatMerger, SelectMerger
+from processor.mergers import ConcatMerger
 
 # 注册处理器
 BlurFilter()
@@ -22,7 +22,6 @@ ShadowFilter()
 ImageLoader()
 RoundedCornerFilter()
 CropFilter()
-SelectMerger()
 
 # 注册 pillow heic 支持
 pillow_heif.register_heif_opener()
