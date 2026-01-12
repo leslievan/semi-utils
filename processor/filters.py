@@ -7,8 +7,8 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
 from core.util import get_exif
-from processor.core import ImageProcessor, PipelineContext, start_process, Alignment
-from processor.generators import MultiRichTextGenerator
+from processor.core import ImageProcessor, PipelineContext, start_process, get_processor
+from processor.types import Alignment
 
 
 class FilterProcessor(ImageProcessor, ABC):

@@ -4,7 +4,8 @@ from typing import List
 
 from PIL import Image
 
-from processor.core import ImageProcessor, Direction, Alignment, PipelineContext
+from processor.core import ImageProcessor, Direction, PipelineContext
+from processor.types import Alignment
 
 
 def _calc_offset(size: int, max_size: int, alignment: Alignment) -> int:
