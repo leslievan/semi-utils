@@ -6,7 +6,7 @@ import uuid
 from abc import ABC, abstractmethod
 from enum import Enum
 from itertools import chain
-from typing import Dict, Any, Type, List, MutableMapping, Iterator
+from typing import Dict, Any, Type, List, MutableMapping, Iterator, Optional
 
 from PIL import Image, ImageColor, ImageOps
 
@@ -191,23 +191,6 @@ class Direction(Enum):
     RADIAL = "radial"  # 径向
 
 
-class Alignment(Enum):
-    """对齐方式"""
-    # 通用
-    START = "start"
-    CENTER = "center"
-    END = "end"
-
-    # 语义化别名（水平拼接时的垂直对齐）
-    TOP = "start"
-    MIDDLE = "center"
-    BOTTOM = "end"
-
-    # 语义化别名（垂直拼接时的水平对齐）
-    LEFT = "start"
-    RIGHT = "end"
-
-
 def _parse_color(color) -> tuple:
     """
     解析颜色为 RGBA 元组
@@ -260,8 +243,15 @@ def get_all_processors() -> Dict[str, Type['ImageProcessor']]:
     return _processor_registry.copy()
 
 
-def get_processor(key: str) -> Type['ImageProcessor']:
-    """从注册表获取处理器类"""
+def get_processor(key: str) -> Optional[Type['ImageProcessor']]:
+    """从注册表获取处理器类
+
+    Args:
+        key: 处理器名称
+
+    Returns:
+        处理器类，如果未找到则返回 None
+    """
     return _processor_registry.get(key)
 
 
@@ -273,10 +263,23 @@ def register_processor(key: str, processor_cls: Type['ImageProcessor']):
     logger.debug(f"Registered processor: {key} -> {processor_cls.__name__}")
 
 
-def start_process(data: List[dict], input_path: str = None, output_path: str = None):
-    from processor.mergers import Merger
+def start_process(data: List[dict], input_path: str = None, output_path: str = None, initial_buffer: List = None):
+    """
+    执行处理管道
+
+    Args:
+        data: 处理器配置列表
+        input_path: 输入文件路径
+        output_path: 输出文件路径
+        initial_buffer: 初始图像缓冲区（可选，用于不从文件加载的情况）
+    """
     nodes = [PipelineContext(datum) for datum in data]
-    if input_path is not None:
+
+    # 设置初始 buffer
+    if initial_buffer is not None:
+        nodes[0].set("buffer", initial_buffer)
+        nodes[0].set("buffer_loaded", True)
+    elif input_path is not None:
         nodes[0].set("buffer_path", [input_path])
 
     # 填充 exif 信息
@@ -297,12 +300,14 @@ def start_process(data: List[dict], input_path: str = None, output_path: str = N
         if processor is None:
             raise RuntimeError(f"Processor '{node.get_processor_name()}' not found")
 
+        processor_instance: ImageProcessor = processor()
         if 'select' in node:
             indexes = json.loads(node['select'])
             flattened = list(chain.from_iterable([all_buffer[i] for i in indexes]))
             node.update_buffer(flattened)
         else:
-            if not issubclass(processor, Merger):
+            # 使用 category() 方法判断是否为 merger，避免导入 Merger 类
+            if processor_instance.category() != "merger":
                 node.update_buffer(output)
             else:
                 # 收集下标从上一个 merger 之后, 到当前 idx 为止的 buffer
@@ -313,7 +318,7 @@ def start_process(data: List[dict], input_path: str = None, output_path: str = N
                 node.update_buffer(flattened)
                 last_merger_idx = idx
 
-        processor().process(node)
+        processor_instance.process(node)
         output = node.get_buffer()
         all_buffer.append(output)
 
