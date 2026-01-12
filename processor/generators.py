@@ -61,7 +61,7 @@ class TextSegment:
         return TextSegment(
             text=data.get("text"),
             font_path=data.get("font_path", None),
-            height=data.get("height", 100),
+            height=int(data.get("height", 100)),
             color=data.get("color", "black"),
             is_bold=data.get("is_bold", False),
             trim=data.get("trim", False),
@@ -69,14 +69,7 @@ class TextSegment:
 
     @staticmethod
     def from_dicts(data: List[dict]):
-        return [TextSegment(
-            text=datum.get("text"),
-            font_path=datum.get("font_path", None),
-            height=datum.get("height", 100),
-            color=datum.get("color", "black"),
-            is_bold=datum.get("is_bold", False),
-            trim=datum.get("trim", False),
-        ) for datum in data]
+        return [TextSegment.from_dict(datum) for datum in data]
 
 
 class Generator(ImageProcessor, ABC):
