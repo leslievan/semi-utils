@@ -1,3 +1,4 @@
+import json
 import re
 from abc import ABC
 from typing import Tuple
@@ -6,7 +7,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
 from core.util import get_exif
-from processor.core import ImageProcessor, PipelineContext, start_process
+from processor.core import ImageProcessor, PipelineContext, start_process, Alignment
 from processor.generators import MultiRichTextGenerator
 
 
@@ -529,6 +530,48 @@ class ShadowFilter(FilterProcessor):
 
     def name(self) -> str:
         return "shadow"
+
+class CropFilter(FilterProcessor):
+
+    def process(self, ctx: PipelineContext):
+        width = ctx.getint("width", 0)
+        height = ctx.getint("height", 0)
+        offset = json.loads(ctx.get("offset", "[]"))
+
+        buffer = []
+        for img in ctx.get_buffer():
+            img_width, img_height = img.size
+
+            # 默认原图像尺寸
+            if width <= 0:
+                width = img_width
+            if height <= 0:
+                height = img_height
+
+            # 默认居中
+            left = (img_width - width) // 2
+            top = (img_height - height) // 2
+
+            # 处理偏移量
+            offset_x = offset[0] if len(offset) > 0 else 0
+            offset_y = offset[1] if len(offset) > 1 else 0
+            left += offset_x
+            top += offset_y
+
+            # 计算边界
+            left = max(0, min(left, img_width - width))
+            top = max(0, min(top, img_height - height))
+            right = left + width
+            bottom = top + height
+
+            # 执行裁剪
+            cropped_img = img.crop((left, top, right, bottom))
+            buffer.append(cropped_img)
+
+        ctx.update_buffer(buffer).save_buffer(self.name()).success()
+
+    def name(self) -> str:
+        return "crop"
 
 
 if __name__ == '__main__':
