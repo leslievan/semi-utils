@@ -112,3 +112,13 @@ class ConcatMerger(Merger):
 
     def name(self) -> str:
         return "concat"
+
+
+class SelectMerger(Merger):
+    def process(self, ctx: PipelineContext):
+        idx = ctx.getint("index", -1)
+        ctx.update_buffer(ctx.get_buffer()[idx]).success()
+
+    def name(self) -> str:
+        return "select"
+
