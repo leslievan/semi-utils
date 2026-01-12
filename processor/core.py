@@ -1,4 +1,5 @@
 import functools
+import json
 import os
 import time
 import uuid
@@ -296,16 +297,21 @@ def start_process(data: List[dict], input_path: str = None, output_path: str = N
         if processor is None:
             raise RuntimeError(f"Processor '{node.get_processor_name()}' not found")
 
-        if not issubclass(processor, Merger):
-            node.update_buffer(output)
-        else:
-            # 收集下标从上一个 merger 之后, 到当前 idx 为止的 buffer
-            buffers_to_merge = all_buffer[last_merger_idx + 1:idx + 1]
-
-            # 将数组的数组展平为数组
-            flattened = list(chain.from_iterable(buffers_to_merge))
+        if 'select' in node:
+            indexes = json.loads(node['select'])
+            flattened = list(chain.from_iterable([all_buffer[i] for i in indexes]))
             node.update_buffer(flattened)
-            last_merger_idx = idx
+        else:
+            if not issubclass(processor, Merger):
+                node.update_buffer(output)
+            else:
+                # 收集下标从上一个 merger 之后, 到当前 idx 为止的 buffer
+                buffers_to_merge = all_buffer[last_merger_idx + 1:idx + 1]
+
+                # 将数组的数组展平为数组
+                flattened = list(chain.from_iterable(buffers_to_merge))
+                node.update_buffer(flattened)
+                last_merger_idx = idx
 
         processor().process(node)
         output = node.get_buffer()
