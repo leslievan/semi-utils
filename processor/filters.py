@@ -248,11 +248,13 @@ class WatermarkFilter(FilterProcessor):
         img = ctx.get_buffer()[0]
         color = ctx.get("color", "white")
         delimiter_color = ctx.get("delimiter_color", "black")
+        delimiter_width = ctx.getint("delimiter_width", int(img.width * .003))
         left_margin = ctx.getint("left_margin", 0)
         right_margin = ctx.getint("right_margin", 0)
         top_margin = ctx.getint("top_margin", 0)
         bottom_margin = ctx.getint("bottom_margin", int(img.height * .12))
         middle_spacing = ctx.getint("middle_spacing", int(bottom_margin * .05))
+        right_alignment = ctx.getenum("right_alignment", Alignment.RIGHT, Alignment)
 
         for t_s in [ctx.get("left_top"), ctx.get("left_bottom"), ctx.get("right_top"), ctx.get("right_bottom")]:
             if "height" not in t_s:
@@ -331,6 +333,8 @@ class WatermarkFilter(FilterProcessor):
         # 右下 Y = 左下底部 Y - 右下高度
         rb_y = (lb_y + left_bottom.height) - right_bottom.height
         rb_x = right_content_end_x - right_bottom.width - common_spacing  # 右对齐计算
+        if Alignment.LEFT == right_alignment:
+            rt_x = rb_x = min(rt_x, rb_x)
 
         # 6. 绘制文本元素
         # 使用 mask 确保透明背景的文字能正确叠加
@@ -343,11 +347,11 @@ class WatermarkFilter(FilterProcessor):
         if right_logo:
             # 先画一条分割线
             logo_size = elem_height
-            delimiter = Image.new("RGB", (int(canvas_width * .005), int(logo_size * 1.1)), delimiter_color)
+            delimiter = Image.new("RGBA", (delimiter_width, int(logo_size * 1.1)), delimiter_color)
             delimiter_x = canvas_width - right_margin - max(right_top.width,
                                                             right_bottom.width) - 2 * common_spacing - delimiter.width
             delimiter_y = int(footer_start_y + elem_margin - logo_size * .05)
-            canvas.paste(delimiter, (delimiter_x, delimiter_y))
+            canvas.paste(delimiter, (delimiter_x, delimiter_y), mask=delimiter)
 
             right_logo = right_logo.resize((logo_size, logo_size), Image.Resampling.LANCZOS)
             right_logo_x = delimiter_x - common_spacing - logo_size
