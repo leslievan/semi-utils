@@ -341,7 +341,7 @@
                     </div>
                     <div class="flex-1 overflow-y-auto pr-2">
                         <div x-show="!loading.files && outputTreeData && outputTreeData.length > 0" class="space-y-1">
-                            <template x-for="node in outputTreeData" :key="node.value || node.label">
+                            <template x-for="(node, index) in outputTreeData" :key="node.value || node.label || index">
                                 <div x-data="treeNode(node, false)" class="tree-item">
                                     <div class="tree-node flex items-center py-2 px-2 rounded-lg cursor-pointer select-none"
                                          :style="'padding-left: 8px'"
@@ -356,7 +356,7 @@
                                         <span class="flex-1 text-xs font-medium text-slate-700 truncate" x-text="label"></span>
                                     </div>
                                     <div class="children" x-show="isOpen && hasChildren">
-                                        <template x-for="child in node.children" :key="child.value || child.label">
+                                        <template x-for="(child, childIndex) in node.children" :key="child.value || child.label || childIndex">
                                             <div x-data="treeNode(child, false)" class="tree-item">
                                                 <div class="tree-node flex items-center py-2 px-2 rounded-lg cursor-pointer select-none"
                                                      :style="'padding-left: 24px'"
@@ -371,7 +371,7 @@
                                                     <span class="flex-1 text-xs font-medium text-slate-700 truncate" x-text="label"></span>
                                                 </div>
                                                 <div class="children" x-show="isOpen && hasChildren">
-                                                    <template x-for="grandchild in child.children" :key="grandchild.value || grandchild.label">
+                                                    <template x-for="(grandchild, grandIndex) in child.children" :key="grandchild.value || grandchild.label || grandIndex">
                                                         <div x-data="treeNode(grandchild, false)" class="tree-item">
                                                             <div class="tree-node flex items-center py-2 px-2 rounded-lg cursor-pointer select-none"
                                                                  :style="'padding-left: 40px'"
@@ -386,7 +386,7 @@
                                                                 <span class="flex-1 text-xs font-medium text-slate-700 truncate" x-text="label"></span>
                                                             </div>
                                                             <div class="children" x-show="isOpen && hasChildren">
-                                                                <template x-for="ggchild in grandchild.children" :key="ggchild.value || ggchild.label">
+                                                                <template x-for="(ggchild, ggIndex) in grandchild.children" :key="ggchild.value || ggchild.label || ggIndex">
                                                                     <div x-data="treeNode(ggchild, false)" class="tree-item">
                                                                         <div class="tree-node flex items-center py-2 px-2 rounded-lg cursor-pointer select-none"
                                                                              :style="'padding-left: 56px'"
