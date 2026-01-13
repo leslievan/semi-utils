@@ -134,7 +134,7 @@ def log_rt(func):
         end_time = time.time()  # 记录结束时间
         elapsed_time = (end_time - start_time) * 1000  # 计算运行时间
 
-        logger.debug(f"[monitor]api#{func.__name__} cost {elapsed_time:.2f}ms")
+        logger.info(f"[monitor]api#{func.__name__} cost {elapsed_time:.2f}ms")
         return result
 
     return wrapper

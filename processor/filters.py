@@ -425,6 +425,15 @@ class RoundedCornerFilter(FilterProcessor):
 class ShadowFilter(FilterProcessor):
 
     def process(self, ctx: PipelineContext):
+        shadow_type = ctx.getint("shadow_type", 3)
+        if shadow_type == 1:
+            self.process1(ctx)
+        elif shadow_type == 2:
+            self.process2(ctx)
+        else:
+            self.process3(ctx)
+
+    def process1(self, ctx: PipelineContext):
         shadow_color = ctx.getcolor("shadow_color", (0, 0, 0, 180))
         shadow_radius = ctx.getint("shadow_radius", 30)
         # 新参数：衰减强度，值越大边缘越干净（推荐 1.5 ~ 3.0）
@@ -509,6 +518,61 @@ class ShadowFilter(FilterProcessor):
             # (可选) 如果你不希望图片尺寸暴增，可以在这里 crop 回去，
             # 但既然要阴影，通常就需要保留扩大的尺寸。
             buffer.append(shadow_in_process)
+        ctx.update_buffer(buffer).save_buffer(self.name()).success()
+
+    def process3(self, ctx: PipelineContext):
+        # 阴影颜色（固定灰色）
+        shadow_color = ctx.getcolor("shadow_color", "#6B696A")
+        # 可选：手动指定半径，否则基于图像尺寸自动计算
+        shadow_radius = ctx.getint("shadow_radius", 0)
+
+        buffer = []
+        for img in ctx.get_buffer():
+            # 确保图像是 RGB 模式
+            # if img.mode != 'RGB':
+            #     img = img.convert('RGB')
+
+            w, h = img.size
+
+            # 基于图像尺寸自动计算阴影半径
+            if shadow_radius <= 0:
+                max_pixel = max(w, h)
+                radius = int(max_pixel / 512)
+                if radius < 1:
+                    radius = 1
+            else:
+                radius = shadow_radius
+
+            # 阴影偏移量（可调整）
+            offset_x = radius
+            offset_y = radius
+
+            # 扩展尺寸（为阴影留出空间）
+            expand = radius * 3
+
+            # 创建透明画布（比原图大，用于容纳阴影）
+            canvas_w = w + expand * 2
+            canvas_h = h + expand * 2
+            canvas = Image.new('RGBA', (canvas_w, canvas_h), (255, 255, 255, 0))  # 透明背景
+
+            # 创建阴影图层（仅 alpha 通道）
+            shadow_base = Image.new('RGBA', (w, h), shadow_color)
+
+            # 将阴影放置到画布上（带偏移）
+            shadow_canvas = Image.new('RGBA', (canvas_w, canvas_h), (0, 0, 0, 0))
+            shadow_canvas.paste(shadow_base, (expand + offset_x, expand + offset_y))
+
+            # 高斯模糊阴影
+            shadow_canvas = shadow_canvas.filter(ImageFilter.GaussianBlur(radius=radius))
+
+            # 合成：先阴影，再原图
+            canvas = Image.alpha_composite(canvas, shadow_canvas)
+
+            # 将原图放置在中心位置（无偏移）
+            canvas.paste(img, (expand, expand), img if img.mode == 'RGBA' else None)
+
+            buffer.append(canvas)
+
         ctx.update_buffer(buffer).save_buffer(self.name()).success()
 
     def _apply_alpha_falloff(self, img: Image.Image, gamma: float) -> Image.Image:

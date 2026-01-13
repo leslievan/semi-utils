@@ -202,6 +202,7 @@ def handle_process():
                 'files': input_files
             }
             final_template = template.render(context)
+            logger.debug(f"{'-'*8}template start{'-'*8}\n{final_template}\n{'-'*8}template end{'-'*8}")
             start_process(json.loads(final_template), input_path, output_path=output_path)
             return True, False, None
 
