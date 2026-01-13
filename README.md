@@ -27,11 +27,6 @@
 | [normal2](./static/normal2.json)       | ![normal2](./static/normal2.jpeg)       |
 
 
-
-
-
-
-
 ## 许可证
 
 Semi-Utils 的发布基于 [Apache License 2.0](LICENSE).
