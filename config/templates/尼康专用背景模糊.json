@@ -6,7 +6,8 @@
   {
     "processor_name": "shadow",
     "shadow_radius": "{{vh(1)}}",
-    "shadow_color": "black"
+    "shadow_color": "black",
+    "shadow_type": "1"
   },
   {
     "text_segments": [
