@@ -59,14 +59,25 @@ def get_exif(path) -> dict:
     return exif_dict
 
 
-def list_files(path: str, suffixes: set[str]):
+def list_files(path: str, suffixes: set[str], depth: int = 0, max_depth: int = 20):
     """
     使用 pathlib 实现的版本
+
+    Args:
+        path: 要扫描的路径
+        suffixes: 支持的文件后缀
+        depth: 当前递归深度（内部使用）
+        max_depth: 最大递归深度，防止无限递归
     """
     result = []
     root = Path(path).resolve()
 
     if not root.exists():
+        return result
+
+    # 防止递归过深
+    if depth > max_depth:
+        logger.warning(f"list_files: 达到最大递归深度 {max_depth}，跳过 {path}")
         return result
 
     try:
@@ -80,7 +91,10 @@ def list_files(path: str, suffixes: set[str]):
         for item in dirs:
             if item.name.startswith('.'):
                 continue
-            children = list_files(str(item), suffixes)
+            # 跳过符号链接，避免无限递归
+            if item.is_symlink():
+                continue
+            children = list_files(str(item), suffixes, depth + 1, max_depth)
             if children:
                 result.append({
                     'label': item.name,
@@ -100,7 +114,9 @@ def list_files(path: str, suffixes: set[str]):
                 })
 
     except PermissionError:
-        pass
+        logger.debug(f"list_files: 权限不足，跳过 {path}")
+    except Exception as e:
+        logger.error(f"list_files: 扫描失败 {path}: {e}")
 
     return result
 
