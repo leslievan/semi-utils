@@ -100,6 +100,10 @@
         .tree-node:hover {
             background: linear-gradient(90deg, #f0f9ff 0%, #e0f2fe 100%);
         }
+
+        .config-label {
+            @apply text-xs font-semibold text-slate-600 uppercase tracking-wide;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-50 to-slate-100 h-screen w-full flex flex-col overflow-hidden text-sm"
@@ -141,7 +145,7 @@
 
             <div class="p-5 flex-1 overflow-y-auto space-y-4">
                 <div class="space-y-1">
-                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide">输入文件夹</label>
+                    <label class="block config-label">输入文件夹</label>
                     <div class="relative">
                         <input type="text" x-model="config.input_folder" :disabled="isStatic"
                                class="w-full h-10 pl-10 pr-4 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all disabled:bg-slate-50 disabled:text-slate-400 text-sm">
@@ -152,7 +156,7 @@
                 </div>
 
                 <div class="space-y-1">
-                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide">输出文件夹</label>
+                    <label class="block config-label">输出文件夹</label>
                     <div class="relative">
                         <label>
                             <input type="text" x-model="config.output_folder" :disabled="isStatic"
@@ -164,31 +168,41 @@
                     </div>
                 </div>
 
+                <div class="flex items-center gap-2">
+                    <label for="override_existed"
+                           class="config-label cursor-pointer transition-colors duration-200"
+                           :class="config.override_existed ? 'text-red-600 font-medium' : ''">
+                        覆盖已存在
+                    </label>
+                    <input type="checkbox"
+                           x-model="config.override_existed"
+                           :disabled="isStatic"
+                           id="override_existed"
+                           class="w-4 h-4 rounded border-slate-300 focus:ring-2 disabled:opacity-50 cursor-pointer transition-all duration-200"
+                           :class="config.override_existed ? 'accent-amber-500' : 'accent-primary-500'">
+                </div>
+
                 <div class="space-y-1">
-                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide">输出质量: <span x-text="config.quality" class="text-primary-600 font-bold"></span>%</label>
+                    <label class="config-label">输出质量: <span x-text="config.quality" class="text-primary-600 font-bold"></span>%</label>
                     <div class="flex items-center gap-3">
-                        <label>
-                            <input type="range" x-model="config.quality" :disabled="isStatic"
-                                   min="60" max="100" step="1"
-                                   class="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary-500 disabled:opacity-50">
-                        </label>
-                        <label>
-                            <input type="number" x-model="config.quality" :disabled="isStatic"
-                                   min="60" max="100" step="1"
-                                   class="w-16 h-10 px-3 text-center rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all disabled:bg-slate-50">
-                        </label>
+                        <input type="range" x-model="config.quality" :disabled="isStatic"
+                               min="60" max="100" step="1"
+                               class="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary-500 disabled:opacity-50">
+                        <input type="number" x-model="config.quality" :disabled="isStatic"
+                               min="60" max="100" step="1"
+                               class="w-16 h-10 px-3 text-center rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all disabled:bg-slate-50">
                     </div>
                 </div>
 
                 <div class="flex-1 flex flex-col min-h-[300px]">
                     <div class="flex items-center justify-between mb-2">
-                        <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide">模板配置 (JSON, 支持jinja2语法)</label>
+                        <label class="config-label">模板配置</label>
                         <div class="flex items-center gap-2">
                             <label class="text-xs text-slate-500">选择模板:</label>
                             <select x-model="config.template_name"
                                     @change="switchTemplate($event.target.value)"
                                     :disabled="isStatic"
-                                    class="h-8 px-2 text-sm rounded-lg border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all disabled:bg-slate-50 disabled:opacity-50">
+                                    class="h-8 px-2 text-xs rounded-lg border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all disabled:bg-slate-50 disabled:opacity-50">
                                 <template x-for="template in availableTemplates" :key="template">
                                     <option :value="template" x-text="template"></option>
                                 </template>
@@ -196,7 +210,7 @@
                             <button @click="createNewTemplate()"
                                     :disabled="isStatic"
                                     title="新建空白模板"
-                                    class="h-8 px-2 text-sm rounded-lg border border-slate-200 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-600 text-slate-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1">
+                                    class="h-8 px-2 text-xs rounded-lg border border-slate-200 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-600 text-slate-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                                 </svg>
@@ -204,7 +218,7 @@
                             </button>
                             <button @click="saveAsTemplate()"
                                     title="另存为新模板"
-                                    class="h-8 px-2 text-sm rounded-lg border border-slate-200 hover:bg-primary-50 hover:border-primary-300 hover:text-primary-600 text-slate-500 transition-all flex items-center gap-1">
+                                    class="h-8 px-2 text-xs rounded-lg border border-slate-200 hover:bg-primary-50 hover:border-primary-300 hover:text-primary-600 text-slate-500 transition-all flex items-center gap-1">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                                 </svg>
@@ -264,7 +278,7 @@
                 <div class="flex-1 flex flex-col min-h-0 overflow-hidden">
                     <div class="flex items-center justify-between mb-2 pb-2 border-b border-slate-100 shrink-0">
                         <div class="flex items-center gap-2">
-                            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">输入文件</span>
+                            <span class="config-label">输入文件</span>
                             <span class="text-xs px-2 py-0.5 bg-primary-100 text-primary-700 rounded-full font-medium"
                                   x-text="`${selectedItems.length} 已选中`"></span>
                         </div>
@@ -385,7 +399,7 @@
                 <!-- 输出树 -->
                 <div class="flex-1 flex flex-col min-h-0 overflow-hidden mt-4">
                     <div class="flex items-center gap-2 mb-2 pb-2 border-b border-slate-100 shrink-0">
-                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">输出文件</span>
+                        <span class="config-label">输出文件</span>
                     </div>
                     <div class="flex-1 overflow-y-auto pr-2">
                         <div x-show="!loading.files && outputTreeData && outputTreeData.length > 0" class="space-y-1">
@@ -601,7 +615,7 @@
 </main>
 
 <!-- 模板名称输入模态框 -->
-<div x-show="modal.show"
+<div x-show="modal && modal.show"
      x-transition:enter="transition ease-out duration-200"
      x-transition:enter-start="opacity-0"
      x-transition:enter-end="opacity-100"
@@ -610,8 +624,10 @@
      x-transition:leave-end="opacity-0"
      class="fixed inset-0 z-50 flex items-center justify-center"
      style="display: none;">
-    <!-- 背景遮罩 -->
-    <div x-show="modal.show"
+    <template x-if="modal">
+        <div class="relative w-full max-w-md mx-4">
+            <!-- 背景遮罩 -->
+            <div x-show="modal.show"
          x-transition:enter="transition ease-out duration-200"
          x-transition:enter-start="opacity-0"
          x-transition:enter-end="opacity-100"
@@ -659,7 +675,8 @@
                    autofocus>
 
             <!-- 错误提示 -->
-            <p x-show="modal.error" x-text="modal.error"
+            <p x-show="modal.error"
+               x-text="modal.error"
                class="mt-2 text-sm text-danger-600 flex items-center gap-1">
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
@@ -690,6 +707,7 @@
             </button>
         </div>
     </div>
+    </template>
 </div>
 
 <script>
@@ -792,7 +810,7 @@
         return {
             isStatic: true,
             loading: {files: false, process: false},
-            config: {input_folder: '', output_folder: '', template: '{}', template_name: '', quality: 100},
+            config: {input_folder: '', output_folder: '', template: '{}', template_name: '', quality: 100, override_existed: false},
             availableTemplates: [],
             inputTreeData: [],
             outputTreeData: [],
