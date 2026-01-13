@@ -15,11 +15,11 @@ templates_dir = Path('./config/templates')
 
 def load_config() -> configparser.ConfigParser:
     config = configparser.ConfigParser()
-    config.read(CONFIG_PATH)
+    config.read(CONFIG_PATH, encoding='utf-8')
     return config
 
 
 def load_project_info():
-    with open(PROJECT_INFO, "rb") as f:
+    with open(PROJECT_INFO, "rb", encoding='utf-8') as f:
         data = _toml.load(f)
     return data
