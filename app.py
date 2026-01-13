@@ -350,6 +350,36 @@ def get_template_api(template_name):
         return jsonify({'error': f'Template "{template_name}" not found'}), 404
 
 
+@api.route('/api/v1/template', methods=['POST'])
+def create_template_api():
+    """创建新模板"""
+    try:
+        data = request.get_json()
+        if not data or 'template_name' not in data:
+            return jsonify({'error': 'Missing template_name'}), 400
+
+        template_name = data['template_name'].strip()
+        if not template_name:
+            return jsonify({'error': 'template_name cannot be empty'}), 400
+
+        content = data.get('content', '[]')
+
+        # 检查模板是否已存在
+        existing_templates = list_templates()
+        if template_name in existing_templates:
+            return jsonify({'error': f'Template "{template_name}" already exists'}), 409
+
+        # 保存新模板
+        save_template(template_name, content)
+
+        return jsonify({'message': f'Template "{template_name}" created successfully'}), 201
+
+    except FileExistsError:
+        return jsonify({'error': f'Template already exists'}), 409
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 @api.route('/api/v1/templates', methods=['GET'])
 def list_templates_api():
     """获取所有可用模板列表"""

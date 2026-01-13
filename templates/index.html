@@ -187,6 +187,23 @@
                                     <option :value="template" x-text="template"></option>
                                 </template>
                             </select>
+                            <button @click="createNewTemplate()"
+                                    :disabled="isStatic"
+                                    title="新建空白模板"
+                                    class="h-8 px-2 text-sm rounded-lg border border-slate-200 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-600 text-slate-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                新建
+                            </button>
+                            <button @click="saveAsTemplate()"
+                                    title="另存为新模板"
+                                    class="h-8 px-2 text-sm rounded-lg border border-slate-200 hover:bg-primary-50 hover:border-primary-300 hover:text-primary-600 text-slate-500 transition-all flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                                </svg>
+                                另存为
+                            </button>
                         </div>
                     </div>
                     <div id="json-editor" class="w-full flex-1 min-h-[300px] rounded-xl"></div>
@@ -797,6 +814,103 @@
                     this.toast(`已切换到模板: ${templateName}`, 'success');
                 } catch (e) {
                     this.toast("切换模板失败: " + e.message, 'error');
+                }
+            },
+
+            async createNewTemplate() {
+                // 使用简单的 prompt 输入模板名称
+                const templateName = prompt('请输入新模板名称:');
+                if (!templateName || !templateName.trim()) {
+                    return;
+                }
+
+                const trimmedName = templateName.trim();
+
+                // 检查模板是否已存在
+                if (this.availableTemplates.includes(trimmedName)) {
+                    this.toast(`模板 "${trimmedName}" 已存在`, 'error');
+                    return;
+                }
+
+                try {
+                    const res = await fetch('/api/v1/template', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            template_name: trimmedName,
+                            content: '[]'
+                        })
+                    });
+
+                    if (!res.ok) {
+                        const json = await res.json();
+                        throw new Error(json.error || '创建模板失败');
+                    }
+
+                    // 刷新模板列表
+                    await this.fetchConfig();
+
+                    // 切换到新模板并启用编辑
+                    this.config.template_name = trimmedName;
+                    this.config.template = '[]';
+                    this.aceEditor.setValue('[]', -1);
+                    this.enableEdit();
+
+                    this.toast(`已创建新模板: ${trimmedName}`, 'success');
+                } catch (e) {
+                    this.toast("创建模板失败: " + e.message, 'error');
+                }
+            },
+
+            async saveAsTemplate() {
+                // 使用简单的 prompt 输入模板名称
+                const templateName = prompt('请输入新模板名称 (另存为):');
+                if (!templateName || !templateName.trim()) {
+                    return;
+                }
+
+                const trimmedName = templateName.trim();
+
+                // 检查模板是否已存在
+                if (this.availableTemplates.includes(trimmedName)) {
+                    this.toast(`模板 "${trimmedName}" 已存在`, 'error');
+                    return;
+                }
+
+                const jsonVal = this.aceEditor.getValue();
+                try {
+                    JSON.parse(jsonVal);
+                } catch (e) {
+                    this.toast("JSON 格式错误，无法保存", 'error');
+                    return;
+                }
+
+                try {
+                    const res = await fetch('/api/v1/template', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            template_name: trimmedName,
+                            content: jsonVal
+                        })
+                    });
+
+                    if (!res.ok) {
+                        const json = await res.json();
+                        throw new Error(json.error || '保存模板失败');
+                    }
+
+                    // 刷新模板列表
+                    await this.fetchConfig();
+
+                    // 切换到新模板
+                    this.config.template_name = trimmedName;
+                    this.config.template = jsonVal;
+                    this.availableTemplates = [...this.availableTemplates, trimmedName];
+
+                    this.toast(`已另存为模板: ${trimmedName}`, 'success');
+                } catch (e) {
+                    this.toast("另存为失败: " + e.message, 'error');
                 }
             },
 
