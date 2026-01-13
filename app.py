@@ -2,9 +2,11 @@ import json
 import os
 import threading
 import webbrowser
+import queue
 from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from flask import render_template, jsonify, request, send_file, Flask
+from flask import render_template, jsonify, request, send_file, Flask, Response, stream_with_context
 from jinja2 import Template
 
 from core import CONFIG_PATH
@@ -83,10 +85,30 @@ def save_config():
 @api.route('/api/v1/file/tree', methods=['GET'])
 @log_rt
 def list_input_files():
+    import time
+    start = time.time()
     suffixes = set([ft for ft in config.get('DEFAULT', 'supported_file_suffixes').split(',')])
+
+    input_folder = config.get('DEFAULT', 'input_folder')
+    output_folder = config.get('DEFAULT', 'output_folder')
+
+    logger.debug(f"开始扫描文件系统, input={input_folder}, output={output_folder}")
+
+    # 扫描输入文件夹
+    t1 = time.time()
+    input_children = list_files(input_folder, suffixes)
+    logger.debug(f"输入文件夹扫描完成, 耗时: {time.time() - t1:.2f}s, 文件数: {len(input_children)}")
+
+    # 扫描输出文件夹
+    t2 = time.time()
+    output_children = list_files(output_folder, suffixes)
+    logger.debug(f"输出文件夹扫描完成, 耗时: {time.time() - t2:.2f}s, 文件数: {len(output_children)}")
+
+    logger.debug(f"文件扫描总耗时: {time.time() - start:.2f}s")
+
     return jsonify({
-        'input_files': [{'children': list_files(config.get('DEFAULT', 'input_folder'), suffixes), 'label': 'Root'}],
-        'output_files': [{'children': list_files(config.get('DEFAULT', 'output_folder'), suffixes), 'label': 'Root'}],
+        'input_files': [{'children': input_children, 'label': 'Root'}],
+        'output_files': [{'children': output_children, 'label': 'Root'}],
     })
 
 
@@ -158,48 +180,174 @@ def handle_process():
     input_folder = config.get('DEFAULT', 'input_folder')
     output_folder = config.get('DEFAULT', 'output_folder')
 
-    @logger.catch(level='ERROR')
-    def process_file(input_path):
+    total_count = len(input_files)
+
+    def process_single_file(input_path):
+        """处理单个文件，返回 (success, skipped, error_message)"""
         if not os.path.exists(input_path):
-            return
-        # 获取 input_path 相对 input_folder 的位置
-        relative_path = os.path.relpath(input_path, input_folder)
+            return False, False, f"文件不存在: {input_path}"
 
-        # 基于 output_folder 组装出输出路径 output_path
-        output_path = os.path.join(output_folder, relative_path)
+        try:
+            # 获取 input_path 相对 input_folder 的位置
+            relative_path = os.path.relpath(input_path, input_folder)
+            # 基于 output_folder 组装出输出路径 output_path
+            output_path = os.path.join(output_folder, relative_path)
 
-        # 如果路径不存在, 那么递归创建文件夹
-        output_dir = os.path.dirname(output_path)
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
+            # 如果路径不存在, 那么递归创建文件夹
+            output_dir = os.path.dirname(output_path)
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir)
 
-        # 如果 output_path 对应的文件存在, 直接跳过
-        if os.path.exists(output_path) and not config.getboolean('DEFAULT', 'override_existed'):
-            return
+            # 如果 output_path 对应的文件存在, 直接跳过
+            if os.path.exists(output_path) and not config.getboolean('DEFAULT', 'override_existed'):
+                return False, True, None
 
-        _input_path = Path(input_path)
-        # 开始处理
-        logger.debug(f'Processing: input={input_path}, output={output_path}')
-        context = {
-            'exif': get_exif(input_path),
-            'filename': _input_path.stem,
-            'file_dir': str(_input_path.parent.absolute()).replace('\\', '/'),
-            'file_path': str(_input_path).replace('\\', '/'),
-            'files': input_files
+            _input_path = Path(input_path)
+            # 开始处理
+            context = {
+                'exif': get_exif(input_path),
+                'filename': _input_path.stem,
+                'file_dir': str(_input_path.parent.absolute()).replace('\\', '/'),
+                'file_path': str(_input_path).replace('\\', '/'),
+                'files': input_files
+            }
+            final_template = template.render(context)
+            start_process(json.loads(final_template), input_path, output_path=output_path)
+            return True, False, None
+
+        except Exception as e:
+            logger.error(f"处理文件失败 {input_path}: {e}")
+            return False, False, str(e)
+
+    def generate():
+        """生成 SSE 事件流 - 使用多线程处理"""
+        # 使用线程安全的计数器和锁
+        counters = {
+            'processed': 0,
+            'success': 0,
+            'failure': 0,
+            'skipped': 0
         }
-        final_template = template.render(context)
-        logger.debug(f'Rendered template:\n{final_template}')
-        start_process(json.loads(final_template), input_path, output_path=output_path)
+        counters_lock = threading.Lock()
 
-    threads = []
-    for input_path in input_files:
-        thread = threading.Thread(target=process_file, args=(input_path,))
-        threads.append(thread)
-        thread.start()
-    # 等待所有线程完成
-    for thread in threads:
-        thread.join()
-    return jsonify({'message': 'Process started successfully'}), 200
+        # 结果队列，用于接收线程完成事件
+        result_queue = queue.Queue()
+
+        def worker(file_path):
+            """工作线程函数，处理单个文件并将结果放入队列"""
+            file_name = os.path.basename(file_path)
+            # 发送开始处理的事件
+            result_queue.put(('start', file_name, None))
+
+            try:
+                success, skipped, error = process_single_file(file_path)
+
+                with counters_lock:
+                    if skipped:
+                        counters['skipped'] += 1
+                        status = 'skipped'
+                    elif success:
+                        counters['success'] += 1
+                        status = 'success'
+                    else:
+                        counters['failure'] += 1
+                        status = 'failure'
+                    counters['processed'] += 1
+
+                result_queue.put(('complete', file_name, (status, error)))
+            except Exception as e:
+                with counters_lock:
+                    counters['failure'] += 1
+                    counters['processed'] += 1
+                result_queue.put(('complete', file_name, ('failure', str(e))))
+
+        def sse(event: str, data: dict):
+            """生成 SSE 格式数据"""
+            return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
+
+        # 发送开始事件
+        yield sse('start', {
+            'total': total_count,
+            'message': f'开始处理 {total_count} 个文件...'
+        })
+
+        # 使用线程池并发处理
+        max_workers = min(4, total_count)  # 最多 4 个线程
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            # 提交所有任务
+            futures = {executor.submit(worker, f): f for f in input_files}
+
+            # 等待任务完成并发送进度
+            for future in as_completed(futures):
+                # 从队列获取结果
+                while True:
+                    try:
+                        event_type, file_name, result = result_queue.get_nowait()
+                        if event_type == 'start':
+                            yield sse('progress', {
+                                'total': total_count,
+                                'processed': counters['processed'],
+                                'success': counters['success'],
+                                'failure': counters['failure'],
+                                'skipped': counters['skipped'],
+                                'current': file_name,
+                                'percent': round((counters['processed'] / total_count) * 100) if total_count > 0 else 0,
+                                'message': f'正在处理: {file_name}'
+                            })
+                        elif event_type == 'complete':
+                            status, error = result
+                            status_text = {'success': '完成', 'failure': '失败', 'skipped': '跳过'}[status]
+                            yield sse('progress', {
+                                'total': total_count,
+                                'processed': counters['processed'],
+                                'success': counters['success'],
+                                'failure': counters['failure'],
+                                'skipped': counters['skipped'],
+                                'current': file_name,
+                                'percent': round((counters['processed'] / total_count) * 100) if total_count > 0 else 0,
+                                'message': f'{status_text}: {file_name}'
+                            })
+                        break
+                    except queue.Empty:
+                        break
+
+        # 确保所有结果都被处理
+        while not result_queue.empty():
+            event_type, file_name, result = result_queue.get()
+            if event_type == 'complete':
+                status, error = result
+                status_text = {'success': '完成', 'failure': '失败', 'skipped': '跳过'}[status]
+                yield sse('progress', {
+                    'total': total_count,
+                    'processed': counters['processed'],
+                    'success': counters['success'],
+                    'failure': counters['failure'],
+                    'skipped': counters['skipped'],
+                    'current': file_name,
+                    'percent': round((counters['processed'] / total_count) * 100) if total_count > 0 else 0,
+                    'message': f'{status_text}: {file_name}'
+                })
+
+        # 发送完成事件
+        yield sse('complete', {
+            'total': total_count,
+            'processed': counters['processed'],
+            'success': counters['success'],
+            'failure': counters['failure'],
+            'skipped': counters['skipped'],
+            'percent': 100,
+            'message': f'处理完成! 成功: {counters["success"]}, 跳过: {counters["skipped"]}, 失败: {counters["failure"]}'
+        })
+
+    return Response(
+        stream_with_context(generate()),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'X-Accel-Buffering': 'no',
+            'Connection': 'keep-alive',
+        }
+    )
 
 
 def start_server():
