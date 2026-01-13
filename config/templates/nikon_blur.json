@@ -1,0 +1,76 @@
+[
+  {
+    "processor_name": "rounded_corner",
+    "border_radius": "{{vh(2)}}"
+  },
+  {
+    "processor_name": "shadow",
+    "shadow_radius": "{{vh(1)}}",
+    "shadow_color": "black"
+  },
+  {
+    "text_segments": [
+      {
+        "text": "{{ (exif.CameraModelName|default('')).partition('Z')[0] }}",
+        "color": "white",
+        "font_path": "fonts/AlibabaPuHuiTi-2-85-Bold.otf",
+        "is_bold": true,
+        "trim": true
+      },
+      {
+        "text": "Z",
+        "color": "red",
+        "font_path": "fonts/SpecialAlphabets P04 Regular.otf",
+        "is_bold": true,
+        "trim": true
+      },
+      {
+        "text": "{{ (exif.CameraModelName|default('')).partition('Z')[2]|replace('_', '') }}",
+        "color": "white",
+        "font_path": "fonts/AlibabaPuHuiTi-2-85-Bold.otf",
+        "is_bold": true,
+        "trim": true
+      }
+    ],
+    "text_spacing": "{{[vh(2), vw(2)]|min}}",
+    "height": "{{vh(4)}}",
+    "processor_name": "multi_rich_text"
+  },
+  {
+    "processor_name": "rich_text",
+    "text": "{{exif.FocalLengthIn35mmFormat|replace(' ', '')|default('-')}} f/{{exif.AperatureValue or exif.FNumber|default('-')}} {{exif.ShutterSpeed or exif.ShutterSpeedValue|default('-')}}s ISO{{exif.ISO|default('0')}}",
+    "font_path": "fonts/AlibabaPuHuiTi-2-45-Light.otf",
+    "height": "{{vh(3)}}",
+    "trim": true,
+    "color": "white"
+  },
+  {
+    "processor_name": "concat",
+    "alignment": "center",
+    "spacing": "{{vh(3)}}",
+    "direction": "vertical",
+    "select": "[2,3,4]"
+  },
+  {
+    "processor_name": "blur",
+    "blur_radius": "{{vh(3)}}",
+    "buffer_path": [
+      "{{file_path}}"
+    ]
+  },
+  {
+    "processor_name": "resize",
+    "scale": 2
+  },
+  {
+    "processor_name": "alignment",
+    "weights": "[100,-100]",
+    "select": "[5,7]"
+  },
+  {
+    "processor_name": "crop",
+    "width": "{{vw(135)}}",
+    "height": "{{vh(135)}}",
+    "offset": "[0, -{{vh(3)}}]"
+  }
+]

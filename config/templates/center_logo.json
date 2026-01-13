@@ -1,0 +1,21 @@
+[
+  {
+    "left_top": {
+      "processor_name": "rich_text"
+    },
+    "left_bottom": {
+      "processor_name": "rich_text"
+    },
+    "right_top": {
+      "processor_name": "rich_text"
+    },
+    "right_bottom": {
+      "processor_name": "rich_text"
+    },
+    "center_logo": "{{auto_logo()}}",
+    "center_height": "{{vh(2)}}",
+    "processor_name": "watermark",
+    "left_margin": "{{vh(2)}}",
+    "right_margin": "{{vh(2)}}"
+  }
+]

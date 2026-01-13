@@ -1,0 +1,20 @@
+[
+  {
+    "text_segments": [
+      {
+        "text": "{{file_dir.replace('\\', '/').split('/')[-1] }}",
+        "color": "(232,141,52)"
+      },
+      {
+        "text": "    ",
+        "color": "(232,141,52)"
+      },
+      {
+        "text": "{{(exif.DateTimeOriginal or exif.CreateDate or exif.DigitalCreationDate or exif.DateCreated or exif.DateTimeCreated or exif.DigitalCreationDateTime or exif.FileInodeChangeDateTime or exif.FileAccessDateTime|default('0'))[:16]}}",
+        "color": "(232,141,52)"
+      }
+    ],
+    "height": "{{vh(3)}}",
+    "processor_name": "watermark_with_timestamp"
+  }
+]

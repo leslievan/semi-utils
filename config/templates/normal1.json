@@ -1,0 +1,16 @@
+[
+  {
+    "processor_name": "rich_text",
+    "text": "{{exif.FocalLengthIn35mmFormat}} f/{{exif.AperatureValue or exif.FNumber}} {{exif.ShutterSpeed or exif.ShutterSpeedValue}}s ISO{{exif.ISO}}",
+    "font_path": "fonts/AlibabaPuHuiTi-2-85-Bold.otf",
+    "color": "white",
+    "height": "{{vh(3)}}",
+    "trim": true
+  },
+  {
+    "processor_name": "alignment",
+    "horizontal_alignment": "right",
+    "vertical_alignment": "bottom",
+    "offsets": "{{[[0,0],[vh(5), vh(5)]]}}"
+  }
+]
