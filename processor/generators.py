@@ -33,7 +33,7 @@ def load_font(font_path: str):
             return ImageFont.truetype(str(font_file), BASE_FONT_SIZE)
         else:
             # 尝试常见系统字体
-            for fallback in ["fonts/AlibabaPuHuiTi-2-45-Light.otf", "arial.ttf", "Arial.ttf", "DejaVuSans.ttf"]:
+            for fallback in ["config/fonts/AlibabaPuHuiTi-2-45-Light.otf", "arial.ttf", "Arial.ttf", "DejaVuSans.ttf"]:
                 try:
                     return ImageFont.truetype(fallback, BASE_FONT_SIZE)
                 except OSError:

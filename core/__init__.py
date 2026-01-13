@@ -1,2 +1,2 @@
-CONFIG_PATH = 'config.ini'
+CONFIG_PATH = 'config/config.ini'
 PROJECT_INFO = 'pyproject.toml'
