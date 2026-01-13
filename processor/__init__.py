@@ -1,5 +1,3 @@
-import importlib
-
 import pillow_heif
 
 from core.logger import logger
@@ -9,20 +7,14 @@ from processor import core
 def _auto_register_processors():
     """
     自动发现并注册所有处理器
-    扫描 processor 包下的所有模块，导入它们以触发 __init_subclass__ 钩子
+    使用直接导入以确保 PyInstaller 能正确打包
     """
-    # 需要扫描的模块列表
-    modules_to_scan = [
-        'processor.filters',
-        'processor.generators',
-        'processor.mergers',
-    ]
-
-    for module_name in modules_to_scan:
-        try:
-            importlib.import_module(module_name)
-        except ImportError as e:
-            logger.warning(f"Failed to import {module_name}: {e}")
+    try:
+        # 直接导入各处理器模块，PyInstaller 静态分析可以找到这些依赖
+        from processor import filters, generators, mergers
+        logger.debug("All processor modules imported successfully")
+    except ImportError as e:
+        logger.warning(f"Failed to import processor modules: {e}")
 
 
 def _get_all_processor_classes():

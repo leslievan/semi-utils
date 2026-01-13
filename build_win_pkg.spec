@@ -6,7 +6,11 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=[('./templates', './templates')],
-    hiddenimports=[],
+    hiddenimports=[
+        'processor.filters',
+        'processor.generators',
+        'processor.mergers',
+    ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
