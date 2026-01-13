@@ -22,15 +22,7 @@ def load_font(font_path: str):
 
             # 如果是相对路径，转换为基于执行文件所在目录的绝对路径
             if not font_file.is_absolute():
-                # 获取执行文件（主程序入口）的目录
-                if getattr(sys, 'frozen', False):
-                    # 如果是打包后的可执行文件（如 PyInstaller）
-                    base_dir = Path(sys.executable).parent
-                else:
-                    # 如果是普通 Python 脚本
-                    base_dir = Path(sys.argv[0]).resolve().parent
-
-                font_file = base_dir / font_path
+                font_file = fonts_dir / font_path
 
             return ImageFont.truetype(str(font_file), BASE_FONT_SIZE)
         else:
