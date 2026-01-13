@@ -11,7 +11,8 @@ from flask import render_template, jsonify, request, send_file, Flask, Response,
 from core import CONFIG_PATH
 from core.configs import load_config, load_project_info
 from core.logger import logger, init_from_config
-from core.util import (list_files, log_rt, get_exif, convert_heic_to_jpeg, get_template, get_template_content, save_template)
+from core.util import (list_files, log_rt, get_exif, convert_heic_to_jpeg, get_template, get_template_content,
+                       save_template, list_templates)
 from processor.core import start_process
 
 # 加载配置
@@ -42,6 +43,7 @@ def get_config():
         'template_name': template_name,
         'template': template,
         'quality': config.get('DEFAULT', 'quality'),
+        'templates': list_templates(),
     })
 
 
@@ -336,6 +338,23 @@ def handle_process():
             'Connection': 'keep-alive',
         }
     )
+
+
+@api.route('/api/v1/template/<template_name>', methods=['GET'])
+def get_template_api(template_name):
+    """获取指定模板的内容"""
+    try:
+        content = get_template_content(template_name)
+        return jsonify({'template_name': template_name, 'content': content})
+    except FileNotFoundError:
+        return jsonify({'error': f'Template "{template_name}" not found'}), 404
+
+
+@api.route('/api/v1/templates', methods=['GET'])
+def list_templates_api():
+    """获取所有可用模板列表"""
+    templates = list_templates()
+    return jsonify({'templates': templates})
 
 
 def start_server():
