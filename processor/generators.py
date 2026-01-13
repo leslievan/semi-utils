@@ -1,3 +1,4 @@
+import os.path
 import sys
 from abc import ABC
 from dataclasses import dataclass, asdict
@@ -8,6 +9,7 @@ from typing import Optional, List
 import numpy as np
 from PIL import ImageFont, Image, ImageDraw
 
+from core.configs import fonts_dir
 from processor.core import PipelineContext, ImageProcessor, Direction, _parse_color
 
 BASE_FONT_SIZE = 512
@@ -33,7 +35,7 @@ def load_font(font_path: str):
             return ImageFont.truetype(str(font_file), BASE_FONT_SIZE)
         else:
             # 尝试常见系统字体
-            for fallback in ["config/fonts/AlibabaPuHuiTi-2-45-Light.otf", "arial.ttf", "Arial.ttf", "DejaVuSans.ttf"]:
+            for fallback in [fonts_dir / "AlibabaPuHuiTi-2-45-Light.otf", "arial.ttf", "Arial.ttf", "DejaVuSans.ttf"]:
                 try:
                     return ImageFont.truetype(fallback, BASE_FONT_SIZE)
                 except OSError:

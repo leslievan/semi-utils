@@ -12,7 +12,7 @@ from PIL import Image, ImageColor, ImageOps
 
 from core.configs import load_config
 from core.logger import logger
-from core.util import get_exif
+from core.util import get_exif, log_rt
 
 
 class PipelineContext(MutableMapping):

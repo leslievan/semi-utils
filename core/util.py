@@ -1,4 +1,6 @@
 import io
+import json
+import os
 import platform
 import re
 import shutil
@@ -8,7 +10,10 @@ from functools import wraps
 from pathlib import Path
 
 from PIL import Image
+from jinja2 import Template
 
+from core.configs import templates_dir
+from core.jinja2renders import vh, vw, auto_logo
 from core.logger import logger
 
 if platform.system() == 'Windows':
@@ -145,3 +150,97 @@ def convert_heic_to_jpeg(path: str, quality: int = 90) -> io.BytesIO:
         img.save(buffer, format='JPEG', quality=quality)
         buffer.seek(0)
         return buffer
+
+
+# ==================== 模板管理相关方法 ====================
+
+def get_template_path(template_name: str) -> Path:
+    """
+    获取模板文件的完整路径
+
+    Args:
+        template_name: 模板名称（不含扩展名），如 "standard1"
+
+    Returns:
+        模板文件的完整 Path 对象
+    """
+    return templates_dir / f"{template_name}.json"
+
+
+def get_template(template_name: str) -> Template:
+    """
+    读取并解析模板文件为 Jinja2 Template 对象
+
+    Args:
+        template_name: 模板名称（不含扩展名），如 "standard1"
+
+    Returns:
+        Jinja2 Template 对象，已注册 vh, vw, auto_logo 全局函数
+    """
+    template_path = get_template_path(template_name)
+    with open(template_path, encoding='utf-8') as f:
+        template_str = f.read()
+    template = Template(template_str)
+    template.globals['vh'] = vh
+    template.globals['vw'] = vw
+    template.globals['auto_logo'] = auto_logo
+    return template
+
+
+def get_template_content(template_name: str) -> str:
+    """
+    获取模板文件的内容（原始字符串）
+
+    Args:
+        template_name: 模板名称（不含扩展名），如 "standard1"
+
+    Returns:
+        模板文件的原始内容字符串
+    """
+    template_path = get_template_path(template_name)
+    with open(template_path, encoding='utf-8') as f:
+        return f.read()
+
+
+def save_template(template_name: str, content: str) -> None:
+    """
+    保存模板文件
+
+    Args:
+        template_name: 模板名称（不含扩展名），如 "standard1"
+        content: 模板内容（JSON 字符串）
+    """
+    template_path = get_template_path(template_name)
+    # 确保目录存在
+    template_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(template_path, 'w', encoding='utf-8') as f:
+        f.write(content)
+
+
+def create_template(template_name: str, content: str = '[]') -> None:
+    """
+    创建新的模板文件
+
+    Args:
+        template_name: 模板名称（不含扩展名），如 "my_template"
+        content: 模板内容（JSON 字符串），默认为空数组 '[]'
+
+    Raises:
+        FileExistsError: 如果模板文件已存在
+    """
+    template_path = get_template_path(template_name)
+    if template_path.exists():
+        raise FileExistsError(f"模板 '{template_name}' 已存在")
+    save_template(template_name, content)
+
+
+def list_templates() -> list[str]:
+    """
+    列出所有可用的模板名称
+
+    Returns:
+        模板名称列表（不含扩展名）
+    """
+    if not templates_dir.exists():
+        return []
+    return [f.stem for f in templates_dir.glob('*.json')]

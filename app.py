@@ -7,13 +7,11 @@ from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from flask import render_template, jsonify, request, send_file, Flask, Response, stream_with_context
-from jinja2 import Template
 
 from core import CONFIG_PATH
 from core.configs import load_config, load_project_info
-from core.jinja2renders import vw, vh, auto_logo
 from core.logger import logger, init_from_config
-from core.util import list_files, log_rt, get_exif, convert_heic_to_jpeg
+from core.util import (list_files, log_rt, get_exif, convert_heic_to_jpeg, get_template, get_template_content, save_template)
 from processor.core import start_process
 
 # 加载配置
@@ -34,15 +32,14 @@ def index():
 
 @api.route('/api/v1/config', methods=['GET'])
 def get_config():
-    template_path = config.get('render', 'template_path')
-
-    with open(template_path) as f:
-        template = f.read()
+    template_name = config.get('render', 'template_name')
+    template = get_template_content(template_name)
 
     return jsonify({
         'input_folder': config.get('DEFAULT', 'input_folder'),
         'output_folder': config.get('DEFAULT', 'output_folder'),
         'override_existed': config.get('DEFAULT', 'override_existed'),
+        'template_name': template_name,
         'template': template,
         'quality': config.get('DEFAULT', 'quality'),
     })
@@ -65,16 +62,16 @@ def save_config():
             config.set('DEFAULT', 'override_existed', str(data['override_existed']))
         if 'quality' in data:
             config.set('DEFAULT', 'quality', data['quality'])
+        if 'template_name' in data:
+            config.set('render', 'template_name', data['template_name'])
 
         # 保存配置到配置文件
         with open(CONFIG_PATH, 'w', encoding='utf-8') as f:
             config.write(f)
 
         # 保存模板文件
-        if 'template' in data:
-            template_path = config.get('render', 'template_path')
-            with open(template_path, 'w', encoding='utf-8') as f:
-                f.write(data['template'])
+        if 'template' in data and 'template_name' in data:
+            save_template(data['template_name'], data['template'])
 
         return jsonify({'message': 'Config saved successfully'}), 200
 
@@ -159,21 +156,11 @@ def get_file():
         return jsonify({'error': str(e)}), 500
 
 
-def get_template(template_path):
-    with open(template_path) as f:
-        template_str = f.read()
-    template = Template(template_str)
-    template.globals['vh'] = vh
-    template.globals['vw'] = vw
-    template.globals['auto_logo'] = auto_logo
-    return template
-
-
 @api.route('/api/v1/start_process', methods=['POST'])
 @log_rt
 def handle_process():
     # 获取模板
-    template = get_template(config.get('render', 'template_path'))
+    template = get_template(config.get('render', 'template_name'))
 
     data = request.get_json()
     input_files = data['selectedItems']
@@ -182,6 +169,7 @@ def handle_process():
 
     total_count = len(input_files)
 
+    @log_rt
     def process_single_file(input_path):
         """处理单个文件，返回 (success, skipped, error_message)"""
         if not os.path.exists(input_path):

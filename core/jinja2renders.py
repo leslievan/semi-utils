@@ -19,7 +19,7 @@ def vh(context, percent):
 def auto_logo(context, brand: str = None):
     exif = context.get('exif', {})
     brand = (brand or exif.get('Make', 'default')).lower()
-    logos_dir = Path('./config/logos')
+
 
     for f in logos_dir.iterdir():
         if f.suffix.lower() in {'.png', '.jpg', '.jpeg'} and f.stem.lower() in brand:
