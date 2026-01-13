@@ -154,8 +154,10 @@
                 <div class="space-y-1">
                     <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide">输出文件夹</label>
                     <div class="relative">
-                        <input type="text" x-model="config.output_folder" :disabled="isStatic"
-                               class="w-full h-10 pl-10 pr-4 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all disabled:bg-slate-50 disabled:text-slate-400 text-sm">
+                        <label>
+                            <input type="text" x-model="config.output_folder" :disabled="isStatic"
+                                   class="w-full h-10 pl-10 pr-4 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all disabled:bg-slate-50 disabled:text-slate-400 text-sm">
+                        </label>
                         <svg class="w-5 h-5 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                         </svg>
@@ -165,12 +167,16 @@
                 <div class="space-y-1">
                     <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide">输出质量: <span x-text="config.quality" class="text-primary-600 font-bold"></span>%</label>
                     <div class="flex items-center gap-3">
-                        <input type="range" x-model="config.quality" :disabled="isStatic"
-                               min="60" max="100" step="1"
-                               class="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary-500 disabled:opacity-50">
-                        <input type="number" x-model="config.quality" :disabled="isStatic"
-                               min="60" max="100" step="1"
-                               class="w-16 h-10 px-3 text-center rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all disabled:bg-slate-50">
+                        <label>
+                            <input type="range" x-model="config.quality" :disabled="isStatic"
+                                   min="60" max="100" step="1"
+                                   class="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary-500 disabled:opacity-50">
+                        </label>
+                        <label>
+                            <input type="number" x-model="config.quality" :disabled="isStatic"
+                                   min="60" max="100" step="1"
+                                   class="w-16 h-10 px-3 text-center rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all disabled:bg-slate-50">
+                        </label>
                     </div>
                 </div>
 
@@ -594,6 +600,98 @@
     </div>
 </main>
 
+<!-- 模板名称输入模态框 -->
+<div x-show="modal.show"
+     x-transition:enter="transition ease-out duration-200"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-150"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"
+     class="fixed inset-0 z-50 flex items-center justify-center"
+     style="display: none;">
+    <!-- 背景遮罩 -->
+    <div x-show="modal.show"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         @click="modal.show = false"
+         class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"></div>
+
+    <!-- 模态框内容 -->
+    <div x-show="modal.show"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 scale-95 translate-y-4"
+         x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+         x-transition:leave-end="opacity-0 scale-95 translate-y-4"
+         @click.stop
+         class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+        <!-- 头部 -->
+        <div class="px-6 py-4 bg-gradient-to-r from-primary-500 to-primary-600">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path x-show="modal.mode === 'create'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        <path x-show="modal.mode === 'saveas'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-white" x-text="modal.mode === 'create' ? '新建模板' : '另存为模板'"></h3>
+                    <p class="text-xs text-primary-100" x-text="modal.mode === 'create' ? '创建一个空白模板' : '将当前内容保存为新模板'"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 内容 -->
+        <div class="p-6">
+            <label class="block text-sm font-semibold text-slate-700 mb-2">模板名称</label>
+            <input type="text"
+                   x-model="modal.inputValue"
+                   @keydown.enter="modal.confirm()"
+                   @keydown.escape="modal.show = false"
+                   placeholder="请输入模板名称..."
+                   class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all text-sm"
+                   autofocus>
+
+            <!-- 错误提示 -->
+            <p x-show="modal.error" x-text="modal.error"
+               class="mt-2 text-sm text-danger-600 flex items-center gap-1">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                <span x-text="modal.error"></span>
+            </p>
+
+            <!-- 已存在的模板提示 -->
+            <div x-show="modal.mode === 'create' && modal.inputValue && availableTemplates.includes(modal.inputValue)"
+                 class="mt-2 text-sm text-amber-600 flex items-center gap-1">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                该模板名称已存在
+            </div>
+        </div>
+
+        <!-- 底部按钮 -->
+        <div class="px-6 py-4 bg-slate-50 flex gap-3">
+            <button @click="modal.show = false"
+                    class="flex-1 py-2.5 px-4 border border-slate-200 hover:bg-slate-100 text-slate-600 rounded-xl font-medium transition-all duration-200">
+                取消
+            </button>
+            <button @click="modal.confirm()"
+                    :disabled="!modal.inputValue || !modal.inputValue.trim()"
+                    class="flex-1 py-2.5 px-4 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white rounded-xl font-medium shadow-lg shadow-primary-500/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                确认
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
     function treeNode(node, isInput) {
         return {
@@ -714,6 +812,46 @@
                 message: '',
                 completeMessage: ''
             },
+            modal: {
+                show: false,
+                mode: 'create', // 'create' or 'saveas'
+                inputValue: '',
+                error: '',
+                callback: null,
+
+                open(mode, callback) {
+                    this.mode = mode;
+                    this.callback = callback;
+                    this.inputValue = '';
+                    this.error = '';
+                    this.show = true;
+                    // 自动聚焦输入框
+                    queueMicrotask(() => {
+                        const input = document.querySelector('input[x-model="modal.inputValue"]');
+                        if (input) input.focus();
+                    });
+                },
+
+                confirm() {
+                    const name = this.inputValue.trim();
+                    if (!name) {
+                        this.error = '请输入模板名称';
+                        return;
+                    }
+
+                    // 检查是否已存在（通过 store 获取 availableTemplates）
+                    const app = Alpine.store('app');
+                    if (app.availableTemplates.includes(name)) {
+                        this.error = `模板 "${name}" 已存在`;
+                        return;
+                    }
+
+                    this.show = false;
+                    if (this.callback) {
+                        this.callback(name);
+                    }
+                }
+            },
 
             get isValidConfig() {
                 return this.isStatic;
@@ -818,100 +956,77 @@
             },
 
             async createNewTemplate() {
-                // 使用简单的 prompt 输入模板名称
-                const templateName = prompt('请输入新模板名称:');
-                if (!templateName || !templateName.trim()) {
-                    return;
-                }
+                // 打开模态框，传入回调函数
+                this.modal.open('create', async (templateName) => {
+                    try {
+                        const res = await fetch('/api/v1/template', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({
+                                template_name: templateName,
+                                content: '[]'
+                            })
+                        });
 
-                const trimmedName = templateName.trim();
+                        if (!res.ok) {
+                            const json = await res.json();
+                            throw new Error(json.error || '创建模板失败');
+                        }
 
-                // 检查模板是否已存在
-                if (this.availableTemplates.includes(trimmedName)) {
-                    this.toast(`模板 "${trimmedName}" 已存在`, 'error');
-                    return;
-                }
+                        // 刷新模板列表
+                        await this.fetchConfig();
 
-                try {
-                    const res = await fetch('/api/v1/template', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({
-                            template_name: trimmedName,
-                            content: '[]'
-                        })
-                    });
+                        // 切换到新模板并启用编辑
+                        this.config.template_name = templateName;
+                        this.config.template = '[]';
+                        this.aceEditor.setValue('[]', -1);
+                        this.enableEdit();
 
-                    if (!res.ok) {
-                        const json = await res.json();
-                        throw new Error(json.error || '创建模板失败');
+                        this.toast(`已创建新模板: ${templateName}`, 'success');
+                    } catch (e) {
+                        this.toast("创建模板失败: " + e.message, 'error');
                     }
-
-                    // 刷新模板列表
-                    await this.fetchConfig();
-
-                    // 切换到新模板并启用编辑
-                    this.config.template_name = trimmedName;
-                    this.config.template = '[]';
-                    this.aceEditor.setValue('[]', -1);
-                    this.enableEdit();
-
-                    this.toast(`已创建新模板: ${trimmedName}`, 'success');
-                } catch (e) {
-                    this.toast("创建模板失败: " + e.message, 'error');
-                }
+                });
             },
 
             async saveAsTemplate() {
-                // 使用简单的 prompt 输入模板名称
-                const templateName = prompt('请输入新模板名称 (另存为):');
-                if (!templateName || !templateName.trim()) {
-                    return;
-                }
-
-                const trimmedName = templateName.trim();
-
-                // 检查模板是否已存在
-                if (this.availableTemplates.includes(trimmedName)) {
-                    this.toast(`模板 "${trimmedName}" 已存在`, 'error');
-                    return;
-                }
-
-                const jsonVal = this.aceEditor.getValue();
-                try {
-                    JSON.parse(jsonVal);
-                } catch (e) {
-                    this.toast("JSON 格式错误，无法保存", 'error');
-                    return;
-                }
-
-                try {
-                    const res = await fetch('/api/v1/template', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({
-                            template_name: trimmedName,
-                            content: jsonVal
-                        })
-                    });
-
-                    if (!res.ok) {
-                        const json = await res.json();
-                        throw new Error(json.error || '保存模板失败');
+                // 打开模态框，传入回调函数
+                this.modal.open('saveas', async (templateName) => {
+                    const jsonVal = this.aceEditor.getValue();
+                    try {
+                        JSON.parse(jsonVal);
+                    } catch (e) {
+                        this.toast("JSON 格式错误，无法保存", 'error');
+                        return;
                     }
 
-                    // 刷新模板列表
-                    await this.fetchConfig();
+                    try {
+                        const res = await fetch('/api/v1/template', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({
+                                template_name: templateName,
+                                content: jsonVal
+                            })
+                        });
 
-                    // 切换到新模板
-                    this.config.template_name = trimmedName;
-                    this.config.template = jsonVal;
-                    this.availableTemplates = [...this.availableTemplates, trimmedName];
+                        if (!res.ok) {
+                            const json = await res.json();
+                            throw new Error(json.error || '保存模板失败');
+                        }
 
-                    this.toast(`已另存为模板: ${trimmedName}`, 'success');
-                } catch (e) {
-                    this.toast("另存为失败: " + e.message, 'error');
-                }
+                        // 刷新模板列表
+                        await this.fetchConfig();
+
+                        // 切换到新模板
+                        this.config.template_name = templateName;
+                        this.config.template = jsonVal;
+
+                        this.toast(`已另存为模板: ${templateName}`, 'success');
+                    } catch (e) {
+                        this.toast("另存为失败: " + e.message, 'error');
+                    }
+                });
             },
 
             async saveConfig() {
