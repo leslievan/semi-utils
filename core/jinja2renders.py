@@ -1,6 +1,6 @@
-from pathlib import Path
-
 from jinja2 import pass_context
+
+from core.configs import logos_dir
 
 
 @pass_context
