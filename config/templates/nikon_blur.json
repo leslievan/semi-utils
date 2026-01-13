@@ -13,21 +13,21 @@
       {
         "text": "{{ (exif.CameraModelName|default('')).partition('Z')[0] }}",
         "color": "white",
-        "font_path": "fonts/AlibabaPuHuiTi-2-85-Bold.otf",
+        "font_path": "AlibabaPuHuiTi-2-85-Bold.otf",
         "is_bold": true,
         "trim": true
       },
       {
         "text": "Z",
         "color": "red",
-        "font_path": "fonts/SpecialAlphabets P04 Regular.otf",
+        "font_path": "SpecialAlphabets P04 Regular.otf",
         "is_bold": true,
         "trim": true
       },
       {
         "text": "{{ (exif.CameraModelName|default('')).partition('Z')[2]|replace('_', '') }}",
         "color": "white",
-        "font_path": "fonts/AlibabaPuHuiTi-2-85-Bold.otf",
+        "font_path": "AlibabaPuHuiTi-2-85-Bold.otf",
         "is_bold": true,
         "trim": true
       }
@@ -39,7 +39,7 @@
   {
     "processor_name": "rich_text",
     "text": "{{exif.FocalLengthIn35mmFormat|replace(' ', '')|default('-')}} f/{{exif.AperatureValue or exif.FNumber|default('-')}} {{exif.ShutterSpeed or exif.ShutterSpeedValue|default('-')}}s ISO{{exif.ISO|default('0')}}",
-    "font_path": "fonts/AlibabaPuHuiTi-2-45-Light.otf",
+    "font_path": "AlibabaPuHuiTi-2-45-Light.otf",
     "height": "{{vh(3)}}",
     "trim": true,
     "color": "white"

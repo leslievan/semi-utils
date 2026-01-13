@@ -11,7 +11,7 @@
   {
     "processor_name": "rich_text",
     "text": "{{ exif.CameraModelName|default('-') | replace('_', '') }}",
-    "font_path": "fonts/AlibabaPuHuiTi-2-85-Bold.otf",
+    "font_path": "AlibabaPuHuiTi-2-85-Bold.otf",
     "height": "{{vh(3)}}",
     "trim": true,
     "color": "white"
@@ -19,7 +19,7 @@
   {
     "processor_name": "rich_text",
     "text": "{{exif.FocalLengthIn35mmFormat|replace(' ', '')|default('-')}} f/{{exif.AperatureValue or exif.FNumber|default('-')}} {{exif.ShutterSpeed or exif.ShutterSpeedValue|default('-')}}s ISO{{exif.ISO|default('0')}}",
-    "font_path": "fonts/AlibabaPuHuiTi-2-45-Light.otf",
+    "font_path": "AlibabaPuHuiTi-2-45-Light.otf",
     "height": "{{vh(3)}}",
     "trim": true,
     "color": "white"
