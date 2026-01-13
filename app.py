@@ -39,7 +39,7 @@ def get_config():
     return jsonify({
         'input_folder': config.get('DEFAULT', 'input_folder'),
         'output_folder': config.get('DEFAULT', 'output_folder'),
-        'override_existed': config.get('DEFAULT', 'override_existed'),
+        'override_existed': config.getboolean('DEFAULT', 'override_existed'),
         'template_name': template_name,
         'template': template,
         'quality': config.get('DEFAULT', 'quality'),
