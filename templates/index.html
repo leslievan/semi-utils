@@ -792,11 +792,27 @@
 
             async fetchFiles(renderInput=true) {
                 this.loading.files = true;
+                console.log('[fetchFiles] 开始请求, renderInput=', renderInput);
 
                 try {
-                    const res = await fetch('/api/v1/file/tree');
+                    const res = await fetch('/api/v1/file/tree', {
+                        method: 'GET',
+                        headers: {
+                            'Cache-Control': 'no-cache',
+                            'Pragma': 'no-cache'
+                        },
+                        cache: 'no-store'
+                    });
+
+                    console.log('[fetchFiles] 响应状态:', res.status, res.statusText);
+
+                    if (!res.ok) {
+                        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                    }
+
                     const json = await res.json();
                     const data = this.normalizeApiResponse(json);
+                    console.log('[fetchFiles] 解析完成, input_files:', data.input_files?.length, 'output_files:', data.output_files?.length);
 
                     const allCurrentFileValues = new Set();
                     const collectValues = (node) => {
@@ -819,8 +835,10 @@
                         this.outputTreeData = JSON.parse(JSON.stringify(data.output_files || []));
                     }
                 } catch (e) {
-                    this.toast("文件列表加载失败", 'error');
+                    console.error('[fetchFiles] 请求失败:', e);
+                    this.toast("文件列表加载失败: " + e.message, 'error');
                 } finally {
+                    console.log('[fetchFiles] 完成, loading.files = false');
                     this.loading.files = false;
                 }
             },
@@ -911,7 +929,9 @@
                         }
                     }
 
-                    // 处理完成后刷新文件列表
+                    // 等待 SSE 连接完全关闭后再刷新文件列表
+                    console.log('[startProcess] SSE 完成，等待连接关闭...');
+                    await new Promise(resolve => setTimeout(resolve, 500));
                     await this.fetchFiles(false);
 
                 } catch (e) {
