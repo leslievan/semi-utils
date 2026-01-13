@@ -179,7 +179,7 @@
                            :disabled="isStatic"
                            id="override_existed"
                            class="w-4 h-4 rounded border-slate-300 focus:ring-2 disabled:opacity-50 cursor-pointer transition-all duration-200"
-                           :class="config.override_existed ? 'accent-amber-500' : 'accent-primary-500'">
+                           :class="config.override_existed ? 'accent-red-600' : 'accent-primary-500'">
                 </div>
 
                 <div class="space-y-1">
@@ -306,7 +306,7 @@
 
                         <!-- Tree -->
                         <div x-show="!loading.files && inputTreeData && inputTreeData.length > 0" class="space-y-1">
-                            <template x-for="(node, index) in inputTreeData" :key="node.value || node.label || index">
+                            <template x-for="(node, index) in inputTreeData" :key="(node.value || node.label || index) + '-' + treeKey">
                                 <div x-data="treeNode(node, true)" class="tree-item">
                                     <div class="tree-node flex items-center py-2 px-2 rounded-lg cursor-pointer select-none"
                                          :style="'padding-left: 8px'"
@@ -403,7 +403,7 @@
                     </div>
                     <div class="flex-1 overflow-y-auto pr-2">
                         <div x-show="!loading.files && outputTreeData && outputTreeData.length > 0" class="space-y-1">
-                            <template x-for="(node, index) in outputTreeData" :key="node.value || node.label || index">
+                            <template x-for="(node, index) in outputTreeData" :key="(node.value || node.label || index) + '-' + treeKey">
                                 <div x-data="treeNode(node, false)" class="tree-item">
                                     <div class="tree-node flex items-center py-2 px-2 rounded-lg cursor-pointer select-none"
                                          :style="'padding-left: 8px'"
@@ -814,6 +814,7 @@
             availableTemplates: [],
             inputTreeData: [],
             outputTreeData: [],
+            treeKey: 0,
             selectedItems: [],
             preview: {url: '', name: '', isFile: false},
             aceEditor: null,
@@ -1114,10 +1115,12 @@
                         data.input_files.forEach(collectValues);
                         this.selectedItems = this.selectedItems.filter(v => allCurrentFileValues.has(v));
 
+                        // 增加 treeKey 强制重新渲染树节点
+                        this.treeKey = (this.treeKey || 0) + 1;
+
                         if (renderInput) {
                             this.inputTreeData = JSON.parse(JSON.stringify(data.input_files || []));
                         }
-                        // 强制刷新输出树（使用 JSON parse/stringify 触发响应式更新）
                         this.outputTreeData = JSON.parse(JSON.stringify(data.output_files || []));
                     }
                 } catch (e) {
