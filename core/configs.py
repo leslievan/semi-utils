@@ -20,6 +20,6 @@ def load_config() -> configparser.ConfigParser:
 
 
 def load_project_info():
-    with open(PROJECT_INFO, "rb", encoding='utf-8') as f:
+    with open(PROJECT_INFO, "rb") as f:
         data = _toml.load(f)
     return data
