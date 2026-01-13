@@ -5,6 +5,7 @@
 """
 import sys
 import logging
+from logging import DEBUG
 from pathlib import Path
 from loguru import logger
 
@@ -84,7 +85,7 @@ def setup_logging(
     if enable_file:
         logger.add(
             log_path / "app_{time:YYYY-MM-DD}.log",
-            level=log_level,
+            level="DEBUG",
             format=FILE_FORMAT,
             rotation=rotation,
             retention=retention,
