@@ -17,14 +17,15 @@
 
 ## 效果展示
 
-| 模板                                     | 效果                                      |
-|----------------------------------------|-----------------------------------------|
-| [standard1](./static/standard1.json)   | ![standard1](./static/standard1.jpeg)   |
-| [standard2](./static/standard2.json)   | ![standard2](./static/standard2.jpeg)   |
-| [nikon_blur](./static/nikon_blur.json) | ![nikon_blur](./static/nikon_blur.jpeg) |
-| [blur](./static/blur.json)             | ![blur](./static/blur.jpeg)             |
-| [normal1](./static/normal1.json)       | ![normal1](./static/normal1.jpeg)       |
-| [normal2](./static/normal2.json)       | ![normal2](./static/normal2.jpeg)       |
+| 模板                                     | 描述                                      | 效果                                      |
+|----------------------------------------|-----------------------------------------|-----------------------------------------|
+| [standard1](./static/standard1.json)   | 经典 EXIF 水印，包含相机型号、镜头、焦距、光圈、快门、ISO、拍摄时间和相机品牌 Logo | ![standard1](./static/standard1.jpeg)   |
+| [standard2](./static/standard2.json)   | 在 standard1 基础上添加圆角、阴影效果和留白，适合社交媒体分享 | ![standard2](./static/standard2.jpeg)   |
+| [nikon_blur](./static/nikon_blur.json) | 尼康风格水印，相机型号中的红色「Z」字高亮，配合模糊背景效果 | ![nikon_blur](./static/nikon_blur.jpeg) |
+| [blur](./static/blur.json)             | 简洁风格，相机型号+参数垂直居中展示，配合模糊背景效果 | ![blur](./static/blur.jpeg)             |
+| [normal1](./static/normal1.json)       | 极简风格，右下角显示拍摄参数，低调不抢眼 | ![normal1](./static/normal1.jpeg)       |
+| [normal2](./static/normal2.json)       | 文件夹名称+拍摄时间，橙色文字，简洁实用 | ![normal2](./static/normal2.jpeg)       |
+| [center_logo](./static/center_logo.json) | 中心 Logo 水印，可自定义四周文字内容 | ![center_logo](./static/center_logo.jpeg)       |
 
 
 ## 许可证
