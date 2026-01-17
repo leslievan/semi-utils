@@ -15,7 +15,6 @@
         "text": "{{ (exif.CameraModelName|default('')).partition('Z')[0] }}",
         "color": "white",
         "font_path": "AlibabaPuHuiTi-2-85-Bold.otf",
-        "is_bold": true,
         "trim": true
       },
       {
@@ -29,7 +28,6 @@
         "text": "{{ (exif.CameraModelName|default('')).partition('Z')[2]|replace('_', '') }}",
         "color": "white",
         "font_path": "AlibabaPuHuiTi-2-85-Bold.otf",
-        "is_bold": true,
         "trim": true
       }
     ],
