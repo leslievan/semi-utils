@@ -26,6 +26,17 @@ else:
     EXIFTOOL_PATH = Path('./exiftool/exiftool')
     ENCODING = 'utf-8'
 
+# 检查 ExifTool 是否存在
+if isinstance(EXIFTOOL_PATH, Path):
+    if not EXIFTOOL_PATH.exists():
+        logger.error(f'ExifTool 工具文件不存在: {EXIFTOOL_PATH}')
+        raise FileNotFoundError(f'ExifTool 工具文件不存在: {EXIFTOOL_PATH}')
+else:
+    # shutil.which 返回的是字符串路径
+    if not Path(EXIFTOOL_PATH).exists():
+        logger.error(f'ExifTool 工具文件不存在: {EXIFTOOL_PATH}')
+        raise FileNotFoundError(f'ExifTool 工具文件不存在: {EXIFTOOL_PATH}')
+
 
 def get_exif(path) -> dict:
     """
