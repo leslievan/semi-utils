@@ -28,6 +28,15 @@
 | [center_logo](./static/center_logo.json) | 中心 Logo 水印，可自定义四周文字内容 | ![center_logo](./static/center_logo.jpeg)       |
 
 
+## 网页瀑布流展示
+
+启动 Semi-Utils Pro 后，访问 `/gallery` 即可将配置中的 `output_folder` 里的图片按瀑布流展示。
+
+- 网页地址示例：`http://localhost:15050/gallery`
+- 新增或替换输出文件夹中的图片后，点击网页上的「刷新」即可更新。
+- 图片会按修改时间从新到旧排列，并支持点击放大预览。
+
+
 ## 许可证
 
 Semi-Utils 的发布基于 [Apache License 2.0](LICENSE).

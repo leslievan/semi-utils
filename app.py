@@ -14,6 +14,7 @@ from core.logger import logger, init_from_config
 from core.util import (list_files, log_rt, get_exif, convert_heic_to_jpeg, get_template, get_template_content,
                        save_template, list_templates)
 from processor.core import start_process
+from web_gallery import IMAGE_SUFFIXES, PAGE_HTML, list_output_images
 
 # 加载配置
 config = load_config()
@@ -29,6 +30,12 @@ api = Flask(__name__)
 @api.route('/')
 def index():
     return render_template('index.html', title='Semi-Utils Pro', version=project_info['project']['version'])
+
+
+@api.route('/gallery')
+def gallery():
+    page = PAGE_HTML.replace('/api/photos', '/api/v1/gallery/photos')
+    return Response(page, mimetype='text/html')
 
 
 @api.route('/api/v1/config', methods=['GET'])
@@ -109,6 +116,22 @@ def list_input_files():
         'input_files': [{'children': input_children, 'label': 'Root'}],
         'output_files': [{'children': output_children, 'label': 'Root'}],
     })
+
+
+@api.route('/api/v1/gallery/photos', methods=['GET'])
+def list_gallery_photos():
+    return jsonify({'photos': list_output_images(config.get('DEFAULT', 'output_folder'))})
+
+
+@api.route('/photos/<path:photo_name>', methods=['GET'])
+def get_gallery_photo(photo_name):
+    output_folder = Path(config.get('DEFAULT', 'output_folder')).resolve()
+    photo_path = output_folder.joinpath(photo_name).resolve()
+    if not photo_path.is_relative_to(output_folder) or photo_path.suffix.lower() not in IMAGE_SUFFIXES:
+        return jsonify({'error': 'File not found'}), 404
+    if not photo_path.exists() or not photo_path.is_file():
+        return jsonify({'error': 'File not found'}), 404
+    return send_file(photo_path, as_attachment=False)
 
 
 @api.route('/api/v1/file', methods=['GET'])
