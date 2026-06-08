@@ -1,7 +1,9 @@
-flask
-jinja2
-numpy
-pillow
-pillow-heif
-loguru
-tomli
+# 与 pyproject.toml 的 dependencies 保持一致，改依赖时请两处同步
+flask>=3.1.2
+jinja2>=3.1.6
+loguru>=0.7.3
+numpy>=2.4.0
+pillow>=12.1.0
+pillow-heif>=1.1.1
+pystray>=0.19.5
+tomli>=2.3.0

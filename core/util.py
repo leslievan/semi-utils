@@ -5,6 +5,7 @@ import platform
 import re
 import shutil
 import subprocess
+import sys
 import time
 from functools import wraps
 from pathlib import Path
@@ -16,15 +17,39 @@ from core.configs import templates_dir
 from core.jinja2renders import vh, vw, auto_logo
 from core.logger import logger
 
-if platform.system() == 'Windows':
-    EXIFTOOL_PATH = Path('./exiftool/exiftool.exe')
-    ENCODING = 'gbk'
-elif shutil.which('exiftool') is not None:
-    EXIFTOOL_PATH = shutil.which('exiftool')
-    ENCODING = 'utf-8'
-else:
-    EXIFTOOL_PATH = Path('./exiftool/exiftool')
-    ENCODING = 'utf-8'
+# 项目自带 exiftool 二进制的根目录（基于本文件定位，不依赖当前工作目录）
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+
+def _resolve_exiftool():
+    """解析可用的 exiftool 路径，找不到返回 None。"""
+    if platform.system() == 'Windows':
+        bundled = _PROJECT_ROOT / 'exiftool' / 'exiftool.exe'
+        return str(bundled) if bundled.exists() else None
+    # 优先使用系统 PATH 中的 exiftool
+    found = shutil.which('exiftool')
+    if found:
+        return found
+    # 退而求其次：项目自带的二进制
+    bundled = _PROJECT_ROOT / 'exiftool' / 'exiftool'
+    return str(bundled) if bundled.exists() else None
+
+
+EXIFTOOL_PATH = _resolve_exiftool()
+ENCODING = 'gbk' if platform.system() == 'Windows' else 'utf-8'
+
+EXIFTOOL_MISSING_HINT = (
+    "未找到 exiftool，无法读取照片 EXIF，生成的水印将没有任何文字和 Logo。\n"
+    "请安装后重试：\n"
+    "  macOS:  brew install exiftool\n"
+    "  Linux:  sudo apt install libimage-exiftool-perl\n"
+    "  其他:   从 https://exiftool.org 下载并解压到项目的 ./exiftool/ 目录"
+)
+
+# 此处仍在 init_from_config 之前，loguru 尚未注册 handler，
+# 故用 stderr 直接输出，确保启动时该提示一定可见。
+if EXIFTOOL_PATH is None:
+    print(EXIFTOOL_MISSING_HINT, file=sys.stderr)
 
 
 def get_exif(path) -> dict:
@@ -33,6 +58,8 @@ def get_exif(path) -> dict:
     :param path: 照片路径
     :return: exif信息
     """
+    if EXIFTOOL_PATH is None:
+        raise RuntimeError(EXIFTOOL_MISSING_HINT)
     exif_dict = {}
     try:
         output_bytes = subprocess.check_output([EXIFTOOL_PATH, '-d', '%Y-%m-%d %H:%M:%S%3f%z', path])
