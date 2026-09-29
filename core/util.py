@@ -26,6 +26,34 @@ else:
     EXIFTOOL_PATH = Path('./exiftool/exiftool')
     ENCODING = 'utf-8'
 
+# EXIF ISO（PhotographicSensitivity）为 16 位整数，ISO 超过 65535 时相机写入 65535，
+# 真实值存放在 EXIF 2.3 引入的 32 位感光度字段中
+ISO_SATURATED_VALUE = 65535
+ISO_SENSITIVITY_KEYS = {
+    'ISOSpeed': 'ISO Speed',
+    'RecommendedExposureIndex': 'Recommended Exposure Index',
+    'StandardOutputSensitivity': 'Standard Output Sensitivity',
+}
+
+
+def _fix_iso(exif_dict: dict) -> None:
+    """
+    ISO 缺失或饱和（65535）时，使用 32 位感光度字段修正 ISO
+    :param exif_dict: exif信息
+    """
+    iso = exif_dict.get('ISO', '')
+    if iso.isdigit() and int(iso) != ISO_SATURATED_VALUE:
+        return
+
+    # 优先使用 SensitivityType 指明的字段
+    sensitivity_type = exif_dict.get('SensitivityType', '')
+    keys = sorted(ISO_SENSITIVITY_KEYS, key=lambda k: ISO_SENSITIVITY_KEYS[k] not in sensitivity_type)
+    for key in keys:
+        value = exif_dict.get(key, '')
+        if value.isdigit() and int(value) > 0:
+            exif_dict['ISO'] = value
+            return
+
 
 def get_exif(path) -> dict:
     """
@@ -58,6 +86,7 @@ def get_exif(path) -> dict:
             value_clean = ''.join(c for c in value if ord(c) < 128)
             # 将处理后的值更新到 exif_dict 中
             exif_dict[key] = value_clean
+        _fix_iso(exif_dict)
     except Exception as e:
         logger.error(f'get_exif error: {path} : {e}')
 
